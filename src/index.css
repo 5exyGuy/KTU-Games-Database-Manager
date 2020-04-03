@@ -1,0 +1,15 @@
+.layout {
+	height: 100vh;
+	padding: 0px 20vw;
+}
+
+.header {
+	height: auto !important;
+	padding: 0 !important;
+}
+
+.site-layout-content {
+	background: #fff;
+	padding: 24px;
+	min-height: 280px;
+}

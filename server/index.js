@@ -1,9 +1,12 @@
-import express from 'express';
-import bodyParser from  'body-parser';
-import helmet from 'helmet';
-import cors from 'cors';
-import users from './routes/users.js';
-import orders from './routes/orders.js';
+const express = require('express');
+const bodyParser = require('body-parser');
+const helmet = require('helmet');
+const cors = require('cors');
+const mysql = require('mysql');
+const users = require('./routes/users');
+const orders = require('./routes/orders');
+
+// Express
 
 const app = express();
 app.use(bodyParser.json());
@@ -23,3 +26,15 @@ app.use('/orders', orders);
 // app.use('/cart', cart);
 
 app.listen(4000);
+
+// MySQL
+
+const pool = mysql.createPool({
+    connectionLimit : 10,
+    host            : 'localhost',
+    user            : 'root',
+    password        : 'root',
+    database        : 'games'
+});
+
+module.exports = pool;
