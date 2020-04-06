@@ -14,6 +14,7 @@
     "less": "^3.10.3",
     "less-loader": "^5.0.0",
     "mysql": "^2.18.1",
+    "nodemon": "^2.0.2",
     "react": "^16.12.0",
     "react-app-rewired": "^2.1.5",
     "react-dom": "^16.12.0",
@@ -25,7 +26,8 @@
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
-    "eject": "react-app-rewired eject"
+    "eject": "react-app-rewired eject",
+    "server": "nodemon server/index.js"
   },
   "eslintConfig": {
     "extends": "react-app"

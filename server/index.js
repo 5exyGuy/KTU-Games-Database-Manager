@@ -37,4 +37,44 @@ const pool = mysql.createPool({
     database        : 'games'
 });
 
-module.exports = pool;
+pool.getConnection((err, connection) => {
+	if (err) {
+		if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+			console.error('Database connection was closed.')
+		}
+		if (err.code === 'ER_CON_COUNT_ERROR') {
+			console.error('Database has too many connections.')
+		}
+		if (err.code === 'ECONNREFUSED') {
+			console.error('Database connection was refused.')
+		}
+	}
+  
+	console.log('Database connection test is successful.')
+
+	if (connection) connection.release();
+  
+	return;
+});
+
+const query = async function(query, ...params) {
+	return new Promise((resolve, reject) => {
+		pool.getConnection((error, connection) => {
+			if (error) resolve(null);
+
+			if (connection) {
+				const q = connection.query(query, params, (error, result) => {
+					if (error) resolve(null);
+					if (result.length === 1) resolve(result[0]);
+					resolve(result);
+				});
+
+				q.on('end', function () {
+                    connection.release();
+                });
+			}
+		});
+	});
+}
+
+exports.query = query;
