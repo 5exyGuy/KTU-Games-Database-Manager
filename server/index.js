@@ -37,15 +37,15 @@ const pool = mysql.createPool({
     database        : 'games'
 });
 
-pool.getConnection((err, connection) => {
-	if (err) {
-		if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+pool.getConnection((error, connection) => {
+	if (error) {
+		if (error.code === 'PROTOCOL_CONNECTION_LOST') {
 			console.error('Database connection was closed.')
 		}
-		if (err.code === 'ER_CON_COUNT_ERROR') {
+		if (error.code === 'ER_CON_COUNT_ERROR') {
 			console.error('Database has too many connections.')
 		}
-		if (err.code === 'ECONNREFUSED') {
+		if (error.code === 'ECONNREFUSED') {
 			console.error('Database connection was refused.')
 		}
 	}
