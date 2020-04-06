@@ -65,7 +65,6 @@ const query = async function(query, ...params) {
 			if (connection) {
 				const q = connection.query(query, params, (error, result) => {
 					if (error) resolve(null);
-					if (result.length === 1) resolve(result[0]);
 					resolve(result);
 				});
 

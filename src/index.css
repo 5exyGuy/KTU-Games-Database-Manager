@@ -1,6 +1,5 @@
 .layout {
 	height: 100vh;
-	padding: 0px 20vw;
 }
 
 .header {
@@ -11,4 +10,8 @@
 .site-layout-content {
 	background: #fff;
 	min-height: 280px;
+}
+
+.ant-table-pagination.ant-pagination {
+	margin: 32px 32px !important;
 }
