@@ -1,6 +1,16 @@
 import React, { Component } from 'react';
 import { Layout, Menu } from 'antd';
 import Users from './pages/Users';
+import Orders from './pages/Orders';
+import FAQ from './pages/FAQ';
+import Transfers from './pages/Transfers';
+import Developers from './pages/Developers';
+import Publishers from './pages/Publishers';
+import Reviews from './pages/Reviews';
+import Games from './pages/Games';
+// import Images from './pages/Images';
+// import Carts from './pages/Carts';
+// import Payments from './pages/Payments';
 
 const { Header, Content } = Layout;
 
@@ -10,21 +20,38 @@ export default class App extends Component {
 		currentPage: 'users'
 	};
 
+	pages = [
+		{ name: 'Vartotojai', key: 'users', content: <Users /> },
+		{ name: 'Užsakymai', key: 'orders', content: <Orders /> },
+		{ name: 'Pervedimai', key: 'transfers', content: <Transfers /> },
+		{ name: 'Žaidimai', key: 'games', content: <Games /> },
+		{ name: 'Kūrėjai', key: 'developers', content: <Developers /> },
+		{ name: 'Leidėjai', key: 'publishers', content: <Publishers /> },
+		{ name: 'Atsiliepimai', key: 'reviews', content: <Reviews /> },
+		{ name: 'DUK', key: 'faq', content: <FAQ /> }
+		// { name: 'Mokėjimai', key: 'payments', content: <Payments /> },
+		// { name: 'Nuotraukos', key: 'images', content: <Images /> },
+		// { name: 'Krepšeliai', key: 'carts', content: <Carts /> },
+	];
+
+	clickMenuItem(event) {
+		this.setState({ currentPage: event.key });
+	}
+
 	render() {
 		return (
 			<Layout className='layout'>
 				<Header className='header'>
-					<Menu mode='horizontal'>
-						<Menu.Item key='mail'>
-							Vartotojai
-						</Menu.Item>
-						<Menu.Item key='app'>
-							Užsakymai
-						</Menu.Item>
+					<Menu onClick={this.clickMenuItem.bind(this)} selectedKeys={this.state.currentPage} mode='horizontal'>
+						{this.pages.map((item) => (
+							<Menu.Item key={item.key}>
+								{item.name}
+							</Menu.Item>
+						))}
 					</Menu>
 				</Header>
 				<Content className='site-layout-content'>
-					<Users />
+					{this.pages.find((item) => item.key === this.state.currentPage).content}
 				</Content>
 			</Layout>
 		);

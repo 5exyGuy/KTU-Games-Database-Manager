@@ -23,7 +23,7 @@ app.use('/orders', orders);
 // app.use('/faq', faq);
 // app.use('/games', games);
 // app.use('/images', images);
-// app.use('/cart', cart);
+// app.use('/carts', carts);
 
 app.listen(4000);
 
