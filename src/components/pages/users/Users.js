@@ -4,9 +4,9 @@ import { IoMdPersonAdd } from 'react-icons/io';
 import { MdDelete, MdDateRange } from 'react-icons/md';
 import { FaRegEdit } from 'react-icons/fa';
 import Axios from 'axios';
-import CreateUser from './users/CreateUser';
-import EditUser from './users/EditUser';
-import SortUsers from './users/SortUsers';
+import CreateUserForm from './CreateUserForm';
+import EditUserForm from './EditUserForm';
+import SortUsersForm from './SortUsersForm';
 
 export default class Users extends Component {
 
@@ -51,9 +51,9 @@ export default class Users extends Component {
 
 	render() {
 		const actionsPages = {
-			addUser: <CreateUser />,
-			editUser: <EditUser id={this.userId} />,
-			sortUsers: <SortUsers />
+			addUser: <CreateUserForm />,
+			editUser: <EditUserForm id={this.userId} />,
+			sortUsers: <SortUsersForm />
 		};
 
 		return (
@@ -63,7 +63,7 @@ export default class Users extends Component {
 						<PageHeader
 							ghost={false}
 							title='Varotojai'
-							subTitle='Užregistruoti parduotuvės vartotojai'
+							subTitle='Užregistruoti internetinės parduotuvės vartotojai'
 							extra={[
 								<Tooltip key='addUser' title='Pridėti naują vartotoją'>
 									<Button onClick={() => this.setState({ action: 'addUser' })} shape='circle'><IoMdPersonAdd /></Button>

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { PageHeader } from 'antd';
 
-export default class EditUser extends Component {
+export default class SortUsersForm extends Component {
 
 	render() {
         return (
@@ -9,7 +9,7 @@ export default class EditUser extends Component {
 				<PageHeader
 					ghost={false}
 					title='Varotojai'
-					subTitle='Užregistruoti parduotuvės vartotojai'
+					subTitle='Užregistruoti internetinės parduotuvės vartotojai'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 				/>
 
