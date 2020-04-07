@@ -1,31 +1,35 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const helmet = require('helmet');
-const cors = require('cors');
+const app = require('express')();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
 const mysql = require('mysql');
+
 const users = require('./routes/users');
 const orders = require('./routes/orders');
+// const carts = require('./routes/carts');
+// const payments = require('./routes/payments');
+// const transfers = require('./routes/transfers');
+// const games = require('./routes/games');
+// const developers = require('./routes/developers');
+// const publishers = require('./routes/publishers');
+// const images = require('./routes/images');
+// const reviews = require('./routes/reviews');
+// const faq = require('./routes/faq');
 
-// Express
+server.listen(80);
 
-const app = express();
-app.use(bodyParser.json());
-app.use(helmet());
-app.use(cors());
-
-app.use('/users', users);
-app.use('/orders', orders);
-// app.use('/publishers', publishers);
-// app.use('/developers', developers);
-// app.use('/reviews', reviews);
-// app.use('/transfers', transfers);
-// app.use('/payments', payments);
-// app.use('/faq', faq);
-// app.use('/games', games);
-// app.use('/images', images);
-// app.use('/carts', carts);
-
-app.listen(4000);
+io.on('connection', (socket) => {
+	socket.on('vartotojai', (routeName, data) => users.route(socket, routeName, data));
+	socket.on('uzsakymai', (routeName, data) => orders.route(socket, routeName, data));
+	// socket.on('krepseliai', (routeName, data) => carts.route(socket, routeName, data));
+	// socket.on('mokejimai', (routeName, data) => payments.route(socket, routeName, data));
+	// socket.on('pervedimai', (routeName, data) => transfers.route(socket, routeName, data));
+	// socket.on('zaidimai', (routeName, data) => games.route(socket, routeName, data));
+	// socket.on('kurejai', (routeName, data) => developers.route(socket, routeName, data));
+	// socket.on('leidejai', (routeName, data) => publishers.route(socket, routeName, data));
+	// socket.on('nuotraukos', (routeName, data) => images.route(socket, routeName, data));
+	// socket.on('atsiliepimai', (routeName, data) => reviews.route(socket, routeName, data));
+	// socket.on('duk', (routeName, data) => faq.route(socket, routeName, data));
+});
 
 // MySQL
 
@@ -39,15 +43,12 @@ const pool = mysql.createPool({
 
 pool.getConnection((error, connection) => {
 	if (error) {
-		if (error.code === 'PROTOCOL_CONNECTION_LOST') {
+		if (error.code === 'PROTOCOL_CONNECTION_LOST')
 			console.error('Database connection was closed.')
-		}
-		if (error.code === 'ER_CON_COUNT_ERROR') {
+		if (error.code === 'ER_CON_COUNT_ERROR')
 			console.error('Database has too many connections.')
-		}
-		if (error.code === 'ECONNREFUSED') {
+		if (error.code === 'ECONNREFUSED')
 			console.error('Database connection was refused.')
-		}
 	}
   
 	console.log('Database connection test is successful.')

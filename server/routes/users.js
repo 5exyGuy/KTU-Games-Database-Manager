@@ -1,51 +1,111 @@
-const express = require('express');
 const mysql = require('../index');
-const router = express.Router();
-const bcrypt = require('bcryptjs');
-const salt = bcrypt.genSaltSync(10);
 
-const tableName = 'vartotojai';
+const tableName = 'vartotojai'; // Lentelės pavadinimas
 
-router.get('/', async (req, res) => {
+exports.route = function route(socket, routeName, data) {
+    const fn = routes[routeName];
+    if (!fn) return;
+    fn(socket, routeName, data);
+}
+
+const routes = {
+    selectAll: selectAll,
+    selectId: selectId,
+    deleteId: deleteId,
+    insert: insert,
+    update: update
+};
+
+/**
+ * Gauna visus vartotojus iš duomenų bazės
+ * @param {SocketIO.Socket} socket 
+ * @param {string} routeName
+ * @param {any} data 
+ */
+async function selectAll(socket, routeName) {
     const result = await mysql.query(`SELECT * FROM ${tableName}`);
-    
-    if (!result) res.status(500).send('Error');
+    if (!result) socket.emit(tableName, routeName, null);
+    socket.emit(tableName, routeName, result);
+}
 
-    res.send(result);
-});
+/**
+ * Randa vartotoją pagal ID
+ * @param {SocketIO.Socket} socket 
+ * @param {string} routeName
+ * @param {any} data 
+ */
+async function selectId(socket, routeName, data) {
+    if (!data) {
+        socket.emit(tableName, routeName, null);
+        return;
+    }
+    const result = await mysql.query(`SELECT * FROM ${tableName} WHERE id_vartotojai = ?`, [ data.id ]);
+    if (!result) socket.emit(tableName, routeName, null);
+    socket.emit(tableName, routeName, result);
+}
 
-router.get('/:id', async (req, res) => {
-    const result = await mysql.query(`SELECT * FROM ${tableName} WHERE id_vartotojai = ?`, [ req.params.id ]);
-    
-    if (!result) res.status(500).send('Error');
 
-    res.send(result);
-});
+/**
+ * Pašalina vartotoją iš duomenų bazės pagal ID
+ * @param {SocketIO.Socket} socket 
+ * @param {string} routeName
+ * @param {any} data 
+ */
+async function deleteId(socket, routeName, data) {
+    if (!data) {
+        socket.emit(tableName, routeName, null);
+        return;
+    }
+    const result = await mysql.query(`DELETE FROM ${tableName} WHERE id_vartotojai = ?`, [ data.id ]);
+    if (!result) socket.emit(tableName, routeName, null);
+    socket.emit(tableName, routeName, result);
+}
 
-router.delete('/:id', async (req, res) => {
-    const result = await mysql.query(`DELETE FROM ${tableName} WHERE id_vartotojai = ?`, [ req.params.id ]);
-
-    if (!result) res.status(500).send('Error');
-
-    res.send(req.params.id);
-});
-
-router.get('/activate/:id', async (req, res) => {
-    const result = await mysql.query(`UPDATE ${tableName} SET aktyvuotas = 1 WHERE id_vartotojai = ?`, [ req.params.id ]);
-
-    if (!result) res.status(500).send('Error');
-
-    res.send(req.params.id);
-});
-
-router.put('/create', async (req, res) => {
-    const values = req.body;
+/**
+ * Įterpia naują vartotoją į duomenų bazę pagal gautus duomenis iš kliento
+ * @param {SocketIO.Socket} socket 
+ * @param {string} routeName
+ * @param {any} data 
+ */
+async function insert(socket, routeName, data) {
+    if (!data) {
+        socket.emit(tableName, routeName, null);
+        return;
+    }
     const result = await mysql.query(`INSERT INTO ${tableName} VALUES (?, ?, ?, ?, ?, ?, ?)`, 
-        [ values.slapyvardis, values.slaptazodis, values.el_pastas, values.registracijos_data, values.paskutinis_prisijungimas, values.balansas ]);
+        [ data.slapyvardis, data.slaptazodis, data.el_pastas, data.registracijos_data, data.paskutinis_prisijungimas, data.balansas ]);
+    if (!result) socket.emit(tableName, routeName, null);
+    socket.emit(tableName, routeName, result);
+}
 
-    // if (!result) res.status(500).send('Error');
+/**
+ * Atnaujina vartotoją pagal gautus duomenis iš kliento
+ * @param {SocketIO.Socket} socket 
+ * @param {string} routeName
+ * @param {any} data 
+ */
+async function update(socket, routeName, data) {
+    if (!data) {
+        socket.emit(tableName, routeName, null);
+        return;
+    }
 
-    res.send(values);
-});
+    let columns = '';
+    let colArray = [];
+    for (const prop in data) {
+        if (prop.startsWith('id_vartotojai')) continue;
+        columns += `${prop} = ?, `;
+        colArray.push(data[prop]);
+    }
 
-module.exports = router;
+    columns = columns.substring(0, columns.length - 2);
+
+    if (columns.length === 0 || colArray.length === 0) {
+        socket.emit(tableName, routeName, null);
+        return;
+    }
+
+    const result = await mysql.query(`UPDATE ${tableName} SET ${columns} WHERE id_vartotojai = ?`, [ ...colArray, data.id_vartotojai ]);
+    if (!result) socket.emit(tableName, routeName, null);
+    socket.emit(tableName, routeName, result);
+}
