@@ -3,10 +3,11 @@ import { Button, PageHeader, Tooltip, Table } from 'antd';
 import { IoMdPersonAdd } from 'react-icons/io';
 import { MdDelete, MdDateRange } from 'react-icons/md';
 import { FaRegEdit } from 'react-icons/fa';
-import Axios from 'axios';
 import CreateUserForm from './CreateUserForm';
 import EditUserForm from './EditUserForm';
 import SortUsersForm from './SortUsersForm';
+import { tables } from '../../../tables';
+import socket from '../../../socket';
 
 export default class Users extends Component {
 
@@ -16,31 +17,28 @@ export default class Users extends Component {
 	};
 
 	componentDidMount() {
-		this.updateUsers();
+		this.selectAll();
 	}
 
-	updateUsers() {
-		Axios.get('/', {
-			baseURL: 'http://localhost:4000/users'
-		}).then((res) => {
-			const users = [...res.data];
+	selectAll() {
+		socket.emit(tables.users, 'selectAll', null, (users) => {
+			if (!users) return;
 
-			users.map((user) => {
+			const userList = [...users];
+	
+			userList.map((user) => {
 				return user.key = user.id_vartotojai;
 			});
-
-			this.setState({ users: [...users] });
+	
+			this.setState({ users: [...userList] });
 		});
 	}
 
-	handleDelete(id) {
-		Axios.delete(`/${id}`, {
-			baseURL: 'http://localhost:4000/users'
-		}).then(() => {
-			this.updateUsers();
-		})
-		.catch((error) => {
-			console.log(error);
+	deleteId(id) {
+		if (!id) return;
+		socket.emit(tables.users, 'deleteId', id, (result) => {
+			if (!result) return;
+			this.selectAll();
 		});
 	}
 
@@ -49,9 +47,14 @@ export default class Users extends Component {
 		this.userId = id;						// Prisimenam redaguojamo vartotojo id
 	}
 
+	back() {
+		this.setState({ action: 'none' });
+		this.selectAll();
+	}
+
 	render() {
 		const actionsPages = {
-			addUser: <CreateUserForm />,
+			addUser: <CreateUserForm back={this.back.bind(this)} />,
 			editUser: <EditUserForm id={this.userId} />,
 			sortUsers: <SortUsersForm />
 		};
@@ -86,7 +89,7 @@ export default class Users extends Component {
 									render: (text, record) => (
 										<span>
 											<Tooltip key='deleteUser' title='Ištrinti vartotoją'>
-												<Button type='link' onClick={() => this.handleDelete(record.key)} shape='circle'><MdDelete /></Button>
+												<Button type='link' onClick={() => this.deleteId(record.key)} shape='circle'><MdDelete /></Button>
 											</Tooltip>
 											<Tooltip key='editUser' title='Redaguoti vartotoją'>
 												<Button type='link' onClick={() => this.editUser(record.key)} shape='circle'><FaRegEdit /></Button>

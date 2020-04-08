@@ -18,8 +18,9 @@ const orders = require('./routes/orders');
 server.listen(80);
 
 io.on('connection', (socket) => {
-	socket.on('vartotojai', (routeName, data) => users.route(socket, routeName, data));
-	socket.on('uzsakymai', (routeName, data) => orders.route(socket, routeName, data));
+	console.log(`${socket.id} connected`);
+	socket.on('vartotojai', (routeName, data, cb) => users.route(routeName, data, cb));
+	socket.on('uzsakymai', (routeName, data, cb) => orders.route(routeName, data, cb));
 	// socket.on('krepseliai', (routeName, data) => carts.route(socket, routeName, data));
 	// socket.on('mokejimai', (routeName, data) => payments.route(socket, routeName, data));
 	// socket.on('pervedimai', (routeName, data) => transfers.route(socket, routeName, data));
@@ -68,6 +69,8 @@ const query = async function(query, ...params) {
 					if (error) resolve(null);
 					resolve(result);
 				});
+
+				console.log(`SQL -> ${q.sql}`);
 
 				q.on('end', function () {
                     connection.release();
