@@ -1,7 +1,7 @@
 const app = require('express')();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-const mysql = require('mysql');
+const pg = require('pg');
 
 const users = require('./routes/users');
 const orders = require('./routes/orders');
@@ -32,52 +32,12 @@ io.on('connection', (socket) => {
 	// socket.on('duk', (routeName, data) => faq.route(socket, routeName, data));
 });
 
-// MySQL
+// PostgreSQL
 
-const pool = mysql.createPool({
-    connectionLimit : 10,
-    host            : 'localhost',
-    user            : 'root',
-    password        : 'root',
-    database        : 'games'
+module.exports = new pg.Pool({
+	user: 'postgres',
+	password: 'root',
+	host: 'localhost',
+	database: 'games',
+	port: 5432
 });
-
-pool.getConnection((error, connection) => {
-	if (error) {
-		if (error.code === 'PROTOCOL_CONNECTION_LOST')
-			console.error('Database connection was closed.')
-		if (error.code === 'ER_CON_COUNT_ERROR')
-			console.error('Database has too many connections.')
-		if (error.code === 'ECONNREFUSED')
-			console.error('Database connection was refused.')
-	}
-  
-	console.log('Database connection test is successful.')
-
-	if (connection) connection.release();
-  
-	return;
-});
-
-const query = async function(query, ...params) {
-	return new Promise((resolve, reject) => {
-		pool.getConnection((error, connection) => {
-			if (error) resolve(null);
-
-			if (connection) {
-				const q = connection.query(query, params, (error, result) => {
-					if (error) resolve(null);
-					resolve(result);
-				});
-
-				console.log(`SQL -> ${q.sql}`);
-
-				q.on('end', function () {
-                    connection.release();
-                });
-			}
-		});
-	});
-}
-
-exports.query = query;

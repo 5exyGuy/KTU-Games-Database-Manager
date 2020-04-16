@@ -1,4 +1,4 @@
-const mysql = require('../index');
+const pool = require('../index');
 const moment = require('moment');
 
 const tableName = 'vartotojai'; // Lentelės pavadinimas
@@ -23,9 +23,10 @@ const routes = {
  * @param {Function} cb 
  */
 async function selectAll(data, cb) {
-    const result = await mysql.query(`SELECT * FROM ${tableName}`);
-    if (!result) { cb(null); return; }
-    cb(result);
+    pool.query(`SELECT * FROM ${tableName}`, (error, result) => {
+        if (!error) return cb(null);
+        cb(result.rows);
+    });
 }
 
 /**
@@ -41,7 +42,6 @@ async function selectId(id, cb) {
     if (!result) { cb(null); return; }
     cb(result);
 }
-
 
 /**
  * Pašalina vartotoją iš duomenų bazės pagal ID

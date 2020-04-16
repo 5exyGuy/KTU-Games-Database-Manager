@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { Button, PageHeader, Tooltip, Table } from 'antd';
 import { IoMdPersonAdd } from 'react-icons/io';
-import { MdDelete, MdDateRange } from 'react-icons/md';
+import { MdDelete } from 'react-icons/md';
 import { FaRegEdit } from 'react-icons/fa';
 import CreateUserForm from './CreateUserForm';
 import EditUserForm from './EditUserForm';
-import SortUsersForm from './SortUsersForm';
 import { tables } from '../../../tables';
 import socket from '../../../socket';
 
@@ -55,8 +54,7 @@ export default class Users extends Component {
 	render() {
 		const actionsPages = {
 			addUser: <CreateUserForm back={this.back.bind(this)} />,
-			editUser: <EditUserForm id={this.userId} />,
-			sortUsers: <SortUsersForm />
+			editUser: <EditUserForm id={this.userId} />
 		};
 
 		return (
@@ -70,9 +68,6 @@ export default class Users extends Component {
 							extra={[
 								<Tooltip key='addUser' title='Pridėti naują vartotoją'>
 									<Button onClick={() => this.setState({ action: 'addUser' })} shape='circle'><IoMdPersonAdd /></Button>
-								</Tooltip>,
-								<Tooltip key='sortByDate' title='Išrinkti pagal datą'>
-									<Button onClick={() => this.setState({ action: 'sortUsers' })} shape='circle'><MdDateRange /></Button>
 								</Tooltip>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
