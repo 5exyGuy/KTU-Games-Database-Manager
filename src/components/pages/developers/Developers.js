@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import { Button, PageHeader, Tooltip, Table } from 'antd';
-import { IoMdPersonAdd } from 'react-icons/io';
 import { MdDelete } from 'react-icons/md';
 import { FaRegEdit } from 'react-icons/fa';
-import CreateUserForm from './CreateUserForm';
-import EditUserForm from './EditUserForm';
+import CreateForm from './Create';
+import EditForm from './Edit';
 import { tables } from '../../../tables';
 import socket from '../../../socket';
 
-export default class Users extends Component {
+export default class Developers extends Component {
 
 	state = {
 		action: 'none',
@@ -21,12 +20,12 @@ export default class Users extends Component {
 
 	selectAll() {
 		socket.emit(tables.developers, 'selectAll', null, (devs) => {
-			if (!devs) return;
+			if (!devs) return this.setState({ devs: [] });
 
 			const devList = [...devs];
 	
-			devList.map((user) => {
-				return user.key = user.id_kurejai;
+			devList.map((dev) => {
+				return dev.key = dev.id_kurejai;
 			});
 	
 			this.setState({ devs: [...devList] });
@@ -41,9 +40,13 @@ export default class Users extends Component {
 		});
 	}
 
-	editUser(id) {
-		this.setState({ action: 'editUser' }); 	// Pereinam į redagavimo formą
-		this.devId = id;									// Prisimenam redaguojamo vartotojo id
+	edit(id) {
+		socket.emit(tables.developers, 'selectId', id, (result) => {
+			if (!result) return;
+
+			this.data = result;
+			this.setState({ action: 'edit' }); 	// Pereinam į redagavimo formą
+		});
 	}
 
 	back() {
@@ -53,8 +56,8 @@ export default class Users extends Component {
 
 	render() {
 		const actionsPages = {
-			addDev: <CreateUserForm back={this.back.bind(this)} />,
-			editDev: <EditUserForm back={this.back.bind(this)} id={this.userId} />
+			create: <CreateForm back={this.back.bind(this)} />,
+			edit: <EditForm back={this.back.bind(this)} data={this.data} />
 		};
 
 		return (
@@ -63,37 +66,34 @@ export default class Users extends Component {
 					<div>
 						<PageHeader
 							ghost={false}
-							title='Varotojai'
-							subTitle='Užregistruoti internetinės parduotuvės vartotojai'
+							title='Kūrėjai'
+							subTitle='Žaidimų kūrėjai'
 							extra={[
-								<Tooltip key='addUser' title='Pridėti naują vartotoją'>
-									<Button onClick={() => this.setState({ action: 'addDev' })} shape='circle'><IoMdPersonAdd /></Button>
-								</Tooltip>
+								<Button onClick={() => this.setState({ action: 'create' })} shape='round'>Pridėti naują kurėją</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>
 						<Table 
 							columns={[
-								{ title: 'ID', dataIndex: 'id_vartotojai' },
-								{ title: 'Slapyvardis', dataIndex: 'slapyvardis' },
-								{ title: 'El. paštas', dataIndex: 'el_pastas' },
-								{ title: 'Balansas', dataIndex: 'balansas' },
-								{ title: 'Aktyvuotas', dataIndex: 'aktyvuotas' },
+								{ title: 'ID', dataIndex: 'id_kurejai', defaultSortOrder: 'ascend', sorter: (a, b) => a.id_kurejai - b.id_kurejai },
+								{ title: 'Pavadinimas', dataIndex: 'pavadinimas' },
+                                { title: 'Logotipas', dataIndex: 'logotipas' },
+                                { title: 'Hipersaitas', dataIndex: 'hipersaitas' },
 								{
 									title: 'Veiksmai',
 									render: (text, record) => (
 										<span>
-											<Tooltip key='deleteUser' title='Ištrinti vartotoją'>
+											<Tooltip key='deleteId' title='Ištrinti'>
 												<Button type='link' onClick={() => this.deleteId(record.key)} shape='circle'><MdDelete /></Button>
 											</Tooltip>
-											<Tooltip key='editUser' title='Redaguoti vartotoją'>
-												<Button type='link' onClick={() => this.editUser(record.key)} shape='circle'><FaRegEdit /></Button>
+											<Tooltip key='edit' title='Redaguoti'>
+												<Button type='link' onClick={() => this.edit(record.key)} shape='circle'><FaRegEdit /></Button>
 											</Tooltip>
 										</span>
 									)
 								}
 							]}
-							dataSource={this.state.users}
+							dataSource={this.state.devs}
 						/>
 					</div>
 				: actionsPages[this.state.action]}

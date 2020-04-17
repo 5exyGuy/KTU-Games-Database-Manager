@@ -5,6 +5,7 @@
   "dependencies": {
     "antd": "^4.1.1",
     "babel-plugin-import": "^1.13.0",
+    "bcrypt": "^4.0.1",
     "body-parser": "^1.19.0",
     "customize-cra": "^0.9.1",
     "express": "^4.17.1",
@@ -12,7 +13,6 @@
     "less": "^3.10.3",
     "less-loader": "^5.0.0",
     "moment": "^2.24.0",
-    "mysql": "^2.18.1",
     "nodemon": "^2.0.2",
     "pg": "^8.0.2",
     "react": "^16.12.0",
