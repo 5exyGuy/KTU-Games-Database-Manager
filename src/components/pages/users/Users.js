@@ -54,7 +54,7 @@ export default class Users extends Component {
 	render() {
 		const actionsPages = {
 			addUser: <CreateUserForm back={this.back.bind(this)} />,
-			editUser: <EditUserForm id={this.userId} />
+			editUser: <EditUserForm back={this.back.bind(this)} id={this.userId} />
 		};
 
 		return (
