@@ -31,11 +31,10 @@ export default class CreateForm extends Component {
     }
 
 	onFinish(values) {
-        console.log(values);
-		// socket.emit(tables.games, 'insert', values, (result) => {
-		// 	if (!result) return;
-		// 	this.props.back();
-		// });
+		socket.emit(tables.games, 'insert', values, (result) => {
+			if (!result) return;
+			this.props.back();
+		});
     }
 
     selectDevs() {
@@ -132,7 +131,7 @@ export default class CreateForm extends Component {
                                     label='Žanras'
                                     rules={[{ required: true, message: 'Pasirinkite žanrą!' }]}
                                 >
-                                    <Select>
+                                    <Select mode='multiple'>
                                         {genres.map((genre) => {
                                             return <Select.Option value={genre}>{genre}</Select.Option>
                                         })}
@@ -143,7 +142,7 @@ export default class CreateForm extends Component {
                                     label='Režimas'
                                     rules={[{ required: true, message: 'Pasirinkite rėžimą!' }]}
                                 >
-                                    <Select>
+                                    <Select mode='multiple'>
                                         {gamemodes.map((gamemode) => {
                                             return <Select.Option value={gamemode}>{gamemode}</Select.Option>
                                         })}

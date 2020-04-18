@@ -15,6 +15,7 @@ export function route(routeName, data, cb) {
 
 const routes = {
     selectAll: selectAll,
+    countAll: countAll,
     selectId: selectId,
     deleteId: deleteId,
     insert: insert,
@@ -29,6 +30,15 @@ async function selectAll(data, cb) {
     const result = await pool.query(`SELECT * FROM ${tableName}`);
     if (result.rowCount === 0) return cb(null);
     cb(result.rows);
+}
+
+/**
+ * @param {string} data 
+ * @param {Function} cb 
+ */
+async function countAll(data, cb) {
+    const result = await pool.query(`SELECT count(*) FROM kurejai`);
+    cb(result.rows[0].count);
 }
 
 /**
