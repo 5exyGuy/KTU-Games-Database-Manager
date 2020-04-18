@@ -24,8 +24,8 @@ export default class Publishers extends Component {
 
 			const pubList = [...pubs];
 	
-			pubList.map((dev) => {
-				return dev.key = dev.id_leidejai;
+			pubList.map((pub) => {
+				return pub.key = pub.id_leidejai;
 			});
 	
 			this.setState({ pubs: [...pubList] });

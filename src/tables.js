@@ -3,5 +3,6 @@ export const tables = {
     faq: 'duk',
     developers: 'kurejai',
     publishers: 'leidejai',
-    orders: 'uzsakymai'
+    orders: 'uzsakymai',
+    games: 'zaidimai'
 };
