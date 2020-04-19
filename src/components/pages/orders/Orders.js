@@ -50,7 +50,7 @@ export default class Orders extends Component {
 	}
 
 	create() {
-		
+		this.setState({ action: 'create' });
 	}
 
 	back() {
@@ -82,7 +82,7 @@ export default class Orders extends Component {
 								{ title: 'ID', dataIndex: 'id_uzsakymai', defaultSortOrder: 'ascend', sorter: (a, b) => a.id_zaidimai - b.id_zaidimai },
 								{ title: 'Užsakovas', dataIndex: 'uzsakovas' },
 								{ title: 'Data', dataIndex: 'data' },
-								{ title: 'Būsena', dataIndex: 'zanras' },
+								{ title: 'Būsena', dataIndex: 'busena' },
 								{ title: 'Kiekis', dataIndex: 'kiekis' },
 								{ title: 'Kaina', dataIndex: 'kaina' },
 								{
