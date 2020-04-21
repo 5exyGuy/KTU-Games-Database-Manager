@@ -1,5 +1,4 @@
 import { pool } from '../server.mjs';
-import moment from 'moment';
 import bcrypt from 'bcrypt';
 
 const tableName = 'vartotojai'; // Lentelės pavadinimas
@@ -67,10 +66,9 @@ async function deleteId(id, cb) {
 async function insert(values, cb) {
     if (!values) return cb(null);
 
-    values.registracijos_data = moment(values.registracijos_data).utc().format('YYYY-MM-DD HH:MM:SS');
-    values.paskutinis_prisijungimas = moment(values.paskutinis_prisijungimas).utc().format('YYYY-MM-DD HH:MM:SS');
     values.balansas = parseFloat(values.balansas);
-
+    values.paskutinis_prisijungimas = new Date(values.paskutinis_prisijungimas).getTime();
+    values.registracijos_data = new Date(values.registracijos_data).getTime();
     const hashedPassword = bcrypt.hashSync(values.slaptazodis, 10);
 
     const result = await pool.query(`INSERT INTO ${tableName} VALUES($1, $2, $3, $4, $5, $6, $7)`, 
@@ -92,10 +90,9 @@ async function insert(values, cb) {
 async function update(values, cb) {
     if (!values) return cb(null);
 
-    values.registracijos_data = moment(values.registracijos_data).utc().format('YYYY-MM-DD HH:MM:SS');
-    values.paskutinis_prisijungimas = moment(values.paskutinis_prisijungimas).utc().format('YYYY-MM-DD HH:MM:SS');
     values.balansas = parseFloat(values.balansas);
-
+    values.paskutinis_prisijungimas = new Date(values.paskutinis_prisijungimas).getTime();
+    values.registracijos_data = new Date(values.registracijos_data).getTime();
     const hashedPassword = bcrypt.hashSync(values.slaptazodis, 10);
 
     const result = await pool.query(`UPDATE ${tableName} SET slapyvardis = $1, slaptazodis = $2, el_pastas = $3, paskutinis_prisijungimas = $4, registracijos_data = $5, balansas = $6, aktyvuotas = $7 WHERE id_vartotojai = $8`, 

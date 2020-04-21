@@ -3,9 +3,7 @@ import { Layout, Menu } from 'antd';
 import Users from './pages/users/Users';
 import Orders from './pages/orders/Orders';
 import FAQ from './pages/faq/FAQ';
-import Transfers from './pages/transfers/Transfers';
 import Developers from './pages/developers/Developers';
-import Publishers from './pages/publishers/Publishers';
 import Reviews from './pages/reviews/Reviews';
 import Games from './pages/games/Games';
 import Images from './pages/images/Images';
@@ -27,15 +25,13 @@ export default class App extends Component {
 	render() {
 		const pages = [
 			{ name: 'Vartotojai', key: 'users', content: <Users /> },
-			{ name: 'Užsakymai', key: 'orders', content: <Orders /> },
-			{ name: 'Pervedimai', key: 'transfers', content: <Transfers /> },
-			{ name: 'Žaidimai', key: 'games', content: <Games /> },
 			{ name: 'Kūrėjai', key: 'developers', content: <Developers /> },
-			{ name: 'Leidėjai', key: 'publishers', content: <Publishers /> },
-			{ name: 'Atsiliepimai', key: 'reviews', content: <Reviews /> },
 			{ name: 'DUK', key: 'faq', content: <FAQ /> },
 			{ name: 'Mokėjimai', key: 'payments', content: <Payments /> },
+			{ name: 'Atsiliepimai', key: 'reviews', content: <Reviews /> },
 			{ name: 'Nuotraukos', key: 'images', content: <Images /> },
+			{ name: 'Žaidimai', key: 'games', content: <Games /> },
+			{ name: 'Užsakymai', key: 'orders', content: <Orders /> },
 			{ name: 'Krepšeliai', key: 'carts', content: <Carts /> },
 		];
 

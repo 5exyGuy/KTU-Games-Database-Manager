@@ -91,15 +91,15 @@ export default class CreateForm extends Component {
 								</Form.Item>
 
 								<Form.Item
-									name='registracijos_data'
-									label='Registracijos data'
+									name='paskutinis_prisijungimas'
+									label='Paskutinis prisijungimas'
 								>
 									<DatePicker showTime format='YYYY-MM-DD HH:MM:SS' disabled />
 								</Form.Item>
 
 								<Form.Item
-									name='paskutinis_prisijungimas'
-									label='Paskutinis prisijungimas'
+									name='registracijos_data'
+									label='Registracijos data'
 								>
 									<DatePicker showTime format='YYYY-MM-DD HH:MM:SS' disabled />
 								</Form.Item>

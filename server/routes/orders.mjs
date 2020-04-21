@@ -26,17 +26,18 @@ const routes = {
  * @param {Function} cb 
  */
 async function selectAll(data, cb) {
-    const result = await pool.query(`
-    SELECT uzsakymai.id_uzsakymai,
-        v.slapyvardis as uzsakovas,
-        uzsakymai.data,
-        uzsakymai.busena,
-        (SELECT SUM(kiekis) as kiekis FROM zaidimu_uzsakymai WHERE fk_uzsakymaiid_uzsakymai = uzsakymai.id_uzsakymai),
-        uzsakymai.kaina
-    FROM uzsakymai INNER JOIN vartotojai v on uzsakymai.fk_vartotojaiid_vartotojai = v.id_vartotojai`);
+    const result = await pool.query(`SELECT * FROM ${tableName}`);
     if (result.rowCount === 0) return cb(null);
     cb(result.rows);
 }
+
+// SELECT uzsakymai.id_uzsakymai,
+//         v.slapyvardis as uzsakovas,
+//         uzsakymai.data,
+//         uzsakymai.busena,
+//         (SELECT SUM(kiekis) as kiekis FROM zaidimu_uzsakymai WHERE fk_uzsakymaiid_uzsakymai = uzsakymai.id_uzsakymai),
+//         uzsakymai.kaina
+//     FROM uzsakymai INNER JOIN vartotojai v on uzsakymai.fk_vartotojaiid_vartotojai = v.id_vartotojai
 
 /**
  * @param {number} id

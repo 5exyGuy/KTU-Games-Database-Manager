@@ -25,6 +25,7 @@ export default class Users extends Component {
 			const userList = [...users];
 	
 			userList.map((user) => {
+				user.aktyvuotas ? user.aktyvuotas = 'Taip' : user.aktyvuotas = 'Ne';
 				return user.key = user.id_vartotojai;
 			});
 	

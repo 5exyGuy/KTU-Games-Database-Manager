@@ -31,3 +31,12 @@ export const platforms = [
     'macOS',
     'Linux'
 ];
+
+export const paymentMethods = [
+    'Internetinė bankininkystė',
+    'Mokėjimo kortelė',
+    'Grynieji kasose',
+    'Išsimokėtinai',
+    'Mobilioji piniginė',
+    'Pavedimas banke'
+];
