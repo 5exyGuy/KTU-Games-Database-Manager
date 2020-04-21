@@ -99,37 +99,9 @@ export default class CreateForm extends Component {
                                 }}
                             >
                                 <Form.Item
-                                    name='pavadinimas'
-                                    label='Pavadinimas'
-                                    rules={[{ required: true, message: 'Įveskite pavadinimą!', min: 5, max: 255 }]}
-                                >
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item
-                                    name='isleidimo_data'
-                                    label='Išleidimo data'
-                                    rules={[{ required: true, message: 'Pasirinkite išleidimo datą!' }]}
-                                >
-                                    <DatePicker />
-                                </Form.Item>
-                                <Form.Item
-                                    name='kaina'
-                                    label='Kaina'
-                                    rules={[{ required: true, message: 'Įveskite kainą!' }]}
-                                >
-                                    <Input type='number' />
-                                </Form.Item>
-                                <Form.Item
-                                    name='varikliukas'
-                                    label='Varikliukas'
-                                    rules={[{ required: true, message: 'Įveskite varikliuką!' }]}
-                                >
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item
-                                    name='zanras'
-                                    label='Žanras'
-                                    rules={[{ required: true, message: 'Pasirinkite žanrą!' }]}
+                                    name='id_vartotojai'
+                                    label='Pirkėjas'
+                                    rules={[{ required: true, message: 'Pasirinkite užsakymo būseną!' }]}
                                 >
                                     <Select mode='multiple'>
                                         {genres.map((genre) => {
@@ -138,26 +110,35 @@ export default class CreateForm extends Component {
                                     </Select>
                                 </Form.Item>
                                 <Form.Item
-                                    name='rezimas'
-                                    label='Režimas'
-                                    rules={[{ required: true, message: 'Pasirinkite rėžimą!' }]}
+                                    name='data'
+                                    label='Užsakymo data'
+                                    rules={[{ required: true, message: 'Pasirinkite užsakymo datą!' }]}
+                                >
+                                    <DatePicker />
+                                </Form.Item>
+                                <Form.Item
+                                    name='busena'
+                                    label='Būsena'
+                                    rules={[{ required: true, message: 'Pasirinkite užsakymo būseną!' }]}
                                 >
                                     <Select mode='multiple'>
-                                        {gamemodes.map((gamemode) => {
-                                            return <Select.Option value={gamemode}>{gamemode}</Select.Option>
+                                        {genres.map((genre) => {
+                                            return <Select.Option value={genre}>{genre}</Select.Option>
                                         })}
                                     </Select>
                                 </Form.Item>
                                 <Form.Item
-                                    name='platforma'
-                                    label='Platforma'
-                                    rules={[{ required: true, message: 'Pasirinkite platformą!' }]}
+                                    name='vat'
+                                    label='VAT'
                                 >
-                                    <Select>
-                                        {platforms.map((platform) => {
-                                            return <Select.Option value={platform}>{platform}</Select.Option>
-                                        })}
-                                    </Select>
+                                    <Input type='number' />
+                                </Form.Item>
+                                <Form.Item
+                                    name='kaina'
+                                    label='Kaina'
+                                    rules={[{ required: true, message: 'Įveskite kainą!' }]}
+                                >
+                                    <Input type='number' disabled />
                                 </Form.Item>
                                 <Form.Item {...tailFormItemLayout}>
                                     <Button type='primary' htmlType='submit'>
@@ -170,30 +151,30 @@ export default class CreateForm extends Component {
                     <Col span={12}>
                         <Card style={{ backgroundColor: 'rgb(225, 225, 225)' }}>
                             <Form
-                                {...formItemLayout}
-                                scrollToFirstError
+                                layout="inline"
+                                initialValues={{
+                                    price: {
+                                    number: 0,
+                                    currency: 'rmb',
+                                    },
+                                }}
                             >
-                                <Form.Item
-                                    name='fk_kurejaiid_kurejai'
-                                    label='Kūrėjas'
-                                    rules={[{ required: true, message: 'Pasirinkite kūrėją!' }]}
-                                >
-                                    <Select defaultValue={this.state.currentDev} onChange={(dev) => this.setState({ currentDev: dev })}>
-                                        {this.state.devs.map((dev) => {
-                                            return <Select.Option value={dev.id_kurejai}>{dev.pavadinimas}</Select.Option>;
-                                        })}
-                                    </Select>
+                                <Form.Item name='kiekis' label='Kiekis'>
+                                    <Input />
                                 </Form.Item>
                                 <Form.Item
-                                    name='fk_leidejaiid_leidejai'
-                                    label='Leidėjas'
-                                    rules={[{ required: true, message: 'Pasirinkite leidėją!' }]}
+                                    name='id_zaidimai'
+                                    label='Žaidimas'
+                                    rules={[{ required: true, message: 'Pasirinkite žaidimą!' }]}
                                 >
-                                    <Select defaultValue={this.state.currentPub} onChange={(pub) => this.setState({ currentPub: pub })}>
-                                        {this.state.pubs.map((pub) => {
-                                            return <Select.Option value={pub.id_leidejai}>{pub.pavadinimas}</Select.Option>;
-                                        })}
+                                    <Select defaultValue='test'>
+                                        <Select.Option value='test'>test</Select.Option>
                                     </Select>
+                                </Form.Item>
+                                <Form.Item>
+                                    <Button type='danger' htmlType='submit'>
+                                        Šalinti
+                                    </Button>
                                 </Form.Item>
                             </Form>
                         </Card>
