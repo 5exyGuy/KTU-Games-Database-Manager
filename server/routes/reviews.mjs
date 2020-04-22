@@ -29,10 +29,10 @@ const routes = {
  * @param {Function} cb 
  */
 async function selectAll(data, cb) {
-    const result = await pool.query(`SELECT atsiliepimai.id_atsiliepimai, atsiliepimai.ivertinimas,
-    atsiliepimai.data, v.slapyvardis as vartotojas, z.pavadinimas as zaidimas FROM atsiliepimai
- INNER JOIN vartotojai v on atsiliepimai.fk_vartotojaiid_vartotojai = v.id_vartotojai 
- INNER JOIN zaidimai z on atsiliepimai.fk_zaidimaiid_zaidimai = z.id_zaidimai`);
+    const result = await pool.query(`SELECT atsiliepimai.id_atsiliepimai, atsiliepimai.ivertinimas, atsiliepimai.data,
+    v.slapyvardis as vartotojas, z.pavadinimas as zaidimas FROM ${tableName}
+        INNER JOIN vartotojai v on atsiliepimai.fk_vartotojaiid_vartotojai = v.id_vartotojai
+        INNER JOIN zaidimai z on atsiliepimai.fk_zaidimaiid_zaidimai = z.id_zaidimai`);
     if (result.rowCount === 0) return cb(null);
     cb(result.rows);
 }
