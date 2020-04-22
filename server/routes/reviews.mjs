@@ -1,6 +1,9 @@
-import { pool } from '../server.mjs';
+import {
+    pool
+} from '../server.mjs';
+import moment from 'moment';
 
-const tableName = 'leidejai'; // Lentelės pavadinimas
+const tableName = 'atsiliepimai'; // Lentelės pavadinimas
 
 /**
  * @param {string} routeName 
@@ -15,7 +18,6 @@ export function route(routeName, data, cb) {
 
 const routes = {
     selectAll: selectAll,
-    countAll: countAll,
     selectId: selectId,
     deleteId: deleteId,
     insert: insert,
@@ -27,18 +29,12 @@ const routes = {
  * @param {Function} cb 
  */
 async function selectAll(data, cb) {
-    const result = await pool.query(`SELECT * FROM ${tableName}`);
+    const result = await pool.query(`SELECT atsiliepimai.id_atsiliepimai, atsiliepimai.ivertinimas,
+    atsiliepimai.data, v.slapyvardis as vartotojas, z.pavadinimas as zaidimas FROM atsiliepimai
+ INNER JOIN vartotojai v on atsiliepimai.fk_vartotojaiid_vartotojai = v.id_vartotojai 
+ INNER JOIN zaidimai z on atsiliepimai.fk_zaidimaiid_zaidimai = z.id_zaidimai`);
     if (result.rowCount === 0) return cb(null);
     cb(result.rows);
-}
-
-/**
- * @param {string} data 
- * @param {Function} cb 
- */
-async function countAll(data, cb) {
-    const result = await pool.query(`SELECT count(*) FROM leidejai`);
-    cb(result.rows[0].count);
 }
 
 /**
@@ -48,7 +44,7 @@ async function countAll(data, cb) {
 async function selectId(id, cb) {
     if (!id) return cb(null);
 
-    const result = await pool.query(`SELECT * FROM ${tableName} WHERE id_leidejai = $1`, [ id ]);
+    const result = await pool.query(`SELECT * FROM ${tableName} WHERE id_atsiliepimai = $1`, [id]);
 
     if (result.rowCount === 0) return cb(null);
     cb(result.rows[0]);
@@ -61,7 +57,7 @@ async function selectId(id, cb) {
 async function deleteId(id, cb) {
     if (!id) return cb(null);
 
-    const result = await pool.query(`DELETE FROM ${tableName} WHERE id_leidejai = $1`, [ id ]);
+    const result = await pool.query(`DELETE FROM ${tableName} WHERE id_atsiliepimai = $1`, [id]);
 
     if (result.rowCount === 0) return cb(null);
     cb(true);
@@ -74,8 +70,11 @@ async function deleteId(id, cb) {
 async function insert(values, cb) {
     if (!values) return cb(null);
 
-    const result = await pool.query(`INSERT INTO ${tableName} VALUES($1, $2, $3)`, 
-        [ values.pavadinimas, values.logotipas, values.hipersaitas ]
+    const result = await pool.query(`INSERT INTO ${tableName} VALUES($1, $2, $3, $4, $5)`,
+        [
+            values.ivertinimas, values.komentaras, values.data,
+            values.fk_zaidimaiid_zaidimai, values.fk_vartotojaiid_vartotojai
+        ]
     );
 
     if (result.rowCount === 0) return cb(null);
@@ -89,8 +88,12 @@ async function insert(values, cb) {
 async function update(values, cb) {
     if (!values) return cb(null);
 
-    const result = await pool.query(`UPDATE ${tableName} SET pavadinimas = $1, logotipas = $2, hipersaitas = $3 WHERE id_leidejai = $4`, 
-        [ values.pavadinimas, values.logotipas, values.hipersaitas, values.id_leidejai ]
+    const result = await pool.query(`UPDATE mokejimai SET ivertinimas = $1, komentaras = $2, data = $3, fk_uzsakymaiid_uzsakymai = $4, fk_vartotojaiid_vartotojai = $5 WHERE id_atsiliepimai = $6`,
+        [
+            values.ivertinimas, values.komentaras, values.data,
+            values.fk_zaidimaiid_zaidimai, values.fk_vartotojaiid_vartotojai,
+            values.id_atsiliepimai
+        ]
     );
 
     if (result.rowCount === 0) return cb(null);

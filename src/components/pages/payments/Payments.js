@@ -6,6 +6,7 @@ import CreateForm from './Create';
 import EditForm from './Edit';
 import { tables } from '../../../tables';
 import socket from '../../../socket';
+import moment from 'moment';
 
 export default class Payments extends Component {
 
@@ -25,6 +26,7 @@ export default class Payments extends Component {
 			const paymentList = [...payments];
 	
 			paymentList.map((payment) => {
+				payment.data = moment(payment.data).format('YYYY-MM-DD HH:mm:ss');
 				return payment.key = payment.id_mokejimai;
 			});
 	

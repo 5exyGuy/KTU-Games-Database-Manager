@@ -37,7 +37,8 @@ export default class EditForm extends Component {
 
 	onFinish(values) {
 		socket.emit(tables.payments, 'update', values, (result) => {
-			if (!result) return;
+            if (!result) return;
+            console.log(values);
 			this.props.back();
 		});
     }
@@ -122,7 +123,7 @@ export default class EditForm extends Component {
                                     fk_uzsakymaiid_uzsakymai: this.props.data.fk_uzsakymaiid_uzsakymai,
                                     fk_vartotojaiid_vartotojai: this.props.data.fk_vartotojaiid_vartotojai,
                                     tipas: paymentMethods.find((method) => method === this.props.data.tipas),
-                                    data: moment(),
+                                    data: moment(this.props.data.data),
                                     kaina: this.props.data.kaina
                                 }}
                             >
@@ -180,7 +181,10 @@ export default class EditForm extends Component {
                                     label='Apmokėjimo data'
                                     rules={[{ required: true, message: 'Pasirinkite apmokėjimo datą!' }]}
                                 >
-                                    <DatePicker />
+                                    <DatePicker
+                                        format="YYYY-MM-DD HH:mm:ss"
+                                        showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
+                                    />
                                 </Form.Item>
 
                                 <Form.Item

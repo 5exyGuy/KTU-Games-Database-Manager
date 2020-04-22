@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import { Layout, Menu } from 'antd';
 import Users from './pages/users/Users';
-import Orders from './pages/orders/Orders';
-import FAQ from './pages/faq/FAQ';
 import Developers from './pages/developers/Developers';
+import FAQ from './pages/faq/FAQ';
+import Payments from './pages/payments/Payments';
+import Groups from './pages/groups/Groups';
+import Orders from './pages/orders/Orders';
 import Reviews from './pages/reviews/Reviews';
 import Games from './pages/games/Games';
 import Images from './pages/images/Images';
 import Carts from './pages/carts/Carts';
-import Payments from './pages/payments/Payments';
 
 const { Header, Content } = Layout;
 
@@ -28,6 +29,7 @@ export default class App extends Component {
 			{ name: 'Kūrėjai', key: 'developers', content: <Developers /> },
 			{ name: 'DUK', key: 'faq', content: <FAQ /> },
 			{ name: 'Mokėjimai', key: 'payments', content: <Payments /> },
+			{ name: 'Grupės', key: 'groups', content: <Groups /> },
 			{ name: 'Atsiliepimai', key: 'reviews', content: <Reviews /> },
 			{ name: 'Nuotraukos', key: 'images', content: <Images /> },
 			{ name: 'Žaidimai', key: 'games', content: <Games /> },

@@ -1,9 +1,8 @@
 import {
     pool
 } from '../server.mjs';
-import moment from 'moment';
 
-const tableName = 'mokejimai'; // Lentelės pavadinimas
+const tableName = 'nuotraukos'; // Lentelės pavadinimas
 
 /**
  * @param {string} routeName 
@@ -29,9 +28,8 @@ const routes = {
  * @param {Function} cb 
  */
 async function selectAll(data, cb) {
-    const result = await pool.query(`SELECT mokejimai.id_mokejimai, v.slapyvardis as moketojas, u.id_uzsakymai as uzsakymas, mokejimai.data, mokejimai.kaina FROM ${tableName}
-    INNER JOIN uzsakymai u on mokejimai.fk_uzsakymaiid_uzsakymai = u.id_uzsakymai
-    INNER JOIN vartotojai v on mokejimai.fk_vartotojaiid_vartotojai = v.id_vartotojai`);
+    const result = await pool.query(`SELECT nuotraukos.id_nuotraukos, nuotraukos.nuoroda, z.pavadinimas as zaidimas FROM ${tableName} 
+    INNER JOIN zaidimai z on nuotraukos.fk_zaidimaiid_zaidimai = z.id_zaidimai`);
     if (result.rowCount === 0) return cb(null);
     cb(result.rows);
 }
@@ -43,7 +41,7 @@ async function selectAll(data, cb) {
 async function selectId(id, cb) {
     if (!id) return cb(null);
 
-    const result = await pool.query(`SELECT * FROM ${tableName} WHERE id_mokejimai = $1`, [id]);
+    const result = await pool.query(`SELECT * FROM ${tableName} WHERE id_nuotraukos = $1`, [id]);
 
     if (result.rowCount === 0) return cb(null);
     cb(result.rows[0]);
@@ -56,7 +54,7 @@ async function selectId(id, cb) {
 async function deleteId(id, cb) {
     if (!id) return cb(null);
 
-    const result = await pool.query(`DELETE FROM ${tableName} WHERE id_mokejimai = $1`, [id]);
+    const result = await pool.query(`DELETE FROM ${tableName} WHERE id_nuotraukos = $1`, [id]);
 
     if (result.rowCount === 0) return cb(null);
     cb(true);
@@ -69,10 +67,9 @@ async function deleteId(id, cb) {
 async function insert(values, cb) {
     if (!values) return cb(null);
 
-    const result = await pool.query(`INSERT INTO ${tableName} (tipas, kaina, data, fk_uzsakymaiid_uzsakymai, fk_vartotojaiid_vartotojai) VALUES($1, $2, $3, $4, $5)`,
+    const result = await pool.query(`INSERT INTO ${tableName} (nuoroda, fk_zaidimaiid_zaidimai) VALUES ($1, $2)`,
         [
-            values.tipas, values.kaina, values.data,
-            values.fk_uzsakymaiid_uzsakymai, values.fk_vartotojaiid_vartotojai
+            values.nuoroda, values.fk_zaidimaiid_zaidimai
         ]
     );
 
@@ -87,11 +84,10 @@ async function insert(values, cb) {
 async function update(values, cb) {
     if (!values) return cb(null);
 
-    const result = await pool.query(`UPDATE ${tableName} SET tipas = $1, kaina = $2, data = $3, fk_uzsakymaiid_uzsakymai = $4, fk_vartotojaiid_vartotojai = $5 WHERE id_mokejimai = $6`,
+    const result = await pool.query(`UPDATE ${tableName} SET nuoroda = $1, fk_vartotojaiid_vartotojai = $2 WHERE id_nuotraukos = $3`,
         [
-            values.tipas, values.kaina, values.data,
-            values.fk_uzsakymaiid_uzsakymai, values.fk_vartotojaiid_vartotojai,
-            values.id_mokejimai
+            values.nuoroda, values.fk_zaidimaiid_zaidimai,
+            values.id_nuotraukos
         ]
     );
 

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, PageHeader, Tooltip, Table, notification } from 'antd';
+import { Button, PageHeader, Tooltip, Table } from 'antd';
 import { MdDelete } from 'react-icons/md';
 import { FaRegEdit } from 'react-icons/fa';
 import CreateForm from './Create';

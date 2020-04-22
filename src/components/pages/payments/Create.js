@@ -170,7 +170,10 @@ export default class CreateForm extends Component {
                                     label='Apmokėjimo data'
                                     rules={[{ required: true, message: 'Pasirinkite apmokėjimo datą!' }]}
                                 >
-                                    <DatePicker />
+                                    <DatePicker
+                                        format="YYYY-MM-DD HH:mm:ss"
+                                        showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
+                                    />
                                 </Form.Item>
 
                                 <Form.Item
