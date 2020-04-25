@@ -3,6 +3,7 @@ import { PageHeader, Form, Input, Button, Card, Row, Col, Select, DatePicker } f
 import socket from '../../../socket';
 import { tables } from '../../../tables';
 import { genres, gamemodes, platforms } from '../../../enums';
+import moment from 'moment';
 
 const formItemLayout = {
 	labelCol: { span: 8 },
@@ -19,15 +20,17 @@ const tailFormItemLayout = {
 export default class CreateForm extends Component {
 
     state = {
-        devs: [],
-        pubs: [],
-        currentDev: 0,
-        currentPub: 0
+        devs: []
     };
+
+    constructor(props) {
+        super(props);
+
+        this.form = React.createRef();
+    }
 
     componentDidMount() {
         this.selectDevs();
-        this.selectPubs();
     }
 
 	onFinish(values) {
@@ -39,39 +42,33 @@ export default class CreateForm extends Component {
 
     selectDevs() {
         socket.emit(tables.developers, 'selectAll', null, (devs) => {
-			if (!devs) return this.setState({ devs: [] });
+            if (!devs) return this.setState({ devs: [] });
+            if (devs.length === 0) this.props.back();
 
 			const devList = [...devs];
 	
 			devList.map((dev) => {
 				return dev.key = dev.id_kurejai;
 			});
-	
-			this.setState({ 
-                devs: [...devList],
-                currentDev: devList[0].id_kurejai
+
+            this.setState({ devs: [...devList] }, () => {
+                if (this.form && this.form.current)
+                    this.form.current.setFieldsValue({ fk_kurejaiid_kurejai: devList[0].id_kurejai });
             });
 		});
     }
 
-    selectPubs() {
-        socket.emit(tables.publishers, 'selectAll', null, (pubs) => {
-			if (!pubs) return this.setState({ pubs: [] });
-
-			const pubList = [...pubs];
-	
-			pubList.map((pub) => {
-				return pub.key = pub.id_leidejai;
-			});
-	
-			this.setState({ 
-                pubs: [...pubList],
-                currentPub: pubList[0].id_leidejai
-            });
-		});
+    selectDev(devId) {
+        const dev = this.state.devs.find((dev) => dev.id_kurejai === devId);
+        if (!dev) return;
+        if (this.form && this.form.current)
+            this.form.current.setFieldsValue({ fk_kurejaiid_kurejai: dev.id_kurejai });
     }
 
 	render() {
+        if (this.state.devs.length === 0) 
+            return (<div></div>);
+
         return (
             <div>
 				<PageHeader
@@ -85,48 +82,74 @@ export default class CreateForm extends Component {
 						</Button>
 					]}
 				/>
-				<Row gutter={24} style={{ padding: '10px', marginLeft: 'px', marginRight: '0px' }}>
+				<Row justify='center' style={{ padding: '10px', marginLeft: '0px', marginRight: '0px' }}>
                     <Col span={12}>
                         <Card style={{ backgroundColor: 'rgb(225, 225, 225)' }}>
                             <Form
+                                ref={this.form}
                                 {...formItemLayout}
                                 onFinish={this.onFinish.bind(this)}
                                 scrollToFirstError
                                 initialValues={{
-                                    zanras: genres[0],
-                                    rezimas: gamemodes[0],
+                                    fk_kurejaiid_kurejai: this.state.devs[0].id_kurejai,
+                                    isleidimo_data: moment(),
                                     platforma: platforms[0]
                                 }}
                             >
                                 <Form.Item
+                                    key='fk_kurejaiid_kurejai'
+                                    name='fk_kurejaiid_kurejai'
+                                    label='Kūrėjas'
+                                    rules={[{ required: true, message: 'Pasirinkite kūrėją!' }]}
+                                >
+                                    <Select onChange={(dev) => this.selectDev(dev)}>
+                                        {this.state.devs.map((dev) => {
+                                            return <Select.Option value={dev.id_kurejai}>{dev.pavadinimas}</Select.Option>;
+                                        })}
+                                    </Select>
+                                </Form.Item>
+
+                                <Form.Item
+                                    key='pavadinimas'
                                     name='pavadinimas'
                                     label='Pavadinimas'
                                     rules={[{ required: true, message: 'Įveskite pavadinimą!', min: 5, max: 255 }]}
                                 >
                                     <Input />
                                 </Form.Item>
+
                                 <Form.Item
+                                    key='isleidimo_data'
                                     name='isleidimo_data'
                                     label='Išleidimo data'
                                     rules={[{ required: true, message: 'Pasirinkite išleidimo datą!' }]}
                                 >
-                                    <DatePicker />
+                                    <DatePicker
+                                        format="YYYY-MM-DD HH:mm:ss"
+                                        showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
+                                    />
                                 </Form.Item>
+
                                 <Form.Item
+                                    key='kaina'
                                     name='kaina'
                                     label='Kaina'
                                     rules={[{ required: true, message: 'Įveskite kainą!' }]}
                                 >
                                     <Input type='number' />
                                 </Form.Item>
+
                                 <Form.Item
+                                    key='varikliukas'
                                     name='varikliukas'
                                     label='Varikliukas'
                                     rules={[{ required: true, message: 'Įveskite varikliuką!' }]}
                                 >
                                     <Input />
                                 </Form.Item>
+
                                 <Form.Item
+                                    key='zanras'
                                     name='zanras'
                                     label='Žanras'
                                     rules={[{ required: true, message: 'Pasirinkite žanrą!' }]}
@@ -137,7 +160,9 @@ export default class CreateForm extends Component {
                                         })}
                                     </Select>
                                 </Form.Item>
+
                                 <Form.Item
+                                    key='rezimas'
                                     name='rezimas'
                                     label='Režimas'
                                     rules={[{ required: true, message: 'Pasirinkite rėžimą!' }]}
@@ -148,7 +173,9 @@ export default class CreateForm extends Component {
                                         })}
                                     </Select>
                                 </Form.Item>
+
                                 <Form.Item
+                                    key='platforma'
                                     name='platforma'
                                     label='Platforma'
                                     rules={[{ required: true, message: 'Pasirinkite platformą!' }]}
@@ -159,41 +186,11 @@ export default class CreateForm extends Component {
                                         })}
                                     </Select>
                                 </Form.Item>
-                                <Form.Item {...tailFormItemLayout}>
+
+                                <Form.Item key='sukurti' {...tailFormItemLayout}>
                                     <Button type='primary' htmlType='submit'>
                                         Sukurti
                                     </Button>
-                                </Form.Item>
-                            </Form>
-                        </Card>
-                    </Col>
-                    <Col span={12}>
-                        <Card style={{ backgroundColor: 'rgb(225, 225, 225)' }}>
-                            <Form
-                                {...formItemLayout}
-                                scrollToFirstError
-                            >
-                                <Form.Item
-                                    name='fk_kurejaiid_kurejai'
-                                    label='Kūrėjas'
-                                    rules={[{ required: true, message: 'Pasirinkite kūrėją!' }]}
-                                >
-                                    <Select defaultValue={this.state.currentDev} onChange={(dev) => this.setState({ currentDev: dev })}>
-                                        {this.state.devs.map((dev) => {
-                                            return <Select.Option value={dev.id_kurejai}>{dev.pavadinimas}</Select.Option>;
-                                        })}
-                                    </Select>
-                                </Form.Item>
-                                <Form.Item
-                                    name='fk_leidejaiid_leidejai'
-                                    label='Leidėjas'
-                                    rules={[{ required: true, message: 'Pasirinkite leidėją!' }]}
-                                >
-                                    <Select defaultValue={this.state.currentPub} onChange={(pub) => this.setState({ currentPub: pub })}>
-                                        {this.state.pubs.map((pub) => {
-                                            return <Select.Option value={pub.id_leidejai}>{pub.pavadinimas}</Select.Option>;
-                                        })}
-                                    </Select>
                                 </Form.Item>
                             </Form>
                         </Card>

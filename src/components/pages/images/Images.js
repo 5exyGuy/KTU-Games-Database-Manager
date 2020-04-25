@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, PageHeader, Tooltip, Table } from 'antd';
+import { Button, PageHeader, Tooltip, Table, Popover } from 'antd';
 import { MdDelete } from 'react-icons/md';
 import { FaRegEdit } from 'react-icons/fa';
 import CreateForm from './Create';
@@ -73,7 +73,7 @@ export default class Groups extends Component {
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>
 						<Table 
-							sor
+
 							columns={[
 								{ title: 'ID', dataIndex: 'id_nuotraukos', defaultSortOrder: 'ascend', sorter: (a, b) => a.id_nuotraukos - b.id_nuotraukos },
 								{ title: 'Žaidimas', dataIndex: 'zaidimas' },
@@ -81,7 +81,9 @@ export default class Groups extends Component {
 									title: 'Nuotrauka', 
 									dataIndex: 'nuoroda',
 									render: (url) => (
-										<img src={url} height='100px' alt='nuoroda' />
+										<Popover content={<img src={url} height='200px' alt='nuoroda' />}>
+											{url}
+										</Popover>
 									)
 								},
 								{ title: 'Sukūrė', dataIndex: 'ikurejas' },

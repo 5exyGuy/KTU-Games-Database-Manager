@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, PageHeader, Tooltip, Table, notification } from 'antd';
+import { Button, PageHeader, Tooltip, Table } from 'antd';
 import { MdDelete } from 'react-icons/md';
 import { FaRegEdit } from 'react-icons/fa';
 import CreateForm from './Create';
@@ -43,37 +43,15 @@ export default class Games extends Component {
 	edit(id) {
 		socket.emit(tables.games, 'selectId', id, (result) => {
 			if (!result) return;
-
+			result.zanras = [...JSON.parse(result.zanras)];
+			result.rezimas = [...JSON.parse(result.rezimas)];
 			this.data = result;
-			this.setState({ action: 'edit' }); 	// Pereinam į redagavimo formą
-		});
-	}
-
-	create() {
-		socket.emit(tables.developers, 'countAll', null, (devCount) => {
-			if (parseInt(devCount) === 0) {
-				notification['error']({
-					message: 'Žaidimai',
-					description: 'Kūrėjų lentelė tuščia. Užpildykite lentelę ir bandykite vėl įterpti naują įrašą.'
-				});
-				return;
-			}
-			socket.emit(tables.publishers, 'countAll', null, (pubCount) => {
-				if (parseInt(pubCount) === 0) {
-					notification['error']({
-						message: 'Žaidimai',
-						description: 'Leidėjų lentelė tuščia. Užpildykite lentelę ir bandykite vėl įterpti naują įrašą.'
-					});
-					return;
-				}
-				this.setState({ action: 'create' });
-			});
+			this.setState({ action: 'edit' });
 		});
 	}
 
 	back() {
-		this.setState({ action: 'none' });
-		this.selectAll();
+		this.setState({ action: 'none' }, () => this.selectAll());
 	}
 
 	render() {
@@ -91,7 +69,7 @@ export default class Games extends Component {
 							title='Žaidimai'
 							subTitle='Parduodami žaidimai'
 							extra={[
-								<Button onClick={this.create.bind(this)} shape='round'>Pridėti naują žaidimą</Button>
+								<Button onClick={() => this.setState({ action: 'create' })} shape='round'>Pridėti naują žaidimą</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>
@@ -99,9 +77,8 @@ export default class Games extends Component {
 							columns={[
 								{ title: 'ID', dataIndex: 'id_zaidimai', defaultSortOrder: 'ascend', sorter: (a, b) => a.id_zaidimai - b.id_zaidimai },
 								{ title: 'Pavadinimas', dataIndex: 'pavadinimas' },
-								{ title: 'Žanras', dataIndex: 'zanras' },
+								{ title: 'Platforma', dataIndex: 'platforma' },
 								{ title: 'Kūrėjas', dataIndex: 'kurejas' },
-								{ title: 'Leidėjas', dataIndex: 'leidejas' },
 								{ title: 'Kaina', dataIndex: 'kaina' },
 								{
 									title: 'Veiksmai',

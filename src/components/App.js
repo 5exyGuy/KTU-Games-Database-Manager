@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Layout, Menu } from 'antd';
+import { Layout, Menu, BackTop } from 'antd';
 import Users from './pages/users/Users';
 import Developers from './pages/developers/Developers';
 import FAQ from './pages/faq/FAQ';
@@ -51,6 +51,7 @@ export default class App extends Component {
 				<Content className='site-layout-content'>
 					{pages.find((item) => item.key === this.state.currentPage).content}
 				</Content>
+				<BackTop />
 			</Layout>
 		);
 	}

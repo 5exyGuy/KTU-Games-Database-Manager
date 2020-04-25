@@ -26,7 +26,7 @@ const routes = {
  * @param {Function} cb 
  */
 async function selectAll(data, cb) {
-    const result = await pool.query(`SELECT zaidimai.id_zaidimai, zaidimai.pavadinimas, zaidimai.zanras, k.pavadinimas as kurejas, zaidimai.kaina FROM zaidimai
+    const result = await pool.query(`SELECT zaidimai.id_zaidimai, zaidimai.pavadinimas, zaidimai.platforma, k.pavadinimas as kurejas, zaidimai.kaina FROM zaidimai
     INNER JOIN kurejai k on zaidimai.fk_kurejaiid_kurejai = k.id_kurejai`);
     if (result.rowCount === 0) return cb(null);
     cb(result.rows);
@@ -65,11 +65,11 @@ async function deleteId(id, cb) {
 async function insert(values, cb) {
     if (!values) return cb(null);
 
-    const result = await pool.query(`INSERT INTO ${tableName} VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`, 
+    const result = await pool.query(`INSERT INTO ${tableName} (pavadinimas, isleidimo_data, kaina, varikliukas, zanras, rezimas, platforma, fk_kurejaiid_kurejai) VALUES($1, $2, $3, $4, $5, $6, $7, $8)`, 
         [ 
             values.pavadinimas, values.isleidimo_data, values.kaina,
             values.varikliukas, values.zanras, values.rezimas, values.platforma,
-            values.fk_kurejaiid_kurejai, values.fk_leidejaiid_leidejai
+            values.fk_kurejaiid_kurejai
         ]
     );
 
@@ -82,14 +82,15 @@ async function insert(values, cb) {
  * @param {Function} cb 
  */
 async function update(values, cb) {
+    console.log(values);
     if (!values) return cb(null);
 
     const result = await pool.query(`UPDATE ${tableName} SET pavadinimas = $1, isleidimo_data = $2, kaina = $3, 
-    varikliukas = $6, zanras = $7, rezimas = $8, platforma = $9, fk_kurejaiid_kurejai = $10, fk_leidejaiid_leidejai = $11 WHERE id_zaidimai = $4`, 
+    varikliukas = $4, zanras = $5, rezimas = $6, platforma = $7, fk_kurejaiid_kurejai = $8 WHERE id_zaidimai = $9`, 
     [ 
         values.pavadinimas, values.isleidimo_data, values.kaina,
-        values.varikliukas, values.zanras, values.rezimas, values.platforma,
-        values.fk_kurejaiid_kurejai, values.fk_leidejaiid_leidejai,
+        values.varikliukas, values.zanras, values.rezimas, 
+        values.platforma, values.fk_kurejaiid_kurejai,
         values.id_zaidimai
     ]
     );

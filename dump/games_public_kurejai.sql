@@ -1,0 +1,1 @@
+INSERT INTO public.kurejai (pavadinimas, logotipas, hipersaitas, id_kurejai) VALUES ('Google', 'asdasd', 'asdasdsa', 1);

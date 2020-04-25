@@ -3,33 +3,17 @@ import { PageHeader, Form, Input, Button, Card, Row, Col, Select } from 'antd';
 import socket from '../../../socket';
 import { tables } from '../../../tables';
 
-const formItemLayout = {
-	labelCol: { span: 8 },
-	wrapperCol: { span: 16 }
-};
-
-const tailFormItemLayout = {
-	wrapperCol: {
-		span: 8,
-		offset: 8
-	}
-};
-
 export default class CreateForm extends Component {
 
     state = {
         games: [],
         images: [
             {
-                id: 0,
-                form: React.createRef()
+                form: React.createRef(),
+                id: 0
             }
         ]
     };
-
-    constructor(props) {
-        super(props);
-    }
 
     componentDidMount() {
         this.selectGames();
@@ -78,7 +62,7 @@ export default class CreateForm extends Component {
             }
         });
 
-        images.push({ form: React.createRef(), id: maxId + 1 });
+        images.push({ form: React.createRef(), id: maxId + 1, url: '' });
         this.setState({ images: [...images] });
     }
 
@@ -87,7 +71,7 @@ export default class CreateForm extends Component {
         if (images.length <= 1) return;
 
         const index = images.findIndex((image) => image.id === imageId);
-        if (index > 0) images.splice(index, 1);
+        if (index > -1) images.splice(index, 1);
 
         this.setState({ images: [...images] });
     }
@@ -123,18 +107,18 @@ export default class CreateForm extends Component {
 						</Button>
 					]}
 				/>
-				<Row gutter={[16, 16]} style={{ padding: '10px', marginLeft: 'px', marginRight: '0px' }}>
-                    {this.state.images.map(image => {
-                        return (<Col span={12}>
+                {this.state.images.map(image => {
+				    return (<Row justify='center' style={{ padding: '10px', marginLeft: '0px', marginRight: '0px' }}>
+                        <Col span={12}>
                             <Card style={{ backgroundColor: 'rgb(225, 225, 225)' }}>
                                 <Form
                                     ref={image.form}
-                                    {...formItemLayout}
                                     onFinish={this.onFinish.bind(this)}
                                     scrollToFirstError
                                     initialValues={{
                                         fk_zaidimaiid_zaidimai: this.state.games[0].id_zaidimai
                                     }}
+                                    layout='inline'
                                 >
                                     <Form.Item
                                         key='fk_zaidimaiid_zaidimai'
@@ -157,16 +141,16 @@ export default class CreateForm extends Component {
                                         <Input />
                                     </Form.Item>
 
-                                    <Form.Item key='sukurti' {...tailFormItemLayout}>
+                                    <Form.Item key='salinti'>
                                         <Button type='danger' shape='round' onClick={this.removeImage.bind(this, image.id)}>
                                             Šalinti
                                         </Button>
                                     </Form.Item>
                                 </Form>
                             </Card>
-                        </Col>);
-                    })}
-				</Row>
+                        </Col>
+				    </Row>);
+                })}
             </div>
         );
     }

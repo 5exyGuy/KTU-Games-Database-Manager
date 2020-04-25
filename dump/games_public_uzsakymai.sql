@@ -1,0 +1,2 @@
+INSERT INTO public.uzsakymai (data, busena, kaina, pvm, id_uzsakymai, fk_vartotojaiid_vartotojai) VALUES ('45645645645', 'Laukia apmokėjimo', 15.99, 0.25, 1, 1);
+INSERT INTO public.uzsakymai (data, busena, kaina, pvm, id_uzsakymai, fk_vartotojaiid_vartotojai) VALUES ('45645645123', 'Įvykdytas', 10, 0.12, 2, 2);

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Button, PageHeader, Tooltip, Table } from 'antd';
 import { MdDelete } from 'react-icons/md';
 import { FaRegEdit } from 'react-icons/fa';
-import CreateForm from './Create';
+import { GroupForm, GroupWithNewUsersForm } from './Create';
 import EditForm from './Edit';
 import { tables } from '../../../tables';
 import socket from '../../../socket';
@@ -57,7 +57,8 @@ export default class Groups extends Component {
 
 	render() {
 		const actionsPages = {
-			create: <CreateForm back={this.back.bind(this)} />,
+			createNewGroup: <GroupForm back={this.back.bind(this)} />,
+			createNewGroupWithNewUsers: <GroupWithNewUsersForm back={this.back.bind(this)} />,
 			edit: <EditForm back={this.back.bind(this)} data={this.data} />
 		};
 
@@ -70,7 +71,8 @@ export default class Groups extends Component {
 							title='Grupės'
 							subTitle='Vartotojų sukurtos grupės'
 							extra={[
-								<Button onClick={() => this.setState({ action: 'create' })} shape='round'>Sukurti grupę</Button>
+								<Button onClick={() => this.setState({ action: 'createNewGroup' })} shape='round'>Sukurti grupę</Button>,
+								<Button onClick={() => this.setState({ action: 'createNewGroupWithNewUsers' })} shape='round'>Sukurti grupę su naujais vartotojais</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>

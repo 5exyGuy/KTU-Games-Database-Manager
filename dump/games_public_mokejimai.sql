@@ -1,0 +1,2 @@
+INSERT INTO public.mokejimai (tipas, kaina, data, id_mokejimai, fk_uzsakymaiid_uzsakymai, fk_vartotojaiid_vartotojai) VALUES ('Internetinė bankininkystė', 15.99, '2020-04-22 23:01:50.246000', 5, 1, 2);
+INSERT INTO public.mokejimai (tipas, kaina, data, id_mokejimai, fk_uzsakymaiid_uzsakymai, fk_vartotojaiid_vartotojai) VALUES ('Internetinė bankininkystė', 15.99, '2020-04-29 20:50:12.468000', 4, 1, 2);
