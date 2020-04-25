@@ -70,7 +70,7 @@ export default class Reviews extends Component {
 							title='Atsiliepimai'
 							subTitle='Vartotojų atsiliepimai apie žaidimus'
 							extra={[
-								<Button onClick={() => this.setState({ action: 'create' })} shape='round'>Sukurti atsiliepimą</Button>
+								<Button onClick={() => this.setState({ action: 'create' })} shape='round'>Skelbti atsiliepimą</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>
@@ -80,7 +80,7 @@ export default class Reviews extends Component {
 								{ title: 'ID', dataIndex: 'id_atsiliepimai', defaultSortOrder: 'ascend', sorter: (a, b) => a.id_atsiliepimai - b.id_atsiliepimai },
 								{ title: 'Žaidimas', dataIndex: 'zaidimas' },
 								{ title: 'Vartotojas', dataIndex: 'vartotojas' },
-								{ title: 'Apmokėjimo data', dataIndex: 'ivertinimas' },
+								{ title: 'Įvertinimas', dataIndex: 'ivertinimas' },
 								{ title: 'Parašymo data', dataIndex: 'data' },
 								{
 									title: 'Veiksmai',

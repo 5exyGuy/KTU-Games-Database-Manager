@@ -70,7 +70,7 @@ async function deleteId(id, cb) {
 async function insert(values, cb) {
     if (!values) return cb(null);
 
-    const result = await pool.query(`INSERT INTO ${tableName} VALUES($1, $2, $3, $4, $5)`,
+    const result = await pool.query(`INSERT INTO ${tableName} (ivertinimas, komentaras, data, fk_zaidimaiid_zaidimai, fk_vartotojaiid_vartotojai) VALUES($1, $2, $3, $4, $5)`,
         [
             values.ivertinimas, values.komentaras, values.data,
             values.fk_zaidimaiid_zaidimai, values.fk_vartotojaiid_vartotojai
@@ -88,7 +88,9 @@ async function insert(values, cb) {
 async function update(values, cb) {
     if (!values) return cb(null);
 
-    const result = await pool.query(`UPDATE mokejimai SET ivertinimas = $1, komentaras = $2, data = $3, fk_uzsakymaiid_uzsakymai = $4, fk_vartotojaiid_vartotojai = $5 WHERE id_atsiliepimai = $6`,
+    console.log(values);
+
+    const result = await pool.query(`UPDATE ${tableName} SET ivertinimas = $1, komentaras = $2, data = $3, fk_zaidimaiid_zaidimai = $4, fk_vartotojaiid_vartotojai = $5 WHERE id_atsiliepimai = $6`,
         [
             values.ivertinimas, values.komentaras, values.data,
             values.fk_zaidimaiid_zaidimai, values.fk_vartotojaiid_vartotojai,

@@ -26,9 +26,8 @@ const routes = {
  * @param {Function} cb 
  */
 async function selectAll(data, cb) {
-    const result = await pool.query(`SELECT zaidimai.id_zaidimai, zaidimai.pavadinimas, zaidimai.zanras, k.pavadinimas as kurejas, l.pavadinimas as leidejas, zaidimai.kaina FROM zaidimai
-    INNER JOIN kurejai k on zaidimai.fk_kurejaiid_kurejai = k.id_kurejai
-    INNER JOIN leidejai l on zaidimai.fk_leidejaiid_leidejai = l.id_leidejai`);
+    const result = await pool.query(`SELECT zaidimai.id_zaidimai, zaidimai.pavadinimas, zaidimai.zanras, k.pavadinimas as kurejas, zaidimai.kaina FROM zaidimai
+    INNER JOIN kurejai k on zaidimai.fk_kurejaiid_kurejai = k.id_kurejai`);
     if (result.rowCount === 0) return cb(null);
     cb(result.rows);
 }
