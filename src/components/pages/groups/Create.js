@@ -258,7 +258,10 @@ export class CreateGroupNewUsersForm extends Component {
                         <Button type='primary' shape='round' onClick={() => this.form.current.submit()}>
 						 	Sukurti grupę
 						</Button>,
-                        <Button shape='round' onClick={() => this.setState({ isModalVisible: true })}>
+                        <Button shape='round' onClick={() => { 
+                            this.newUserForm.current.resetFields(); 
+                            this.setState({ isModalVisible: true })}
+                        }>
 						 	Pridėti naują vartotoją
 						</Button>,
 						<Button shape='round' onClick={() => this.props.back()}>

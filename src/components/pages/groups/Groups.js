@@ -3,7 +3,7 @@ import { Button, PageHeader, Tooltip, Table } from 'antd';
 import { MdDelete } from 'react-icons/md';
 import { FaRegEdit } from 'react-icons/fa';
 import { CreateGroupForm, CreateGroupNewUsersForm } from './Create';
-import { EditGroupForm, EditGroupNewUsersForm } from './Edit';
+import EditForm from './Edit';
 import { tables } from '../../../tables';
 import socket from '../../../socket';
 import moment from 'moment';
@@ -57,10 +57,9 @@ export default class Groups extends Component {
 
 	render() {
 		const actionsPages = {
-			createNewGroup: <CreateGroupForm back={this.back.bind(this)} />,
+			createGroupForm: <CreateGroupForm back={this.back.bind(this)} />,
 			createGroupNewUsersForm: <CreateGroupNewUsersForm back={this.back.bind(this)} />,
-			editGroupForm: <EditGroupForm back={this.back.bind(this)} data={this.data} />,
-			EditGroupNewUsersForm: <EditGroupNewUsersForm back={this.back.bind(this)} data={this.data} />
+			edit: <EditForm back={this.back.bind(this)} data={this.data} />
 		};
 
 		return (
@@ -72,8 +71,8 @@ export default class Groups extends Component {
 							title='Grupės'
 							subTitle='Vartotojų sukurtos grupės'
 							extra={[
-								<Button onClick={() => this.setState({ action: 'createNewGroup' })} shape='round'>Sukurti grupę</Button>,
-								<Button onClick={() => this.setState({ action: 'createNewGroupWithNewUsers' })} shape='round'>Sukurti grupę su naujais vartotojais</Button>
+								<Button onClick={() => this.setState({ action: 'createGroupForm' })} shape='round'>Sukurti grupę</Button>,
+								<Button onClick={() => this.setState({ action: 'createGroupNewUsersForm' })} shape='round'>Sukurti grupę su naujais vartotojais</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>
