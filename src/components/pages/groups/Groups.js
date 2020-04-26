@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { Button, PageHeader, Tooltip, Table } from 'antd';
 import { MdDelete } from 'react-icons/md';
 import { FaRegEdit } from 'react-icons/fa';
-import { GroupForm, GroupWithNewUsersForm } from './Create';
-import EditForm from './Edit';
+import { CreateGroupForm, CreateGroupNewUsersForm } from './Create';
+import { EditGroupForm, EditGroupNewUsersForm } from './Edit';
 import { tables } from '../../../tables';
 import socket from '../../../socket';
 import moment from 'moment';
@@ -57,9 +57,10 @@ export default class Groups extends Component {
 
 	render() {
 		const actionsPages = {
-			createNewGroup: <GroupForm back={this.back.bind(this)} />,
-			createNewGroupWithNewUsers: <GroupWithNewUsersForm back={this.back.bind(this)} />,
-			edit: <EditForm back={this.back.bind(this)} data={this.data} />
+			createNewGroup: <CreateGroupForm back={this.back.bind(this)} />,
+			createGroupNewUsersForm: <CreateGroupNewUsersForm back={this.back.bind(this)} />,
+			editGroupForm: <EditGroupForm back={this.back.bind(this)} data={this.data} />,
+			EditGroupNewUsersForm: <EditGroupNewUsersForm back={this.back.bind(this)} data={this.data} />
 		};
 
 		return (
