@@ -33,7 +33,6 @@ async function selectAll(data, cb) {
 }
 
 /**
- * Randa vartotoją pagal ID
  * @param {number} id
  * @param {Function} cb 
  */

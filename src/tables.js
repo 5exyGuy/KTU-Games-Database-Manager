@@ -5,7 +5,7 @@ export const tables = {
     orders: 'uzsakymai',
     games: 'zaidimai',
     payments: 'mokejimai',
-    groups: 'grupes',
+    achievements: 'pasiekimai',
     reviews: 'atsiliepimai',
     images: 'nuotraukos',
     carts: 'krepseliai'

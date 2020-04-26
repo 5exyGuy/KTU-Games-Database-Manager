@@ -1,4 +1,6 @@
-import { pool } from '../server.mjs';
+import {
+    pool
+} from '../server.mjs';
 
 const tableName = 'zaidimai'; // Lentelės pavadinimas
 
@@ -16,6 +18,7 @@ export function route(routeName, data, cb) {
 const routes = {
     selectAll: selectAll,
     selectId: selectId,
+    selectImages: selectImages,
     deleteId: deleteId,
     insert: insert,
     update: update
@@ -39,7 +42,7 @@ async function selectAll(data, cb) {
 async function selectId(id, cb) {
     if (!id) return cb(null);
 
-    const result = await pool.query(`SELECT * FROM ${tableName} WHERE id_zaidimai = $1`, [ id ]);
+    const result = await pool.query(`SELECT * FROM ${tableName} WHERE id_zaidimai = $1`, [id]);
 
     if (result.rowCount === 0) return cb(null);
     cb(result.rows[0]);
@@ -49,10 +52,23 @@ async function selectId(id, cb) {
  * @param {number} id
  * @param {Function} cb 
  */
+async function selectImages(id, cb) {
+    if (!id) return cb(null);
+
+    const result = await pool.query(`SELECT * FROM ${tableName} INNER JOIN nuotraukos n on zaidimai.id_zaidimai = n.fk_zaidimaiid_zaidimai WHERE id_zaidimai = $1`, [id]);
+
+    if (result.rowCount === 0) return cb(null);
+    cb(result.rows);
+}
+
+/**
+ * @param {number} id
+ * @param {Function} cb 
+ */
 async function deleteId(id, cb) {
     if (!id) return cb(null);
 
-    const result = await pool.query(`DELETE FROM ${tableName} WHERE id_zaidimai = $1`, [ id ]);
+    const result = await pool.query(`DELETE FROM ${tableName} WHERE id_zaidimai = $1`, [id]);
 
     if (result.rowCount === 0) return cb(null);
     cb(true);
@@ -65,8 +81,10 @@ async function deleteId(id, cb) {
 async function insert(values, cb) {
     if (!values) return cb(null);
 
-    const result = await pool.query(`INSERT INTO ${tableName} (pavadinimas, isleidimo_data, kaina, varikliukas, zanras, rezimas, platforma, fk_kurejaiid_kurejai) VALUES($1, $2, $3, $4, $5, $6, $7, $8)`, 
-        [ 
+    const result = await pool.query(`INSERT INTO ${tableName} 
+    (pavadinimas, isleidimo_data, kaina, varikliukas, zanras, rezimas, platforma, fk_kurejaiid_kurejai) 
+    VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id_zaidimai`,
+        [
             values.pavadinimas, values.isleidimo_data, values.kaina,
             values.varikliukas, values.zanras, values.rezimas, values.platforma,
             values.fk_kurejaiid_kurejai
@@ -74,7 +92,7 @@ async function insert(values, cb) {
     );
 
     if (result.rowCount === 0) return cb(null);
-    cb(true);
+    cb(result.rows[0]);
 }
 
 /**
@@ -82,17 +100,16 @@ async function insert(values, cb) {
  * @param {Function} cb 
  */
 async function update(values, cb) {
-    console.log(values);
     if (!values) return cb(null);
 
     const result = await pool.query(`UPDATE ${tableName} SET pavadinimas = $1, isleidimo_data = $2, kaina = $3, 
-    varikliukas = $4, zanras = $5, rezimas = $6, platforma = $7, fk_kurejaiid_kurejai = $8 WHERE id_zaidimai = $9`, 
-    [ 
-        values.pavadinimas, values.isleidimo_data, values.kaina,
-        values.varikliukas, values.zanras, values.rezimas, 
-        values.platforma, values.fk_kurejaiid_kurejai,
-        values.id_zaidimai
-    ]
+    varikliukas = $4, zanras = $5, rezimas = $6, platforma = $7, fk_kurejaiid_kurejai = $8 WHERE id_zaidimai = $9`,
+        [
+            values.pavadinimas, values.isleidimo_data, values.kaina,
+            values.varikliukas, values.zanras, values.rezimas,
+            values.platforma, values.fk_kurejaiid_kurejai,
+            values.id_zaidimai
+        ]
     );
 
     if (result.rowCount === 0) return cb(null);

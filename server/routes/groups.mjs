@@ -17,8 +17,10 @@ export function route(routeName, data, cb) {
 
 const routes = {
     selectAll: selectAll,
+    selectGroupUsers: selectGroupUsers,
     selectId: selectId,
     deleteId: deleteId,
+    deleteUser: deleteUser,
     insert: insert,
     update: update
 };
@@ -28,8 +30,20 @@ const routes = {
  * @param {Function} cb 
  */
 async function selectAll(data, cb) {
-    const result = await pool.query(`SELECT grupes.id_grupes, grupes.pavadinimas, grupes.ikurimo_data, v.slapyvardis as ikurejas FROM ${tableName} 
-    INNER JOIN vartotojai v on grupes.fk_vartotojaiid_vartotojai = v.id_vartotojai`);
+    const result = await pool.query(`SELECT pasiekimai.id_pasiekimai, pasiekimai.pavadinimas, pasiekimai.taskai, z.pavadinimas as zaidimas, z.platforma FROM ${tableName}
+    INNER JOIN zaidimai z on pasiekimai.fk_zaidimaiid_zaidimai = z.id_zaidimai`);
+    if (result.rowCount === 0) return cb(null);
+    cb(result.rows);
+}
+
+/**
+ * @param {string} data
+ * @param {Function} cb 
+ */
+async function selectGroupUsers(id, cb) {
+    const result = await pool.query(`SELECt * FROM vartotojai
+        INNER JOIN vartotoju_grupes vg on vartotojai.id_vartotojai = vg.fk_vartotojaiid_vartotojai
+    WHERE fk_grupesid_grupes = $1`, [id]);
     if (result.rowCount === 0) return cb(null);
     cb(result.rows);
 }
@@ -55,6 +69,19 @@ async function deleteId(id, cb) {
     if (!id) return cb(null);
 
     const result = await pool.query(`DELETE FROM ${tableName} WHERE id_grupes = $1`, [id]);
+
+    if (result.rowCount === 0) return cb(null);
+    cb(true);
+}
+
+/**
+ * @param {any} data
+ * @param {Function} cb 
+ */
+async function deleteUser(data, cb) {
+    if (!data) return cb(null);
+
+    const result = await pool.query(`DELETE FROM vartotoju_grupes WHERE fk_grupesid_grupes = $1 AND fk_vartotojaiid_vartotojai = $2`, [data.groupId, data.userId]);
 
     if (result.rowCount === 0) return cb(null);
     cb(true);

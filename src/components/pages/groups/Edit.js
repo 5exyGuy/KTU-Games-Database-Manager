@@ -11,7 +11,7 @@ const formItemLayout = {
 
 const tailFormItemLayout = {
 	wrapperCol: {
-		span: 8,
+		span: 16,
 		offset: 8
 	}
 };
@@ -20,30 +20,32 @@ export default class EditForm extends Component {
 
     state = {
         users: [],
-        newUsers: [],
-        isModalVisible: false
+        groupUsers: [],
+        isModalVisible: false,
+        creatingNew: false
     };
 
     constructor(props) {
         super(props);
 
         this.form = React.createRef();
-        this.newUserForm = React.createRef();
+        this.groupUserForm = React.createRef();
     }
 
     componentDidMount() {
         this.selectUsers();
+        this.selectGroupUsers(this.props.data.id_grupes);
     }
 
 	onFinish(values) {
-		socket.emit(tables.groups, 'insert', values, (result) => {
+		socket.emit(tables.groups, 'update', values, (result) => {
 			if (!result) return;
             
             const newUsers = [...this.state.newUsers];
 
             newUsers.forEach(async (user) => {
                 await new Promise((resolve) => {
-                    socket.emit(tables.users, 'insert', user, (result) => resolve(result));
+                    socket.emit(tables.users, 'update', user, (result) => resolve(result));
                 });
             });
 
@@ -51,45 +53,85 @@ export default class EditForm extends Component {
 		});
     }
 
-    addNewUser(values) {
-        const newUsers = [...this.state.newUsers];
+    addGroupUser(values) {
+        const groupUsers = [...this.state.groupUsers];
 
-        const user = newUsers.find((user) => 
+        const user = groupUsers.find((user) => 
             user.slapyvardis === values.slapyvardis || 
             user.el_pastas === values.el_pastas
         );
         if (user) {
-            this.setState({ isModalVisible: false });
-            return;
+            const index = groupUsers.findIndex((user) => user.id_vartotojai === values.id_vartotojai);
+            if (index > -1) {
+                values.naujas = false;
+                groupUsers[index] = values;
+            }
+
+            return this.setState({ 
+                groupUsers: [...groupUsers],
+                isModalVisible: false,
+                creatingNew: false
+            });
         }
 
-        newUsers.push(values);
+        values.naujas = true;
+        groupUsers.push(values);
         this.setState({ 
-            newUsers: [...newUsers],
-            isModalVisible: false
+            groupUsers: [...groupUsers],
+            isModalVisible: false,
+            creatingNew: false
         });
     }
 
-    editNewUser(username) {
-        const newUsers = [...this.state.newUsers];
+    editGroupUser(userId) {
+        const groupUsers = [...this.state.groupUsers];
 
-        const index = newUsers.findIndex((user) => user.slapyvardis === username);
+        const index = groupUsers.findIndex((user) => user.id_vartotojai === userId);
         if (index < 0) return;
 
-        const user = newUsers[index];
+        const user = groupUsers[index];
 
-        this.newUserForm.current.setFieldsValue({...user});
-        this.setState({ isModalVisible: true });
+        this.setState({ isModalVisible: true }, () => {
+            if (this.groupUserForm && this.groupUserForm.current)
+                return this.groupUserForm.current.setFieldsValue({...user});
+
+            setTimeout(() => {
+                this.groupUserForm.current.setFieldsValue({...user});
+            }, 1000);
+        });
     }
 
-    removeNewUser(username) {
-        const newUsers = [...this.state.newUsers];
-
-        const index = newUsers.findIndex((user) => user.slapyvardis === username);
+    removeGroupUser(userId, groupId) {
+        const groupUsers = [...this.state.groupUsers];
+        const index = groupUsers.findIndex((user) => user.id_vartotojai === userId);
         if (index < 0) return;
-        newUsers.splice(index, 1);
 
-        this.setState({ newUsers: [...newUsers] });
+        if (groupUsers[index].naujas) {
+            groupUsers.splice(index, 1);
+            return this.setState({ groupUsers: [...groupUsers] });
+        }
+
+        socket.emit(tables.groups, 'deleteUser', { userId: userId, groupId: groupId }, (result) => {
+            if (!result) return;
+            this.selectGroupUsers();
+        });
+    }
+
+    selectGroupUsers(groupId) {
+        socket.emit(tables.groups, 'selectGroupUsers', groupId, (users) => {
+            if (!users) return this.setState({ groupUsers: [] });
+
+            const userList = [...users];
+
+            userList.map((user) => {
+                user.naujas = false;
+                user.paskutinis_prisijungimas = moment(user.paskutinis_prisijungimas);
+                user.registracijos_data = moment(user.registracijos_data);
+                return user;
+            });
+
+            this.setState({ groupUsers: [...userList] });
+        });
     }
 
     selectUsers() {
@@ -97,11 +139,7 @@ export default class EditForm extends Component {
 			if (!users) return this.setState({ users: [] });
             if (users.length === 0) this.props.back();
 
-			const userList = [...users];
-	
-			userList.map((user) => {
-				return user.key = user.id_vartotojai;
-            });
+            const userList = [...users];
 	
 			this.setState({ users: [...userList] }, () => {
                 if (this.form && this.form.current)
@@ -129,13 +167,13 @@ export default class EditForm extends Component {
                     subTitle='Vartotojų sukurtos grupės'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
-                        <Button type='primary' shape='round' onClick={() => this.form.current.submit()}>
-						 	Sukurti grupę
+                        <Button key='edit' type='primary' onClick={() => this.form.current.submit()}>
+						 	Redaguoti
 						</Button>,
-                        <Button shape='round' onClick={() => this.setState({ isModalVisible: true })}>
+                        <Button key='addNewUser' onClick={() => this.setState({ isModalVisible: true, creatingNew: true })}>
 						 	Pridėti naują vartotoją
 						</Button>,
-						<Button shape='round' onClick={() => this.props.back()}>
+						<Button key='cancel' onClick={() => this.props.back()}>
 						 	Grįžti
 						</Button>
 					]}
@@ -149,10 +187,21 @@ export default class EditForm extends Component {
                                 onFinish={this.onFinish.bind(this)}
                                 scrollToFirstError
                                 initialValues={{
-                                    fk_vartotojaiid_vartotojai: this.state.users[0].id_vartotojai,
-                                    ikurimo_data: moment()
+                                    id_grupes: this.props.data.id_grupes,
+                                    fk_vartotojaiid_vartotojai: this.props.data.fk_vartotojaiid_vartotojai,
+                                    pavadinimas: this.props.data.pavadinimas,
+                                    ikurimo_data: moment(this.props.data.ikurimo_data)
                                 }}
                             >
+                                <Form.Item
+                                    key='id_grupes'
+                                    name='id_grupes'
+                                    label='ID'
+                                    rules={[{ required: true, message: 'Įveskite grupės ID!' }]}
+                                >
+                                    <Input disabled />
+                                </Form.Item>
+
                                 <Form.Item
                                     key='fk_vartotojaiid_vartotojai'
                                     name='fk_vartotojaiid_vartotojai'
@@ -193,13 +242,13 @@ export default class EditForm extends Component {
                     <Col span={12}>
                         <List
                             bordered
-                            dataSource={this.state.newUsers}
+                            dataSource={this.state.groupUsers}
                             renderItem={user => (
                                 <List.Item actions={[
                                     // eslint-disable-next-line
-                                    <a key='edit' onClick={this.editNewUser.bind(this, user.slapyvardis)}>redaguoti</a>, 
+                                    <a key='edit' onClick={this.editGroupUser.bind(this, user.id_vartotojai)}>redaguoti</a>, 
                                     // eslint-disable-next-line
-                                    <a key='remove' onClick={this.removeNewUser.bind(this, user.slapyvardis)}>šalinti</a>
+                                    <a key='remove' onClick={this.removeGroupUser.bind(this, user.id_vartotojai, this.props.data.id_grupes)}>šalinti</a>
                                 ]}>
                                     {user.slapyvardis}
                                     {/* <List.Item.Meta
@@ -218,29 +267,31 @@ export default class EditForm extends Component {
                     title='Naujas vartotojas'
                     centered
                     visible={this.state.isModalVisible}
-                    onOk={this.handleOk}
                     onCancel={() => this.setState({ isModalVisible: false })}
                     footer={[
                         <Button key='cancel' onClick={() => this.setState({ isModalVisible: false })}>
                             Grįžti
                         </Button>,
-                        <Button key='submit' type='primary' onClick={() => this.newUserForm.current.submit()}>
+                        <Button key='submit' type='primary' onClick={() => this.groupUserForm.current.submit()}>
                             Patvirtinti
                         </Button>
                     ]}
                 >
                     <Form
-                        ref={this.newUserForm}
+                        ref={this.groupUserForm}
                         {...formItemLayout}
-                        onFinish={this.addNewUser.bind(this)}
+                        onFinish={this.addGroupUser.bind(this)}
                         scrollToFirstError
-                        initialValues={{
-                            registracijos_data: moment(),
-                            paskutinis_prisijungimas: moment(),
-                            balansas: 0,
-                            aktyvuotas: false
-                        }}
                     >
+                        {this.state.creatingNew ? '' : <Form.Item
+                            key='id_vartotojai'
+                            name='id_vartotojai'
+                            label='ID'
+                            rules={[{ required: true, message: 'Įveskite vartotojo ID!' }]}
+                        >
+                            <Input disabled />
+                        </Form.Item>}
+
                         <Form.Item
                             key='username'
                             name='slapyvardis'
@@ -293,7 +344,7 @@ export default class EditForm extends Component {
                         </Form.Item>
 
                         <Form.Item
-                            key='registration'
+                            key='registrationDate'
                             name='registracijos_data'
                             label='Registracijos data'
                         >
