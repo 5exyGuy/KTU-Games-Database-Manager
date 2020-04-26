@@ -28,6 +28,7 @@ create unique index kurejai_pavadinimas_uindex
 
 create table vartotojai
 (
+<<<<<<< HEAD
     slapyvardis              varchar(255)                   not null,
     slaptazodis              varchar(255)                   not null,
     el_pastas                varchar(255)                   not null,
@@ -38,6 +39,18 @@ create table vartotojai
     id_vartotojai            serial                         not null
         constraint vartotojai_pkey
             primary key
+=======
+	slapyvardis varchar(255) not null,
+	slaptazodis varchar(255) not null,
+	el_pastas varchar(255) not null,
+	paskutinis_prisijungimas timestamp not null,
+	registracijos_data timestamp not null,
+	balansas double precision not null,
+	aktyvuotas boolean not null,
+	id_vartotojai serial not null
+		constraint vartotojai_pkey
+			primary key
+>>>>>>> Minor update
 );
 
 alter table vartotojai
@@ -83,6 +96,7 @@ alter table uzsakymai
 
 create table zaidimai
 (
+<<<<<<< HEAD
     pavadinimas          varchar(255)     not null,
     isleidimo_data       timestamp without time zone        not null,
     kaina                double precision not null,
@@ -96,6 +110,18 @@ create table zaidimai
     fk_kurejaiid_kurejai integer          not null
         constraint sukure
             references kurejai
+=======
+	data timestamp not null,
+	busena varchar(255) not null,
+	kaina double precision not null,
+	pvm double precision not null,
+	id_uzsakymai serial not null
+		constraint uzsakymai_pkey
+			primary key,
+	fk_vartotojaiid_vartotojai integer not null
+		constraint pateikia
+			references public.vartotojai
+>>>>>>> Minor update
 );
 
 alter table zaidimai

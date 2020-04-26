@@ -20,29 +20,25 @@ export default class CreateForm extends Component {
 
     state = {
         users: [],
-        newUsers: [],
         isModalVisible: false
     };
 
     constructor(props) {
         super(props);
 
-        this.form = React.createRef();
-        this.newUserForm = React.createRef();
-    }
-
-    componentDidMount() {
-        this.selectUsers();
+        this.groupForm = React.createRef();
+        this.userForm = React.createRef();
     }
 
 	onFinish(values) {
 		socket.emit(tables.groups, 'insert', values, (result) => {
 			if (!result) return;
             
-            const newUsers = [...this.state.newUsers];
+            const users = [...this.state.users];
 
-            newUsers.forEach(async (user) => {
+            users.forEach(async (user) => {
                 await new Promise((resolve) => {
+                    user.fk_grupesid_grupes = result.id_grupes;
                     socket.emit(tables.users, 'insert', user, (result) => resolve(result));
                 });
             });
@@ -51,10 +47,10 @@ export default class CreateForm extends Component {
 		});
     }
 
-    addNewUser(values) {
-        const newUsers = [...this.state.newUsers];
+    addUser(values) {
+        const users = [...this.state.users];
 
-        const user = newUsers.find((user) => 
+        const user = users.find((user) => 
             user.slapyvardis === values.slapyvardis || 
             user.el_pastas === values.el_pastas
         );
@@ -63,54 +59,33 @@ export default class CreateForm extends Component {
             return;
         }
 
-        newUsers.push(values);
+        users.push(values);
         this.setState({ 
-            newUsers: [...newUsers],
+            users: [...users],
             isModalVisible: false
         });
     }
 
-    editNewUser(username) {
-        const newUsers = [...this.state.newUsers];
+    editUser(username) {
+        const users = [...this.state.users];
 
-        const index = newUsers.findIndex((user) => user.slapyvardis === username);
+        const index = users.findIndex((user) => user.slapyvardis === username);
         if (index < 0) return;
 
-        const user = newUsers[index];
+        const user = users[index];
 
-        this.newUserForm.current.setFieldsValue({...user});
+        this.userForm.current.setFieldsValue({...user});
         this.setState({ isModalVisible: true });
     }
 
-    removeNewUser(username) {
-        const newUsers = [...this.state.newUsers];
+    removeUser(username) {
+        const users = [...this.state.users];
 
-        const index = newUsers.findIndex((user) => user.slapyvardis === username);
+        const index = users.findIndex((user) => user.slapyvardis === username);
         if (index < 0) return;
-        newUsers.splice(index, 1);
+        users.splice(index, 1);
 
-        this.setState({ newUsers: [...newUsers] });
-    }
-
-    selectUsers() {
-        socket.emit(tables.users, 'selectAll', null, (users) => {
-			if (!users) return this.setState({ users: [] });
-            if (users.length === 0) this.props.back();
-
-			const userList = [...users];
-	
-			this.setState({ users: [...userList] }, () => {
-                if (this.form && this.form.current)
-                    this.form.current.setFieldsValue({ fk_vartotojaiid_vartotojai: userList[0].id_vartotojai });
-            });
-		});
-    }
-
-    selectUser(userId) {
-        const user = this.state.users.find((user) => user.id_vartotojai === userId);
-        if (!user) return;
-        if (this.form && this.form.current)
-            this.form.current.setFieldsValue({ fk_vartotojaiid_vartotojai: user.id_vartotojai });
+        this.setState({ users: [...users] });
     }
 
 	render() {
@@ -125,11 +100,11 @@ export default class CreateForm extends Component {
                     subTitle='Vartotojų sukurtos grupės'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
-                        <Button key='create' type='primary' onClick={() => this.form.current.submit()}>
+                        <Button key='create' type='primary' onClick={() => this.groupForm.current.submit()}>
 						 	Sukurti grupę
 						</Button>,
-                        <Button key='addNewUser' onClick={() => { 
-                            if (this.newUserForm && this.newUserForm.current) this.newUserForm.current.resetFields(); 
+                        <Button key='addUser' onClick={() => { 
+                            if (this.userForm && this.userForm.current) this.userForm.current.resetFields(); 
                             this.setState({ isModalVisible: true })}
                         }>
 						 	Pridėti naują vartotoją
@@ -143,28 +118,11 @@ export default class CreateForm extends Component {
                     <Col span={12}>
                         <Card style={{ backgroundColor: 'rgb(225, 225, 225)' }}>
                             <Form
-                                ref={this.form}
+                                ref={this.groupForm}
                                 {...formItemLayout}
                                 onFinish={this.onFinish.bind(this)}
                                 scrollToFirstError
-                                initialValues={{
-                                    fk_vartotojaiid_vartotojai: this.state.users[0].id_vartotojai,
-                                    ikurimo_data: moment()
-                                }}
                             >
-                                <Form.Item
-                                    key='fk_vartotojaiid_vartotojai'
-                                    name='fk_vartotojaiid_vartotojai'
-                                    label='Savininkas'
-                                    rules={[{ required: true, message: 'Pasirinkite grupės savininką!' }]}
-                                >
-                                    <Select onChange={(user) => this.selectUser(user)}>
-                                        {this.state.users.map((user) => {
-                                            return <Select.Option value={user.id_vartotojai}>{user.slapyvardis}</Select.Option>;
-                                        })}
-                                    </Select>
-                                </Form.Item>
-
                                 <Form.Item
 									name='pavadinimas'
 									label='Pavadinimas'
@@ -172,18 +130,6 @@ export default class CreateForm extends Component {
 								>
 									<Input />
 								</Form.Item>
-
-                                <Form.Item
-                                    key='ikurimo_data'
-                                    name='ikurimo_data'
-                                    label='Įkūrimo data'
-                                    rules={[{ required: true, message: 'Pasirinkite grupės įkūrimo datą!' }]}
-                                >
-                                    <DatePicker
-                                        format='YYYY-MM-DD HH:mm:ss'
-                                        showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
-                                    />
-                                </Form.Item>
                             </Form>
                         </Card>
                     </Col>
@@ -192,13 +138,13 @@ export default class CreateForm extends Component {
                     <Col span={12}>
                         <List
                             bordered
-                            dataSource={this.state.newUsers}
+                            dataSource={this.state.users}
                             renderItem={user => (
                                 <List.Item actions={[
                                     // eslint-disable-next-line
-                                    <a key='edit' onClick={this.editNewUser.bind(this, user.slapyvardis)}>redaguoti</a>, 
+                                    <a key='edit' onClick={this.editUser.bind(this, user.slapyvardis)}>redaguoti</a>, 
                                     // eslint-disable-next-line
-                                    <a key='remove' onClick={this.removeNewUser.bind(this, user.slapyvardis)}>šalinti</a>
+                                    <a key='remove' onClick={this.removeUser.bind(this, user.slapyvardis)}>šalinti</a>
                                 ]}>
                                     {user.slapyvardis}
                                     {/* <List.Item.Meta
@@ -223,15 +169,15 @@ export default class CreateForm extends Component {
                         <Button key='cancel' onClick={() => this.setState({ isModalVisible: false })}>
                             Grįžti
                         </Button>,
-                        <Button key='submit' type='primary' onClick={() => this.newUserForm.current.submit()}>
+                        <Button key='submit' type='primary' onClick={() => this.userForm.current.submit()}>
                             Patvirtinti
                         </Button>
                     ]}
                 >
                     <Form
-                        ref={this.newUserForm}
+                        ref={this.userForm}
                         {...formItemLayout}
-                        onFinish={this.addNewUser.bind(this)}
+                        onFinish={this.addUser.bind(this)}
                         scrollToFirstError
                         initialValues={{
                             registracijos_data: moment(),

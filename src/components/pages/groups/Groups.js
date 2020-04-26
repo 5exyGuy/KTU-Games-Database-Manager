@@ -79,8 +79,6 @@ export default class Groups extends Component {
 							columns={[
 								{ title: 'ID', dataIndex: 'id_grupes', defaultSortOrder: 'ascend', sorter: (a, b) => a.id_grupes - b.id_grupes },
 								{ title: 'Pavadinimas', dataIndex: 'pavadinimas' },
-								{ title: 'Sukurtas', dataIndex: 'ikurimo_data' },
-								{ title: 'Sukūrė', dataIndex: 'ikurejas' },
 								{
 									title: 'Veiksmai',
 									render: (text, record) => (
