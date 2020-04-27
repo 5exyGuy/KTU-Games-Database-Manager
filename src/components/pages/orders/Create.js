@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { PageHeader, Form, Input, Button, Card, Row, Col, DatePicker, Modal, List, Select, Rate, Checkbox } from 'antd';
+import { PageHeader, Form, Input, Button, Card, Row, Col, Select, DatePicker, Modal, List, notification } from 'antd';
 import socket from '../../../socket';
 import { tables } from '../../../tables';
 import moment from 'moment';
-import TextArea from 'antd/lib/input/TextArea';
+import { orderStatus } from '../../../enums';
 import uniqid from 'uniqid';
 
 const formItemLayout = {
@@ -11,18 +11,12 @@ const formItemLayout = {
 	wrapperCol: { span: 16 }
 };
 
-const tailFormItemLayout = {
-	wrapperCol: {
-		span: 16,
-		offset: 8
-	}
-};
-
 export default class CreateForm extends Component {
+
     state = {
-		users: [],
-        games: [],
-        orderGames: [],
+        users: [],
+		games: [],
+		orderGames: [],
         isModalVisible: false
     };
 
@@ -31,15 +25,15 @@ export default class CreateForm extends Component {
 
         this.orderForm = React.createRef();
         this.orderGameForm = React.createRef();
-	}
-	
-	componentDidMount() {
-        this.selectUsers();
+    }
+
+    componentDidMount() {
+		this.selectUsers();
 		this.selectGames();
-	}
+    }
 
 	onFinish(values) {
-		socket.emit(tables.users, 'insert', values, (result) => {
+		socket.emit(tables.orders, 'insert', values, (result) => {
 			if (!result) return;
             
             const orderGames = [...this.state.orderGames];
@@ -56,12 +50,19 @@ export default class CreateForm extends Component {
     }
 
     addNewOrderGame() {
-        this.setState({ isModalVisible: true}, async () => {
+		if (this.state.games.length === 0)
+			return notification['warning']({
+				message: 'Žaidimai',
+				description: 'Nėra žaidimų!',
+				placement: 'bottomRight'
+			});
+
+        this.setState({ isModalVisible: true }, async () => {
             await new Promise((resolve) => {
                 const interval = setInterval(() => {
                     if (this.orderGameForm && this.orderGameForm.current) {
                         this.orderGameForm.current.resetFields();
-                        this.orderGameForm.current.setFieldsValue({ id_: uniqid() });
+                        this.orderGameForm.current.setFieldsValue({ id_zaidimu_uzsakymai: uniqid() });
                         clearInterval(interval);
                         resolve();
                     }
@@ -73,7 +74,7 @@ export default class CreateForm extends Component {
     addOrderGame(values) {
         const orderGames = [...this.state.orderGames];
 
-        const index = orderGames.findIndex((review) => review.id_atsiliepimai === values.id_atsiliepimai);
+        const index = orderGames.findIndex((game) => game.id_zaidimu_uzsakymai === values.id_zaidimu_uzsakymai);
         if (index > -1) {
             orderGames[index] = values;
 
@@ -90,20 +91,20 @@ export default class CreateForm extends Component {
         });
     }
 
-    editReview(reviewId) {
+    editOrderGame(gameId) {
         const orderGames = [...this.state.orderGames];
 
-        const index = orderGames.findIndex((review) => review.id_atsiliepimai === reviewId);
+        const index = orderGames.findIndex((game) => game.id_zaidimu_uzsakymai === gameId);
         if (index < 0) return;
 
-        const review = orderGames[index];
+        const game = orderGames[index];
 
         this.setState({ isModalVisible: true}, async () => {
             await new Promise((resolve) => {
                 const interval = setInterval(() => {
                     if (this.orderGameForm && this.orderGameForm.current) {
                         this.orderGameForm.current.resetFields();
-                        this.orderGameForm.current.setFieldsValue({...review});
+                        this.orderGameForm.current.setFieldsValue({...game});
                         clearInterval(interval);
                         resolve();
                     }
@@ -112,58 +113,119 @@ export default class CreateForm extends Component {
         });
     }
 
-    removeReview(reviewId) {
+    removeOrderGame(gameId) {
         const orderGames = [...this.state.orderGames];
 
-        const index = orderGames.findIndex((user) => user.id_atsiliepimai === reviewId);
+        const index = orderGames.findIndex((game) => game.id_zaidimu_uzsakymai === gameId);
         if (index < 0) return;
         orderGames.splice(index, 1);
 
         this.setState({ orderGames: [...orderGames] });
 	}
-
-	selectGames() {
-        socket.emit(tables.games, 'selectAll', null, (games) => {
-            if (!games) return this.setState({ games: [] });
-            if (games.length === 0) this.props.back();
-
-			const gameList = [...games];
 	
-			gameList.map((game) => {
-				return game.key = game.id_zaidimai;
-			});
-	
-			this.setState({ games: [...gameList] }, () => {
-                if (this.form && this.form.current)
-                    this.form.current.setFieldsValue({ fk_zaidimaiid_zaidimai: gameList[0].id_zaidimai });
+	selectUsers() {
+        socket.emit(tables.users, 'selectAll', null, (users) => {
+            if (!users) return this.props.back();
+            if (users && users.length === 0) {
+                notification['warning']({
+                    message: 'Vartotojai',
+                    description: 'Nėra vartotojų!',
+                    placement: 'bottomRight'
+                });
+                return this.props.back();
+            }
+
+			const userList = [...users];
+
+            this.setState({ users: [...userList] }, async () => {
+                await new Promise((resolve) => {
+					const interval = setInterval(() => {
+						if (this.orderForm && this.orderForm.current) {
+							this.orderForm.current.setFieldsValue({ fk_vartotojaiid_vartotojai: userList[0].id_zaidimai });
+							clearInterval(interval);
+							resolve();
+						}
+					}, 0);
+				});
             });
 		});
     }
-	
-	selectGame(gameId) {
+
+    selectUser(userId) {
+        const user = this.state.users.find((user) => user.id_vartotojai === userId);
+        if (!user) return;
+
+        new Promise((resolve) => {
+            const interval = setInterval(() => {
+                if (this.orderForm && this.orderForm.current) {
+                    this.orderForm.current.setFieldsValue({ fk_vartotojaiid_vartotojai: user.id_vartotojai });
+                    clearInterval(interval);
+                    resolve();
+                }
+            }, 0);
+        });
+    }
+
+    selectGames() {
+        socket.emit(tables.games, 'selectAll', null, (games) => {
+            if (!games) return this.props.back();
+            if (games && games.length === 0) {
+                notification['warning']({
+                    message: 'Žaidimai',
+                    description: 'Nėra žaidimų!',
+                    placement: 'bottomRight'
+                });
+                return this.props.back();
+            }
+
+			const gameList = [...games];
+
+            this.setState({ games: [...gameList] }, async () => {
+                await new Promise((resolve) => {
+					const interval = setInterval(() => {
+						if (this.orderGameForm && this.orderGameForm.current) {
+							this.orderGameForm.current.setFieldsValue({ fk_zaidimaiid_zaidimai: gameList[0].id_zaidimai });
+							clearInterval(interval);
+							resolve();
+						}
+					}, 0);
+				});
+            });
+		});
+    }
+
+    selectGame(gameId) {
         const game = this.state.games.find((game) => game.id_zaidimai === gameId);
         if (!game) return;
-        if (this.form && this.form.current)
-            this.form.current.setFieldsValue({ fk_zaidimaiid_zaidimai: game.id_zaidimai });
+
+        new Promise((resolve) => {
+            const interval = setInterval(() => {
+                if (this.orderGameForm && this.orderGameForm.current) {
+                    this.orderGameForm.current.setFieldsValue({ fk_zaidimaiid_zaidimai: game.id_zaidimai });
+                    clearInterval(interval);
+                    resolve();
+                }
+            }, 0);
+        });
     }
 
 	render() {
-		if (this.state.games.length === 0)
-			return (<div></div>);
+        if (this.state.users.length === 0) 
+            return (<div></div>);
 
         return (
             <div>
 				<PageHeader
 					ghost={false}
-					title='Varotojai'
-					subTitle='Užregistruoti internetinės parduotuvės vartotojai'
+					title='Užsakymai'
+					subTitle='Vartotojų užsakymai'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
-                        <Button key='create' type='primary' onClick={() => this.orderForm.current.submit()}>
-						 	Sukurti grupę
+                        <Button key='createOrder' type='primary' onClick={() => this.orderForm.current.submit()}>
+						 	Sukurti užsakymą
 						</Button>,
                         <Button key='addNewOrderGame' onClick={this.addNewOrderGame.bind(this)}>
-						 	Pridėti naują vartotoją
+						 	Pridėti naują užsakomą žaidimą
 						</Button>,
 						<Button key='cancel' onClick={() => this.props.back()}>
 						 	Grįžti
@@ -179,98 +241,66 @@ export default class CreateForm extends Component {
                                 onFinish={this.onFinish.bind(this)}
                                 scrollToFirstError
                                 initialValues={{
-									paskutinis_prisijungimas: moment(),
-									registracijos_data: moment()
+									fk_vartotojaiid_vartotojai: this.state.users[0].id_vartotojai,
+									busena: orderStatus[0],
+                                    data: moment()
                                 }}
                             >
-								<Form.Item
-									name='id_vartotojai'
-									label='ID'
-									rules={[{ required: true, message: 'Įveskite vartotojo ID!' }]}
-									style={{ display: 'none' }}
-								>
-									<Input type='number' disabled />
-								</Form.Item>
+                                <Form.Item
+                                    key='fk_vartotojaiid_vartotojai'
+                                    name='fk_vartotojaiid_vartotojai'
+                                    label='Užsakovas'
+                                    rules={[{ required: true, message: 'Pasirinkite užsakovą!' }]}
+                                >
+                                    <Select onChange={(user) => this.selectUser(user)}>
+                                        {this.state.users.map((user) => {
+                                            return <Select.Option value={user.id_vartotojai}>{user.slapyvardis}</Select.Option>;
+                                        })}
+                                    </Select>
+                                </Form.Item>
+
+                                <Form.Item
+                                    key='busena'
+                                    name='busena'
+                                    label='Būsena'
+                                    rules={[{ required: true, message: 'Pasirinkite užsakymo būseną!' }]}
+                                >
+                                    <Select>
+                                        {orderStatus.map((status) => {
+                                            return <Select.Option value={status}>{status}</Select.Option>
+                                        })}
+                                    </Select>
+                                </Form.Item>
+
+                                <Form.Item
+                                    key='data'
+                                    name='data'
+                                    label='Užsakymo data'
+                                    rules={[{ required: true, message: 'Pasirinkite užsakymo datą!' }]}
+                                >
+                                    <DatePicker
+                                        format="YYYY-MM-DD HH:mm:ss"
+                                        showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
+                                    />
+                                </Form.Item>
+
+                                <Form.Item
+                                    key='kaina'
+                                    name='kaina'
+                                    label='Kaina'
+                                    rules={[{ required: true, message: 'Įveskite kainą!' }]}
+                                >
+                                    <Input type='number' />
+                                </Form.Item>
 
 								<Form.Item
-									name='slapyvardis'
-									label='Slapyvardis'
-									rules={[{ required: true, message: 'Įveskite slapyvardį!', whitespace: false, min: 5, max: 255 }]}
-								>
-									<Input />
-								</Form.Item>
-								<Form.Item
-									name='el_pastas'
-									label='El. paštas'
-									rules={[
-										{
-											type: 'email',
-											message: 'Neteisingai įvedėte el. paštą!',
-										},
-										{
-											required: true,
-											message: 'Įveskite el. paštą!',
-										}
-									]}
-								>
-									<Input />
-								</Form.Item>
-
-								<Form.Item
-									name='slaptazodis'
-									label='Slaptažodis'
-									rules={[
-										{
-											required: true,
-											message: 'Įveskite slaptažodį!'
-										}
-									]}
-								>
-									<Input.Password />
-								</Form.Item>
-
-								<Form.Item
-									name='paskutinis_prisijungimas'
-									label='Paskutinis prisijungimas'
-								>
-									<DatePicker
-										format="YYYY-MM-DD HH:mm:ss"
-										showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
-									/>
-								</Form.Item>
-
-								<Form.Item
-									name='registracijos_data'
-									label='Registracijos data'
-								>
-									<DatePicker
-										format="YYYY-MM-DD HH:mm:ss"
-										showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
-									/>
-								</Form.Item>
-
-								<Form.Item
-									name='balansas'
-									label='Balansas'
-									rules={[
-										{
-											required: true,
-											message: 'Įveskite balansą!'
-										}
-									]}
-								>
-									<Input type='number' />
-								</Form.Item>
-					
-								<Form.Item
-									name='aktyvuotas'
-									valuePropName='checked'
-									{...tailFormItemLayout}
-								>
-									<Checkbox>
-										Ar aktyvuoti vartotoją?
-									</Checkbox>
-								</Form.Item>
+                                    key='pvm'
+                                    name='pvm'
+                                    label='PVM'
+                                    rules={[{ required: true, message: 'Įveskite PVM!' }]}
+                                >
+                                    <Input type='number' />
+                                </Form.Item>
                             </Form>
                         </Card>
                     </Col>
@@ -280,21 +310,29 @@ export default class CreateForm extends Component {
                         <List
                             bordered
                             dataSource={this.state.orderGames}
-                            renderItem={review => (
+                            renderItem={game => (
                                 <List.Item actions={[
                                     // eslint-disable-next-line
-                                    <a key='edit' onClick={this.editReview.bind(this, review.id_atsiliepimai)}>redaguoti</a>, 
+                                    <a key='edit' onClick={this.editOrderGame.bind(this, game.id_zaidimu_uzsakymai)}>redaguoti</a>, 
                                     // eslint-disable-next-line
-                                    <a key='remove' onClick={this.removeReview.bind(this, review.id_atsiliepimai)}>šalinti</a>
+                                    <a key='remove' onClick={this.removeOrderGame.bind(this, game.id_zaidimu_uzsakymai)}>šalinti</a>
                                 ]}>
-                                    {review.komentaras}
+                                    {game.id_zaidimu_uzsakymai}
+                                    {/* <List.Item.Meta
+                                        avatar={
+                                            <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
+                                        }
+                                        title={<a href="https://ant.design">{item.name.last}</a>}
+                                        description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+                                    /> */}
                                 </List.Item>
                             )}
                         />
                     </Col>
                 </Row>
+				{this.state.games.length === 0 ? '' :
                 <Modal
-                    title='Atsiliepimas'
+                    title='Užsakymo žaidimas'
                     centered
                     visible={this.state.isModalVisible}
                     onCancel={() => this.setState({ isModalVisible: false })}
@@ -311,20 +349,27 @@ export default class CreateForm extends Component {
                         ref={this.orderGameForm}
                         {...formItemLayout}
                         onFinish={this.addOrderGame.bind(this)}
-                        scrollToFirstError
-                        initialValues={{
-                            fk_zaidimaiid_zaidimai: this.state.games[0].id_zaidimai,
-							ivertinimas: 0,
-							data: moment()
-                        }}
+						scrollToFirstError
+						initialValues={{
+							kiekis: 1,
+							fk_zaidimaiid_zaidimai: this.state.games[0].id_zaidimai
+						}}
                     >
-						<Form.Item
-                            name='id_atsiliepimai'
+                        <Form.Item
+                            name='id_zaidimu_uzsakymai'
                             label='ID'
-                            rules={[{ required: true, message: 'Įveskite atsiliepimo ID!' }]}
+                            rules={[{ required: true, message: 'Įveskite užsakymo žaidimo ID!' }]}
                             style={{ display: 'none' }}
                         >
-                            <Input type='number' disabled />
+                            <Input disabled />
+                        </Form.Item>
+
+						<Form.Item
+                            name='kiekis'
+                            label='Kiekis'
+                            rules={[{ required: true, message: 'Įveskite žaidimų kiekį!' }]}
+                        >
+                            <Input type='number' />
                         </Form.Item>
 
                         <Form.Item
@@ -335,42 +380,12 @@ export default class CreateForm extends Component {
 						>
 							<Select onChange={(game) => this.selectGame(game)}>
 								{this.state.games.map((game) => {
-									return <Select.Option value={game.fk_zaidimaiid_zaidimai}>{game.fk_zaidimaiid_zaidimai}</Select.Option>;
+									return <Select.Option value={game.id_zaidimai}>{game.pavadinimas} ({game.platforma})</Select.Option>;
 								})}
 							</Select>
 						</Form.Item>
-
-						<Form.Item
-							key='ivertinimas'
-							name='ivertinimas'
-							label='Įvertinimas'
-							rules={[{ required: true, message: 'Pasirinkite žaidimo įvertinimą!' }]}
-						>
-							<Rate />
-						</Form.Item>
-
-						<Form.Item
-							key='komentaras'
-							name='komentaras'
-							label='Komentaras'
-							rules={[{ required: true, message: 'Įveskite komentarą apie žaidimą!' }]}
-						>
-							<TextArea />
-						</Form.Item>
-
-						<Form.Item
-							key='data'
-							name='data'
-							label='Parašymo data'
-							rules={[{ required: true, message: 'Pasirinkite atsiliepimo parašymo datą!' }]}
-						>
-							<DatePicker
-								format="YYYY-MM-DD HH:mm:ss"
-								showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
-							/>
-						</Form.Item>
                     </Form>
-                </Modal>
+                </Modal>}
             </div>
         );
     }

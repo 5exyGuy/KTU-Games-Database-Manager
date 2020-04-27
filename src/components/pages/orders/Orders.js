@@ -73,7 +73,7 @@ export default class Orders extends Component {
 							title='Užsakymai'
 							subTitle='Vartotojų užsakymai'
 							extra={[
-								<Button onClick={this.create.bind(this)} shape='round'>Sudaryti naują užsakymą</Button>
+								<Button onClick={this.create.bind(this)}>Sudaryti naują užsakymą</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>

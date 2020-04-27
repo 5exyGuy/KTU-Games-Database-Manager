@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { PageHeader, Form, Input, Button, Card, Row, Col, DatePicker, Modal, List, Select, Rate, Checkbox } from 'antd';
+import { PageHeader, Form, Input, Button, Card, Row, Col, DatePicker, Modal, List, Select, Rate, Checkbox, notification } from 'antd';
 import socket from '../../../socket';
 import { tables } from '../../../tables';
 import moment from 'moment';
@@ -37,16 +37,30 @@ export default class CreateForm extends Component {
 	}
 
 	onFinish(values) {
-		socket.emit(tables.users, 'insert', values, (result) => {
-			if (!result) return;
+		socket.emit(tables.users, 'insert', values, (user) => {
+			if (!user) return;
+			console.log(user);
+
+			notification['success']({
+				message: 'Vartotojai',
+				description: 'Vartotojas sėkmingai įkeltas į duomenų bazę!',
+				placement: 'bottomRight'
+			});
             
             const userReviews = [...this.state.userReviews];
 
             userReviews.forEach(async (review) => {
-                await new Promise((resolve) => {
-                    review.fk_vartotojaiid_vartotojai = result.id_vartotojai;
+                const result = await new Promise((resolve) => {
+                    review.fk_vartotojaiid_vartotojai = user.id_vartotojai;
                     socket.emit(tables.reviews, 'insert', review, (result) => resolve(result));
-                });
+				});
+				
+				if (result)
+					notification['success']({
+						message: 'Atsiliepimai',
+						description: 'Atsiliepimas sėkmingai įkeltas į duomenų bazę!',
+						placement: 'bottomRight'
+					});
             });
 
             this.props.back();
@@ -54,6 +68,13 @@ export default class CreateForm extends Component {
     }
 
     addNewReview() {
+		if (this.state.games.length === 0)
+			return notification['warning']({
+				message: 'Žaidimai',
+				description: 'Nėra žaidimų!',
+				placement: 'bottomRight'
+			});
+
         this.setState({ isModalVisible: true}, async () => {
             await new Promise((resolve) => {
                 const interval = setInterval(() => {
@@ -122,7 +143,7 @@ export default class CreateForm extends Component {
 
 	selectGames() {
         socket.emit(tables.games, 'selectAll', null, (games) => {
-            if (!games) return this.setState({ games: [] });
+            if (!games) return;
             if (games.length === 0) this.props.back();
 
 			const gameList = [...games];
@@ -131,24 +152,38 @@ export default class CreateForm extends Component {
 				return game.key = game.id_zaidimai;
 			});
 	
-			this.setState({ games: [...gameList] }, () => {
-                if (this.form && this.form.current)
-                    this.form.current.setFieldsValue({ fk_zaidimaiid_zaidimai: gameList[0].id_zaidimai });
+			this.setState({ games: [...gameList] }, async () => {
+                await new Promise((resolve) => {
+					const interval = setInterval(() => {
+						if (this.reviewForm && this.reviewForm.current) {
+							this.reviewForm.current.setFieldsValue({ fk_zaidimaiid_zaidimai: gameList[0].id_zaidimai });
+							clearInterval(interval);
+							resolve();
+						}
+					}, 0);
+				});
             });
 		});
     }
 	
 	selectGame(gameId) {
+		if (!gameId) return;
+
         const game = this.state.games.find((game) => game.id_zaidimai === gameId);
-        if (!game) return;
-        if (this.form && this.form.current)
-            this.form.current.setFieldsValue({ fk_zaidimaiid_zaidimai: game.id_zaidimai });
+		if (!game) return;
+
+		new Promise((resolve) => {
+			const interval = setInterval(() => {
+				if (this.reviewForm && this.reviewForm.current) {
+					this.reviewForm.current.setFieldsValue({ fk_zaidimaiid_zaidimai: game.id_zaidimai });
+					clearInterval(interval);
+					resolve();
+				}
+			}, 0);
+		});
     }
 
 	render() {
-		if (this.state.games.length === 0)
-			return (<div></div>);
-
         return (
             <div>
 				<PageHeader
@@ -157,11 +192,11 @@ export default class CreateForm extends Component {
 					subTitle='Užregistruoti internetinės parduotuvės vartotojai'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
-                        <Button key='create' type='primary' onClick={() => this.userForm.current.submit()}>
-						 	Sukurti grupę
+                        <Button key='createUser' type='primary' onClick={() => this.userForm.current.submit()}>
+						 	Sukurti vartotoją
 						</Button>,
                         <Button key='addNewReview' onClick={this.addNewReview.bind(this)}>
-						 	Pridėti naują vartotoją
+						 	Pridėti naują atsiliepimą
 						</Button>,
 						<Button key='cancel' onClick={() => this.props.back()}>
 						 	Grįžti
@@ -181,15 +216,6 @@ export default class CreateForm extends Component {
 									registracijos_data: moment()
                                 }}
                             >
-								<Form.Item
-									name='id_vartotojai'
-									label='ID'
-									rules={[{ required: true, message: 'Įveskite vartotojo ID!' }]}
-									style={{ display: 'none' }}
-								>
-									<Input type='number' disabled />
-								</Form.Item>
-
 								<Form.Item
 									name='slapyvardis'
 									label='Slapyvardis'
@@ -291,6 +317,7 @@ export default class CreateForm extends Component {
                         />
                     </Col>
                 </Row>
+				{this.state.games.length === 0 ? '' :
                 <Modal
                     title='Atsiliepimas'
                     centered
@@ -311,7 +338,7 @@ export default class CreateForm extends Component {
                         onFinish={this.addReview.bind(this)}
                         scrollToFirstError
                         initialValues={{
-                            fk_zaidimaiid_zaidimai: this.state.games[0].id_zaidimai,
+							fk_zaidimaiid_zaidimai: this.state.games[0].id_zaidimai,
 							ivertinimas: 0,
 							data: moment()
                         }}
@@ -333,7 +360,7 @@ export default class CreateForm extends Component {
 						>
 							<Select onChange={(game) => this.selectGame(game)}>
 								{this.state.games.map((game) => {
-									return <Select.Option value={game.fk_zaidimaiid_zaidimai}>{game.fk_zaidimaiid_zaidimai}</Select.Option>;
+									return <Select.Option value={game.id_zaidimai}>{game.pavadinimas} ({game.platforma})</Select.Option>;
 								})}
 							</Select>
 						</Form.Item>
@@ -368,7 +395,7 @@ export default class CreateForm extends Component {
 							/>
 						</Form.Item>
                     </Form>
-                </Modal>
+                </Modal>}
             </div>
         );
     }

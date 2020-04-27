@@ -69,7 +69,7 @@ export default class Games extends Component {
 							title='Žaidimai'
 							subTitle='Parduodami žaidimai'
 							extra={[
-								<Button onClick={() => this.setState({ action: 'create' })} shape='round'>Pridėti naują žaidimą</Button>
+								<Button onClick={() => this.setState({ action: 'create' })}>Sukurti naują žaidimą</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>

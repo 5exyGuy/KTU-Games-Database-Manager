@@ -70,7 +70,7 @@ export default class Users extends Component {
 							title='Varotojai'
 							subTitle='Užregistruoti internetinės parduotuvės vartotojai'
 							extra={[
-								<Button onClick={() => this.setState({ action: 'create' })} shape='round'>Pridėti naują vartotoją</Button>
+								<Button onClick={() => this.setState({ action: 'create' })}>Sukurti naują vartotoją</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>

@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { PageHeader, Form, Input, Button, Card, Row, Col, Select, DatePicker, Modal, List } from 'antd';
+import { PageHeader, Form, Input, Button, Card, Row, Col, Select, DatePicker, Modal, List, notification } from 'antd';
 import socket from '../../../socket';
 import { tables } from '../../../tables';
 import moment from 'moment';
 import { genres, gamemodes, platforms } from '../../../enums';
+import uniqid from 'uniqid';
 
 const formItemLayout = {
 	labelCol: { span: 8 },
@@ -11,8 +12,6 @@ const formItemLayout = {
 };
 
 export default class CreateForm extends Component {
-
-    num = 0;
 
     state = {
         devs: [],
@@ -48,16 +47,27 @@ export default class CreateForm extends Component {
 		});
     }
 
+    addNewImage() {
+        this.setState({ isModalVisible: true }, async () => {
+            await new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    if (this.imageForm && this.imageForm.current) {
+                        this.imageForm.current.resetFields();
+                        this.imageForm.current.setFieldsValue({ id_nuotraukos: uniqid() });
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 0);
+            });
+        });
+    }
+
     addImage(values) {
         const gameImages = [...this.state.gameImages];
 
-        const image = gameImages.find((image) => 
-            image.id === values.id || 
-            image.nuoroda === values.nuoroda
-        );
-        if (image) {
-            const index = gameImages.findIndex((image) => image.id === values.id);
-            if (index > -1) gameImages[index] = values;
+        const index = gameImages.findIndex((image) => image.id_nuotraukos === values.id_nuotraukos);
+        if (index > -1) {
+            gameImages[index] = values;
 
             return this.setState({ 
                 gameImages: [...gameImages],
@@ -75,19 +85,29 @@ export default class CreateForm extends Component {
     editImage(imageId) {
         const gameImages = [...this.state.gameImages];
 
-        const index = gameImages.findIndex((image) => image.id === imageId);
+        const index = gameImages.findIndex((image) => image.id_nuotraukos === imageId);
         if (index < 0) return;
 
         const image = gameImages[index];
 
-        this.imageForm.current.setFieldsValue({...image});
-        this.setState({ isModalVisible: true });
+        this.setState({ isModalVisible: true}, async () => {
+            await new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    if (this.imageForm && this.imageForm.current) {
+                        this.imageForm.current.resetFields();
+                        this.imageForm.current.setFieldsValue({...image});
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 0);
+            });
+        });
     }
 
     removeImage(imageId) {
         const gameImages = [...this.state.gameImages];
 
-        const index = gameImages.findIndex((image) => image.id === imageId);
+        const index = gameImages.findIndex((image) => image.id_nuotraukos === imageId);
         if (index < 0) return;
         gameImages.splice(index, 1);
 
@@ -96,14 +116,28 @@ export default class CreateForm extends Component {
 
     selectDevs() {
         socket.emit(tables.developers, 'selectAll', null, (devs) => {
-			if (!devs) return this.setState({ devs: [] });
-            if (devs.length === 0) this.props.back();
+            if (!devs) return this.props.back();
+            if (devs && devs.length === 0) {
+                notification['warning']({
+                    message: 'Kūrėjai',
+                    description: 'Nėra kūrėjų!',
+                    placement: 'bottomRight'
+                });
+                return this.props.back();
+            }
 
 			const devList = [...devs];
-	
-			this.setState({ devs: [...devList] }, () => {
-                if (this.gameForm && this.gameForm.current)
-                    this.gameForm.current.setFieldsValue({ fk_kurejaiid_kurejai: devList[0].id_kurejai });
+
+            this.setState({ devs: [...devList] }, async () => {
+                await new Promise((resolve) => {
+					const interval = setInterval(() => {
+						if (this.gameForm && this.gameForm.current) {
+							this.gameForm.current.setFieldsValue({ fk_kurejaiid_kurejai: devList[0].id_kurejai });
+							clearInterval(interval);
+							resolve();
+						}
+					}, 0);
+				});
             });
 		});
     }
@@ -111,8 +145,16 @@ export default class CreateForm extends Component {
     selectDev(devId) {
         const dev = this.state.devs.find((dev) => dev.id_kurejai === devId);
         if (!dev) return;
-        if (this.gameForm && this.gameForm.current)
-            this.gameForm.current.setFieldsValue({ fk_kurejaiid_kurejai: dev.id_kurejai });
+
+        new Promise((resolve) => {
+            const interval = setInterval(() => {
+                if (this.gameForm && this.gameForm.current) {
+                    this.gameForm.current.setFieldsValue({ fk_kurejaiid_kurejai: dev.id_kurejai });
+                    clearInterval(interval);
+                    resolve();
+                }
+            }, 0);
+        });
     }
 
 	render() {
@@ -130,10 +172,7 @@ export default class CreateForm extends Component {
                         <Button key='create' type='primary' onClick={() => this.gameForm.current.submit()}>
 						 	Pridėti žaidimą
 						</Button>,
-                        <Button key='addImage' onClick={() => { 
-                            if (this.imageForm && this.imageForm.current) this.imageForm.current.resetFields(); 
-                            this.setState({ isModalVisible: true })}
-                        }>
+                        <Button key='addImage' onClick={this.addNewImage.bind(this)}>
 						 	Pridėti naują nuotrauką
 						</Button>,
 						<Button key='cancel' onClick={() => this.props.back()}>
@@ -254,14 +293,14 @@ export default class CreateForm extends Component {
                         <List
                             bordered
                             dataSource={this.state.gameImages}
-                            renderItem={game => (
+                            renderItem={image => (
                                 <List.Item actions={[
                                     // eslint-disable-next-line
-                                    <a key='edit' onClick={this.editImage.bind(this, game.id)}>redaguoti</a>, 
+                                    <a key='edit' onClick={this.editImage.bind(this, image.id_nuotraukos)}>redaguoti</a>, 
                                     // eslint-disable-next-line
-                                    <a key='remove' onClick={this.removeImage.bind(this, game.id)}>šalinti</a>
+                                    <a key='remove' onClick={this.removeImage.bind(this, image.id_nuotraukos)}>šalinti</a>
                                 ]}>
-                                    {game.nuoroda}
+                                    {image.nuoroda}
                                     {/* <List.Item.Meta
                                         avatar={
                                             <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
@@ -295,12 +334,12 @@ export default class CreateForm extends Component {
                         scrollToFirstError
                     >
                         <Form.Item
-                            name='id'
+                            name='id_nuotraukos'
                             label='ID'
                             rules={[{ required: true, message: 'Įveskite nuotraukos ID!' }]}
                             style={{ display: 'none' }}
                         >
-                            <Input type='number' disabled />
+                            <Input disabled />
                         </Form.Item>
 
                         <Form.Item

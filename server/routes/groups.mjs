@@ -30,8 +30,7 @@ const routes = {
  * @param {Function} cb 
  */
 async function selectAll(data, cb) {
-    const result = await pool.query(`SELECT pasiekimai.id_pasiekimai, pasiekimai.pavadinimas, pasiekimai.taskai, z.pavadinimas as zaidimas, z.platforma FROM ${tableName}
-    INNER JOIN zaidimai z on pasiekimai.fk_zaidimaiid_zaidimai = z.id_zaidimai`);
+    const result = await pool.query(`SELECT * FROM ${tableName}`);
     if (result.rowCount === 0) return cb(null);
     cb(result.rows);
 }
@@ -41,7 +40,7 @@ async function selectAll(data, cb) {
  * @param {Function} cb 
  */
 async function selectGroupUsers(id, cb) {
-    const result = await pool.query(`SELECt * FROM vartotojai
+    const result = await pool.query(`SELECT * FROM vartotojai
         INNER JOIN vartotoju_grupes vg on vartotojai.id_vartotojai = vg.fk_vartotojaiid_vartotojai
     WHERE fk_grupesid_grupes = $1`, [id]);
     if (result.rowCount === 0) return cb(null);

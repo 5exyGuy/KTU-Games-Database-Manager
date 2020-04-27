@@ -70,7 +70,7 @@ async function deleteId(id, cb) {
 async function insert(values, cb) {
     if (!values) return cb(null);
 
-    const result = await pool.query(`INSERT INTO ${tableName} (ivertinimas, komentaras, data, fk_zaidimaiid_zaidimai, fk_vartotojaiid_vartotojai) VALUES($1, $2, $3, $4, $5)`,
+    const result = await pool.query(`INSERT INTO ${tableName} (ivertinimas, komentaras, data, fk_zaidimaiid_zaidimai, fk_vartotojaiid_vartotojai) VALUES($1, $2, $3, $4, $5) RETURNING id_atsiliepimai`,
         [
             values.ivertinimas, values.komentaras, values.data,
             values.fk_zaidimaiid_zaidimai, values.fk_vartotojaiid_vartotojai
@@ -78,7 +78,7 @@ async function insert(values, cb) {
     );
 
     if (result.rowCount === 0) return cb(null);
-    cb(true);
+    cb(result.rows[0]);
 }
 
 /**

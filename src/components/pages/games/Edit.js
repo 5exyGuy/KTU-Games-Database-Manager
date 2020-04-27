@@ -71,10 +71,7 @@ export default class EditForm extends Component {
     addImage(values) {
         const gameImages = [...this.state.gameImages];
 
-        const index = gameImages.findIndex((image) => 
-            image.id_nuotraukos === values.id_nuotraukos || 
-            image.nuoroda === values.nuoroda
-        );
+        const index = gameImages.findIndex((image) => image.id_nuotraukos === values.id_nuotraukos);
         if (index > -1) {
             gameImages[index] = values;
 
@@ -167,19 +164,36 @@ export default class EditForm extends Component {
             if (devs.length === 0) this.props.back();
 
 			const devList = [...devs];
-	
-			this.setState({ devs: [...devList] }, () => {
-                if (this.gameForm && this.gameForm.current)
-                    this.gameForm.current.setFieldsValue({ fk_kurejaiid_kurejai: devList[0].id_kurejai });
+
+            this.setState({ devs: [...devList] }, async () => {
+                await new Promise((resolve) => {
+					const interval = setInterval(() => {
+						if (this.gameForm && this.gameForm.current) {
+							this.gameForm.current.setFieldsValue({ fk_kurejaiid_kurejai: devList[0].id_kurejai });
+							clearInterval(interval);
+							resolve();
+						}
+					}, 0);
+				});
             });
 		});
     }
 
     selectDev(devId) {
+        if (!devId) return;
+
         const dev = this.state.devs.find((dev) => dev.id_kurejai === devId);
         if (!dev) return;
-        if (this.gameForm && this.gameForm.current)
-            this.gameForm.current.setFieldsValue({ fk_kurejaiid_kurejai: dev.id_kurejai });
+
+        new Promise((resolve) => {
+            const interval = setInterval(() => {
+                if (this.gameForm && this.gameForm.current) {
+                    this.gameForm.current.setFieldsValue({ fk_kurejaiid_kurejai: dev.id_kurejai });
+                    clearInterval(interval);
+                    resolve();
+                }
+            }, 0);
+        });
     }
 
 	render() {

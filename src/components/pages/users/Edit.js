@@ -65,7 +65,9 @@ export default class EditForm extends Component {
                         this.reviewForm.current.resetFields();
                         this.reviewForm.current.setFieldsValue({ 
                             naujas: true,
-                            id_atsiliepimai: uniqid()
+                            id_atsiliepimai: uniqid(),
+                            fk_zaidimaiid_zaidimai: this.state.games[0].id_zaidimai,
+                            data: moment()
                         });
                         clearInterval(interval);
                         resolve();
@@ -151,13 +153,14 @@ export default class EditForm extends Component {
     }
 
     selectReviews(groupId) {
-        socket.emit(tables.groups, 'selectReviews', groupId, (users) => {
+        socket.emit(tables.users, 'selectReviews', groupId, (users) => {
             if (!users) return this.setState({ userReviews: [] });
             const userReviews = [...users];
 
-            userReviews.map((user) => {
-                user.naujas = false;
-                return user;
+            userReviews.map((review) => {
+                review.data = moment(review.data);
+                review.naujas = false;
+                return review;
             });
 
             this.setState({ userReviews: [...userReviews] });
@@ -166,38 +169,34 @@ export default class EditForm extends Component {
 	
 	selectGames() {
         socket.emit(tables.games, 'selectAll', null, (games) => {
-            if (!games) return this.setState({ games: [] });
+            if (!games) return;
             if (games.length === 0) this.props.back();
 
 			const gameList = [...games];
 	
-			gameList.map((game) => {
-				return game.key = game.id_zaidimai;
-			});
-			
 			this.setState({ games: [...gameList] }, async () => {
-				await new Promise((resolve) => {
+                await new Promise((resolve) => {
 					const interval = setInterval(() => {
 						if (this.reviewForm && this.reviewForm.current) {
-							this.reviewForm.current.resetFields();
 							this.reviewForm.current.setFieldsValue({ fk_zaidimaiid_zaidimai: gameList[0].id_zaidimai });
 							clearInterval(interval);
 							resolve();
 						}
 					}, 0);
 				});
-			});
+            });
 		});
     }
 	
 	selectGame(gameId) {
+		if (!gameId) return;
+
         const game = this.state.games.find((game) => game.id_zaidimai === gameId);
-        if (!game) return;
-			
+		if (!game) return;
+
 		new Promise((resolve) => {
 			const interval = setInterval(() => {
 				if (this.reviewForm && this.reviewForm.current) {
-					this.reviewForm.current.resetFields();
 					this.reviewForm.current.setFieldsValue({ fk_zaidimaiid_zaidimai: game.id_zaidimai });
 					clearInterval(interval);
 					resolve();
@@ -354,8 +353,9 @@ export default class EditForm extends Component {
                         />
                     </Col>
                 </Row>
+                {this.state.games.length === 0 ? '' :
                 <Modal
-                    title='Vartotojas'
+                    title='Atsiliepimas'
                     centered
                     visible={this.state.isModalVisible}
                     onCancel={() => this.setState({ isModalVisible: false })}
@@ -391,7 +391,7 @@ export default class EditForm extends Component {
 						>
 							<Select onChange={(game) => this.selectGame(game)}>
 								{this.state.games.map((game) => {
-									return <Select.Option value={game.fk_zaidimaiid_zaidimai}>{game.fk_zaidimaiid_zaidimai}</Select.Option>;
+									return <Select.Option value={game.id_zaidimai}>{game.pavadinimas} ({game.platforma})</Select.Option>;
 								})}
 							</Select>
 						</Form.Item>
@@ -435,7 +435,7 @@ export default class EditForm extends Component {
                             <Input disabled />
                         </Form.Item>
                     </Form>
-                </Modal>
+                </Modal>}
             </div>
         );
     }

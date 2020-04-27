@@ -40,3 +40,10 @@ export const paymentMethods = [
     'Mobilioji piniginė',
     'Pavedimas banke'
 ];
+
+export const orderStatus = [
+    'Laukia apmokėjimo',
+    'Apmokėtas',
+    'Išsiųstas',
+    'Gautas'
+];
