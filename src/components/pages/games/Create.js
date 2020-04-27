@@ -293,18 +293,7 @@ export default class CreateForm extends Component {
                         {...formItemLayout}
                         onFinish={this.addImage.bind(this)}
                         scrollToFirstError
-                        initialValues={{
-                            id: this.num++
-                        }}
                     >
-                        <Form.Item
-                            name='nuoroda'
-                            label='Nuoroda'
-                            rules={[{ required: true, message: 'Įveskite nuotraukos nuorodą!', min: 5, max: 255 }]}
-                        >
-                            <Input />
-                        </Form.Item>
-
                         <Form.Item
                             name='id'
                             label='ID'
@@ -314,6 +303,13 @@ export default class CreateForm extends Component {
                             <Input type='number' disabled />
                         </Form.Item>
 
+                        <Form.Item
+                            name='nuoroda'
+                            label='Nuoroda'
+                            rules={[{ required: true, message: 'Įveskite nuotraukos nuorodą!', min: 5, max: 255 }]}
+                        >
+                            <Input />
+                        </Form.Item>
                     </Form>
                 </Modal>
             </div>

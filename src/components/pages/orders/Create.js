@@ -1,46 +1,53 @@
 import React, { Component } from 'react';
-import { PageHeader, Form, Input, Button, Card, Row, Col, Select, DatePicker, Modal, List } from 'antd';
+import { PageHeader, Form, Input, Button, Card, Row, Col, DatePicker, Modal, List, Select, Rate, Checkbox } from 'antd';
 import socket from '../../../socket';
 import { tables } from '../../../tables';
 import moment from 'moment';
-import { genres, gamemodes, platforms } from '../../../enums';
+import TextArea from 'antd/lib/input/TextArea';
+import uniqid from 'uniqid';
 
 const formItemLayout = {
 	labelCol: { span: 8 },
 	wrapperCol: { span: 16 }
 };
 
+const tailFormItemLayout = {
+	wrapperCol: {
+		span: 16,
+		offset: 8
+	}
+};
+
 export default class CreateForm extends Component {
-
-    num = 0;
-
     state = {
-        devs: [],
-        gameImages: [],
+		users: [],
+        games: [],
+        orderGames: [],
         isModalVisible: false
     };
 
     constructor(props) {
         super(props);
 
-        this.gameForm = React.createRef();
-        this.imageForm = React.createRef();
-    }
-
-    componentDidMount() {
-        this.selectDevs();
-    }
+        this.orderForm = React.createRef();
+        this.orderGameForm = React.createRef();
+	}
+	
+	componentDidMount() {
+        this.selectUsers();
+		this.selectGames();
+	}
 
 	onFinish(values) {
-		socket.emit(tables.games, 'insert', values, (result) => {
+		socket.emit(tables.users, 'insert', values, (result) => {
 			if (!result) return;
             
-            const gameImages = [...this.state.gameImages];
+            const orderGames = [...this.state.orderGames];
 
-            gameImages.forEach(async (image) => {
+            orderGames.forEach(async (game) => {
                 await new Promise((resolve) => {
-                    image.fk_zaidimaiid_zaidimai = result.id_zaidimai;
-                    socket.emit(tables.images, 'insert', image, (result) => resolve(result));
+                    game.fk_uzsakymaiid_uzsakymai = result.id_uzsakymai;
+                    socket.emit(tables.orders, 'insertGame', game, (result) => resolve(result));
                 });
             });
 
@@ -48,93 +55,115 @@ export default class CreateForm extends Component {
 		});
     }
 
-    addImage(values) {
-        const gameImages = [...this.state.gameImages];
+    addNewOrderGame() {
+        this.setState({ isModalVisible: true}, async () => {
+            await new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    if (this.orderGameForm && this.orderGameForm.current) {
+                        this.orderGameForm.current.resetFields();
+                        this.orderGameForm.current.setFieldsValue({ id_: uniqid() });
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 0);
+            });
+        });
+    }
 
-        const image = gameImages.find((image) => 
-            image.id === values.id || 
-            image.nuoroda === values.nuoroda
-        );
-        if (image) {
-            const index = gameImages.findIndex((image) => image.id === values.id);
-            if (index > -1) gameImages[index] = values;
+    addOrderGame(values) {
+        const orderGames = [...this.state.orderGames];
+
+        const index = orderGames.findIndex((review) => review.id_atsiliepimai === values.id_atsiliepimai);
+        if (index > -1) {
+            orderGames[index] = values;
 
             return this.setState({ 
-                gameImages: [...gameImages],
+                orderGames: [...orderGames],
                 isModalVisible: false
             });
         }
 
-        gameImages.push(values);
+        orderGames.push(values);
         this.setState({ 
-            gameImages: [...gameImages],
+            orderGames: [...orderGames],
             isModalVisible: false
         });
     }
 
-    editImage(imageId) {
-        const gameImages = [...this.state.gameImages];
+    editReview(reviewId) {
+        const orderGames = [...this.state.orderGames];
 
-        const index = gameImages.findIndex((image) => image.id === imageId);
+        const index = orderGames.findIndex((review) => review.id_atsiliepimai === reviewId);
         if (index < 0) return;
 
-        const image = gameImages[index];
+        const review = orderGames[index];
 
-        this.imageForm.current.setFieldsValue({...image});
-        this.setState({ isModalVisible: true });
+        this.setState({ isModalVisible: true}, async () => {
+            await new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    if (this.orderGameForm && this.orderGameForm.current) {
+                        this.orderGameForm.current.resetFields();
+                        this.orderGameForm.current.setFieldsValue({...review});
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 0);
+            });
+        });
     }
 
-    removeImage(imageId) {
-        const gameImages = [...this.state.gameImages];
+    removeReview(reviewId) {
+        const orderGames = [...this.state.orderGames];
 
-        const index = gameImages.findIndex((image) => image.id === imageId);
+        const index = orderGames.findIndex((user) => user.id_atsiliepimai === reviewId);
         if (index < 0) return;
-        gameImages.splice(index, 1);
+        orderGames.splice(index, 1);
 
-        this.setState({ gameImages: [...gameImages] });
-    }
+        this.setState({ orderGames: [...orderGames] });
+	}
 
-    selectDevs() {
-        socket.emit(tables.developers, 'selectAll', null, (devs) => {
-			if (!devs) return this.setState({ devs: [] });
-            if (devs.length === 0) this.props.back();
+	selectGames() {
+        socket.emit(tables.games, 'selectAll', null, (games) => {
+            if (!games) return this.setState({ games: [] });
+            if (games.length === 0) this.props.back();
 
-			const devList = [...devs];
+			const gameList = [...games];
 	
-			this.setState({ devs: [...devList] }, () => {
-                if (this.gameForm && this.gameForm.current)
-                    this.gameForm.current.setFieldsValue({ fk_kurejaiid_kurejai: devList[0].id_kurejai });
+			gameList.map((game) => {
+				return game.key = game.id_zaidimai;
+			});
+	
+			this.setState({ games: [...gameList] }, () => {
+                if (this.form && this.form.current)
+                    this.form.current.setFieldsValue({ fk_zaidimaiid_zaidimai: gameList[0].id_zaidimai });
             });
 		});
     }
-
-    selectDev(devId) {
-        const dev = this.state.devs.find((dev) => dev.id_kurejai === devId);
-        if (!dev) return;
-        if (this.gameForm && this.gameForm.current)
-            this.gameForm.current.setFieldsValue({ fk_kurejaiid_kurejai: dev.id_kurejai });
+	
+	selectGame(gameId) {
+        const game = this.state.games.find((game) => game.id_zaidimai === gameId);
+        if (!game) return;
+        if (this.form && this.form.current)
+            this.form.current.setFieldsValue({ fk_zaidimaiid_zaidimai: game.id_zaidimai });
     }
 
 	render() {
-        if (this.state.devs.length === 0) 
-            return (<div></div>);
+		if (this.state.games.length === 0)
+			return (<div></div>);
 
         return (
             <div>
 				<PageHeader
 					ghost={false}
-					title='Žaidimai'
-                    subTitle='Parduodami žaidimai'
+					title='Varotojai'
+					subTitle='Užregistruoti internetinės parduotuvės vartotojai'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
-                        <Button key='create' type='primary' onClick={() => this.gameForm.current.submit()}>
-						 	Pridėti žaidimą
+                        <Button key='create' type='primary' onClick={() => this.orderForm.current.submit()}>
+						 	Sukurti grupę
 						</Button>,
-                        <Button key='addImage' onClick={() => { 
-                            if (this.imageForm && this.imageForm.current) this.imageForm.current.resetFields(); 
-                            this.setState({ isModalVisible: true })}
-                        }>
-						 	Pridėti naują nuotrauką
+                        <Button key='addNewOrderGame' onClick={this.addNewOrderGame.bind(this)}>
+						 	Pridėti naują vartotoją
 						</Button>,
 						<Button key='cancel' onClick={() => this.props.back()}>
 						 	Grįžti
@@ -145,57 +174,103 @@ export default class CreateForm extends Component {
                     <Col span={12}>
                         <Card style={{ backgroundColor: 'rgb(225, 225, 225)' }}>
                             <Form
-                                ref={this.gameForm}
+                                ref={this.orderForm}
                                 {...formItemLayout}
                                 onFinish={this.onFinish.bind(this)}
                                 scrollToFirstError
                                 initialValues={{
-                                    fk_vartotojaiid_vartotojai: this.state.users[0].id_vartotojai,
-                                    data: moment(),
+									paskutinis_prisijungimas: moment(),
+									registracijos_data: moment()
                                 }}
                             >
-                                <Form.Item
-                                    key='fk_vartotojaiid_vartotojai'
-                                    name='fk_vartotojaiid_vartotojai'
-                                    label='Užsakovas'
-                                    rules={[{ required: true, message: 'Pasirinkite žaidimo kūrėją!' }]}
-                                >
-                                    <Select onChange={(user) => this.selectUser(user)}>
-                                        {this.state.users.map((user) => {
-                                            return <Select.Option value={user.id_vartotojai}>{user.slapyvardis}</Select.Option>;
-                                        })}
-                                    </Select>
-                                </Form.Item>
+								<Form.Item
+									name='id_vartotojai'
+									label='ID'
+									rules={[{ required: true, message: 'Įveskite vartotojo ID!' }]}
+									style={{ display: 'none' }}
+								>
+									<Input type='number' disabled />
+								</Form.Item>
 
-                                <Form.Item
-                                    key='pavadinimas'
-                                    name='pavadinimas'
-                                    label='Pavadinimas'
-                                    rules={[{ required: true, message: 'Įveskite pavadinimą!', min: 5, max: 255 }]}
-                                >
-                                    <Input />
-                                </Form.Item>
+								<Form.Item
+									name='slapyvardis'
+									label='Slapyvardis'
+									rules={[{ required: true, message: 'Įveskite slapyvardį!', whitespace: false, min: 5, max: 255 }]}
+								>
+									<Input />
+								</Form.Item>
+								<Form.Item
+									name='el_pastas'
+									label='El. paštas'
+									rules={[
+										{
+											type: 'email',
+											message: 'Neteisingai įvedėte el. paštą!',
+										},
+										{
+											required: true,
+											message: 'Įveskite el. paštą!',
+										}
+									]}
+								>
+									<Input />
+								</Form.Item>
 
-                                <Form.Item
-                                    key='data'
-                                    name='data'
-                                    label='Užsakymo data'
-                                    rules={[{ required: true, message: 'Pasirinkite išleidimo datą!' }]}
-                                >
-                                    <DatePicker
-                                        format="YYYY-MM-DD HH:mm:ss"
-                                        showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
-                                    />
-                                </Form.Item>
+								<Form.Item
+									name='slaptazodis'
+									label='Slaptažodis'
+									rules={[
+										{
+											required: true,
+											message: 'Įveskite slaptažodį!'
+										}
+									]}
+								>
+									<Input.Password />
+								</Form.Item>
 
-                                <Form.Item
-                                    key='kaina'
-                                    name='kaina'
-                                    label='Kaina'
-                                    rules={[{ required: true, message: 'Įveskite kainą!' }]}
-                                >
-                                    <Input type='number' />
-                                </Form.Item>
+								<Form.Item
+									name='paskutinis_prisijungimas'
+									label='Paskutinis prisijungimas'
+								>
+									<DatePicker
+										format="YYYY-MM-DD HH:mm:ss"
+										showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
+									/>
+								</Form.Item>
+
+								<Form.Item
+									name='registracijos_data'
+									label='Registracijos data'
+								>
+									<DatePicker
+										format="YYYY-MM-DD HH:mm:ss"
+										showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
+									/>
+								</Form.Item>
+
+								<Form.Item
+									name='balansas'
+									label='Balansas'
+									rules={[
+										{
+											required: true,
+											message: 'Įveskite balansą!'
+										}
+									]}
+								>
+									<Input type='number' />
+								</Form.Item>
+					
+								<Form.Item
+									name='aktyvuotas'
+									valuePropName='checked'
+									{...tailFormItemLayout}
+								>
+									<Checkbox>
+										Ar aktyvuoti vartotoją?
+									</Checkbox>
+								</Form.Item>
                             </Form>
                         </Card>
                     </Col>
@@ -204,22 +279,22 @@ export default class CreateForm extends Component {
                     <Col span={12}>
                         <List
                             bordered
-                            dataSource={this.state.games}
-                            renderItem={game => (
+                            dataSource={this.state.orderGames}
+                            renderItem={review => (
                                 <List.Item actions={[
                                     // eslint-disable-next-line
-                                    <a key='edit' onClick={this.editImage.bind(this, game.id_zaidimai)}>redaguoti</a>, 
+                                    <a key='edit' onClick={this.editReview.bind(this, review.id_atsiliepimai)}>redaguoti</a>, 
                                     // eslint-disable-next-line
-                                    <a key='remove' onClick={this.removeImage.bind(this, game.id_zaidimai)}>šalinti</a>
+                                    <a key='remove' onClick={this.removeReview.bind(this, review.id_atsiliepimai)}>šalinti</a>
                                 ]}>
-                                    {game.pavadinimas} ({game.platforma})
+                                    {review.komentaras}
                                 </List.Item>
                             )}
                         />
                     </Col>
                 </Row>
                 <Modal
-                    title='Žaidimas'
+                    title='Atsiliepimas'
                     centered
                     visible={this.state.isModalVisible}
                     onCancel={() => this.setState({ isModalVisible: false })}
@@ -227,38 +302,73 @@ export default class CreateForm extends Component {
                         <Button key='cancel' onClick={() => this.setState({ isModalVisible: false })}>
                             Grįžti
                         </Button>,
-                        <Button key='submit' type='primary' onClick={() => this.imageForm.current.submit()}>
+                        <Button key='submit' type='primary' onClick={() => this.orderGameForm.current.submit()}>
                             Patvirtinti
                         </Button>
                     ]}
                 >
                     <Form
-                        ref={this.imageForm}
+                        ref={this.orderGameForm}
                         {...formItemLayout}
-                        onFinish={this.addImage.bind(this)}
+                        onFinish={this.addOrderGame.bind(this)}
                         scrollToFirstError
+                        initialValues={{
+                            fk_zaidimaiid_zaidimai: this.state.games[0].id_zaidimai,
+							ivertinimas: 0,
+							data: moment()
+                        }}
                     >
-                        <Form.Item
-                            name='kiekis'
-                            label='Kiekis'
-                            rules={[{ required: true, message: 'Įveskite kiekį!' }]}
-                        >
-                            <Input type='number' />
-                        </Form.Item>
-
-                        <Form.Item
-                            name='fk_zaidimaiid_zaidimai'
-                            label='Žaidimas'
-                            rules={[{ required: true, message: 'Pasirinkite žaidimą!' }]}
+						<Form.Item
+                            name='id_atsiliepimai'
+                            label='ID'
+                            rules={[{ required: true, message: 'Įveskite atsiliepimo ID!' }]}
                             style={{ display: 'none' }}
                         >
-                            <Select onChange={(game) => this.selectGame(game)}>
-                                {this.state.games.map((game) => {
-                                    return <Select.Option value={game.id_zaidimai}>{game.pavadinimas} ({game.platforma})</Select.Option>;
-                                })}
-                            </Select>
+                            <Input type='number' disabled />
                         </Form.Item>
 
+                        <Form.Item
+							key='fk_zaidimaiid_zaidimai'
+							name='fk_zaidimaiid_zaidimai'
+							label='Žaidimas'
+							rules={[{ required: true, message: 'Pasirinkite žaidimą!' }]}
+						>
+							<Select onChange={(game) => this.selectGame(game)}>
+								{this.state.games.map((game) => {
+									return <Select.Option value={game.fk_zaidimaiid_zaidimai}>{game.fk_zaidimaiid_zaidimai}</Select.Option>;
+								})}
+							</Select>
+						</Form.Item>
+
+						<Form.Item
+							key='ivertinimas'
+							name='ivertinimas'
+							label='Įvertinimas'
+							rules={[{ required: true, message: 'Pasirinkite žaidimo įvertinimą!' }]}
+						>
+							<Rate />
+						</Form.Item>
+
+						<Form.Item
+							key='komentaras'
+							name='komentaras'
+							label='Komentaras'
+							rules={[{ required: true, message: 'Įveskite komentarą apie žaidimą!' }]}
+						>
+							<TextArea />
+						</Form.Item>
+
+						<Form.Item
+							key='data'
+							name='data'
+							label='Parašymo data'
+							rules={[{ required: true, message: 'Pasirinkite atsiliepimo parašymo datą!' }]}
+						>
+							<DatePicker
+								format="YYYY-MM-DD HH:mm:ss"
+								showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
+							/>
+						</Form.Item>
                     </Form>
                 </Modal>
             </div>

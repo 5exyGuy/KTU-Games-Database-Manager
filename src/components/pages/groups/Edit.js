@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { PageHeader, Form, Input, Button, Card, Row, Col, Select, DatePicker, List, Modal, Checkbox } from 'antd';
+import { PageHeader, Form, Input, Button, Card, Row, Col, DatePicker, Modal, List, Checkbox } from 'antd';
 import socket from '../../../socket';
 import { tables } from '../../../tables';
 import moment from 'moment';
+import uniqid from 'uniqid';
 
 const formItemLayout = {
 	labelCol: { span: 8 },
@@ -19,7 +20,6 @@ const tailFormItemLayout = {
 export default class EditForm extends Component {
 
     state = {
-        users: [],
         groupUsers: [],
         isModalVisible: false,
         creatingNew: false
@@ -28,24 +28,25 @@ export default class EditForm extends Component {
     constructor(props) {
         super(props);
 
-        this.form = React.createRef();
-        this.groupUserForm = React.createRef();
+        this.groupForm = React.createRef();
+        this.userForm = React.createRef();
     }
 
     componentDidMount() {
-        this.selectUsers();
-        this.selectGroupUsers(this.props.data.id_grupes);
+        this.selectUsers(this.props.data.id_grupes);
     }
 
 	onFinish(values) {
 		socket.emit(tables.groups, 'update', values, (result) => {
 			if (!result) return;
             
-            const newUsers = [...this.state.newUsers];
+            const groupUsers = [...this.state.groupUsers];
 
-            newUsers.forEach(async (user) => {
+            groupUsers.forEach(async (user) => {
                 await new Promise((resolve) => {
-                    socket.emit(tables.users, 'update', user, (result) => resolve(result));
+                    user.fk_grupesid_grupes = values.id_grupes;
+                    if (user.naujas) socket.emit(tables.users, 'insert', user, (result) => resolve(result));
+                    else socket.emit(tables.users, 'update', user, (result) => resolve(result));
                 });
             });
 
@@ -53,19 +54,34 @@ export default class EditForm extends Component {
 		});
     }
 
-    addGroupUser(values) {
+    addNewUser() {
+        this.setState({ isModalVisible: true, creatingNew: true }, async () => {
+            await new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    if (this.userForm && this.userForm.current) {
+                        this.userForm.current.resetFields();
+                        this.userForm.current.setFieldsValue({ 
+                            naujas: true,
+                            id_vartotojai: uniqid()
+                        });
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 0);
+            });
+        });
+    }
+
+    addUser(values) {
         const groupUsers = [...this.state.groupUsers];
 
-        const user = groupUsers.find((user) => 
+        const index = groupUsers.findIndex((user) => 
+            user.id_vartotojai === values.id_vartotojai ||
             user.slapyvardis === values.slapyvardis || 
             user.el_pastas === values.el_pastas
         );
-        if (user) {
-            const index = groupUsers.findIndex((user) => user.id_vartotojai === values.id_vartotojai);
-            if (index > -1) {
-                values.naujas = false;
-                groupUsers[index] = values;
-            }
+        if (index > -1) {
+            groupUsers[index] = values;
 
             return this.setState({ 
                 groupUsers: [...groupUsers],
@@ -73,8 +89,7 @@ export default class EditForm extends Component {
                 creatingNew: false
             });
         }
-
-        values.naujas = true;
+        
         groupUsers.push(values);
         this.setState({ 
             groupUsers: [...groupUsers],
@@ -83,7 +98,7 @@ export default class EditForm extends Component {
         });
     }
 
-    editGroupUser(userId) {
+    editUser(userId) {
         const groupUsers = [...this.state.groupUsers];
 
         const index = groupUsers.findIndex((user) => user.id_vartotojai === userId);
@@ -91,17 +106,36 @@ export default class EditForm extends Component {
 
         const user = groupUsers[index];
 
-        this.setState({ isModalVisible: true }, () => {
-            if (this.groupUserForm && this.groupUserForm.current)
-                return this.groupUserForm.current.setFieldsValue({...user});
+        if (user.naujas) {
+            return this.setState({ isModalVisible: true, creatingNew: true }, async () => {
+                await new Promise((resolve) => {
+                    const interval = setInterval(() => {
+                        if (this.userForm && this.userForm.current) {
+                            this.userForm.current.resetFields();
+                            this.userForm.current.setFieldsValue({...user});
+                            clearInterval(interval);
+                            resolve();
+                        }
+                    }, 0);
+                });
+            });
+        }
 
-            setTimeout(() => {
-                this.groupUserForm.current.setFieldsValue({...user});
-            }, 1000);
+        return this.setState({ isModalVisible: true, creatingNew: false }, async () => {
+            await new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    if (this.userForm && this.userForm.current) {
+                        this.userForm.current.resetFields();
+                        this.userForm.current.setFieldsValue({...user});
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 0);
+            });
         });
     }
 
-    removeGroupUser(userId, groupId) {
+    removeUser(userId) {
         const groupUsers = [...this.state.groupUsers];
         const index = groupUsers.findIndex((user) => user.id_vartotojai === userId);
         if (index < 0) return;
@@ -111,66 +145,39 @@ export default class EditForm extends Component {
             return this.setState({ groupUsers: [...groupUsers] });
         }
 
-        socket.emit(tables.groups, 'deleteUser', { userId: userId, groupId: groupId }, (result) => {
+        socket.emit(tables.images, 'deleteId', userId, (result) => {
             if (!result) return;
-            this.selectGroupUsers();
+            this.selectUsers(this.props.data.id_grupes);
         });
     }
 
-    selectGroupUsers(groupId) {
-        socket.emit(tables.groups, 'selectGroupUsers', groupId, (users) => {
+    selectUsers(groupId) {
+        socket.emit(tables.groups, 'selectUsers', groupId, (users) => {
             if (!users) return this.setState({ groupUsers: [] });
+            const groupUsers = [...users];
 
-            const userList = [...users];
-
-            userList.map((user) => {
+            groupUsers.map((user) => {
                 user.naujas = false;
-                user.paskutinis_prisijungimas = moment(user.paskutinis_prisijungimas);
-                user.registracijos_data = moment(user.registracijos_data);
                 return user;
             });
 
-            this.setState({ groupUsers: [...userList] });
+            this.setState({ groupUsers: [...groupUsers] });
         });
     }
 
-    selectUsers() {
-        socket.emit(tables.users, 'selectAll', null, (users) => {
-			if (!users) return this.setState({ users: [] });
-            if (users.length === 0) this.props.back();
-
-            const userList = [...users];
-	
-			this.setState({ users: [...userList] }, () => {
-                if (this.form && this.form.current)
-                    this.form.current.setFieldsValue({ fk_vartotojaiid_vartotojai: userList[0].id_vartotojai });
-            });
-		});
-    }
-
-    selectUser(userId) {
-        const user = this.state.users.find((user) => user.id_vartotojai === userId);
-        if (!user) return;
-        if (this.form && this.form.current)
-            this.form.current.setFieldsValue({ fk_vartotojaiid_vartotojai: user.id_vartotojai });
-    }
-
 	render() {
-        if (this.state.users.length === 0) 
-            return (<div></div>);
-
         return (
             <div>
 				<PageHeader
 					ghost={false}
 					title='Grupės'
-                    subTitle='Vartotojų sukurtos grupės'
+                    subTitle='Vartotojų grupės'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
-                        <Button key='edit' type='primary' onClick={() => this.form.current.submit()}>
-						 	Redaguoti
+                        <Button key='editGroup' type='primary' onClick={() => this.groupForm.current.submit()}>
+						 	Redaguoti grupę
 						</Button>,
-                        <Button key='addNewUser' onClick={() => this.setState({ isModalVisible: true, creatingNew: true })}>
+                        <Button key='addNewUser' onClick={this.addNewUser.bind(this)}>
 						 	Pridėti naują vartotoją
 						</Button>,
 						<Button key='cancel' onClick={() => this.props.back()}>
@@ -182,15 +189,13 @@ export default class EditForm extends Component {
                     <Col span={12}>
                         <Card style={{ backgroundColor: 'rgb(225, 225, 225)' }}>
                             <Form
-                                ref={this.form}
+                                ref={this.groupForm}
                                 {...formItemLayout}
                                 onFinish={this.onFinish.bind(this)}
                                 scrollToFirstError
                                 initialValues={{
                                     id_grupes: this.props.data.id_grupes,
-                                    fk_vartotojaiid_vartotojai: this.props.data.fk_vartotojaiid_vartotojai,
                                     pavadinimas: this.props.data.pavadinimas,
-                                    ikurimo_data: moment(this.props.data.ikurimo_data)
                                 }}
                             >
                                 <Form.Item
@@ -199,40 +204,16 @@ export default class EditForm extends Component {
                                     label='ID'
                                     rules={[{ required: true, message: 'Įveskite grupės ID!' }]}
                                 >
-                                    <Input disabled />
+                                    <Input type='number' disabled />
                                 </Form.Item>
 
                                 <Form.Item
-                                    key='fk_vartotojaiid_vartotojai'
-                                    name='fk_vartotojaiid_vartotojai'
-                                    label='Savininkas'
-                                    rules={[{ required: true, message: 'Pasirinkite grupės savininką!' }]}
+                                    key='pavadinimas'
+                                    name='pavadinimas'
+                                    label='Pavadinimas'
+                                    rules={[{ required: true, message: 'Įveskite pavadinimą!', min: 5, max: 255 }]}
                                 >
-                                    <Select onChange={(user) => this.selectUser(user)}>
-                                        {this.state.users.map((user) => {
-                                            return <Select.Option value={user.id_vartotojai}>{user.slapyvardis}</Select.Option>;
-                                        })}
-                                    </Select>
-                                </Form.Item>
-
-                                <Form.Item
-									name='pavadinimas'
-									label='Pavadinimas'
-									rules={[{ required: true, message: 'Įveskite grupės pavadinimą!', whitespace: false, min: 5, max: 255 }]}
-								>
-									<Input />
-								</Form.Item>
-
-                                <Form.Item
-                                    key='ikurimo_data'
-                                    name='ikurimo_data'
-                                    label='Įkūrimo data'
-                                    rules={[{ required: true, message: 'Pasirinkite grupės įkūrimo datą!' }]}
-                                >
-                                    <DatePicker
-                                        format='YYYY-MM-DD HH:mm:ss'
-                                        showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
-                                    />
+                                    <Input />
                                 </Form.Item>
                             </Form>
                         </Card>
@@ -246,25 +227,18 @@ export default class EditForm extends Component {
                             renderItem={user => (
                                 <List.Item actions={[
                                     // eslint-disable-next-line
-                                    <a key='edit' onClick={this.editGroupUser.bind(this, user.id_vartotojai)}>redaguoti</a>, 
+                                    <a key='edit' onClick={this.editUser.bind(this, user.id_vartotojai)}>redaguoti</a>, 
                                     // eslint-disable-next-line
-                                    <a key='remove' onClick={this.removeGroupUser.bind(this, user.id_vartotojai, this.props.data.id_grupes)}>šalinti</a>
+                                    <a key='remove' onClick={this.removeUser.bind(this, user.id_vartotojai)}>šalinti</a>
                                 ]}>
                                     {user.slapyvardis}
-                                    {/* <List.Item.Meta
-                                        avatar={
-                                            <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-                                        }
-                                        title={<a href="https://ant.design">{item.name.last}</a>}
-                                        description="Ant Design, a design language for background applications, is refined by Ant UED Team"
-                                    /> */}
                                 </List.Item>
                             )}
                         />
                     </Col>
                 </Row>
                 <Modal
-                    title='Naujas vartotojas'
+                    title='Vartotojas'
                     centered
                     visible={this.state.isModalVisible}
                     onCancel={() => this.setState({ isModalVisible: false })}
@@ -272,28 +246,27 @@ export default class EditForm extends Component {
                         <Button key='cancel' onClick={() => this.setState({ isModalVisible: false })}>
                             Grįžti
                         </Button>,
-                        <Button key='submit' type='primary' onClick={() => this.groupUserForm.current.submit()}>
+                        <Button key='submit' type='primary' onClick={() => this.userForm.current.submit()}>
                             Patvirtinti
                         </Button>
                     ]}
                 >
                     <Form
-                        ref={this.groupUserForm}
+                        ref={this.userForm}
                         {...formItemLayout}
-                        onFinish={this.addGroupUser.bind(this)}
+                        onFinish={this.addUser.bind(this)}
                         scrollToFirstError
                     >
-                        {this.state.creatingNew ? '' : <Form.Item
-                            key='id_vartotojai'
+                        <Form.Item
                             name='id_vartotojai'
                             label='ID'
                             rules={[{ required: true, message: 'Įveskite vartotojo ID!' }]}
+                            style={{ display: 'none' }}
                         >
-                            <Input disabled />
-                        </Form.Item>}
+                            <Input type='number' disabled />
+                        </Form.Item>
 
                         <Form.Item
-                            key='username'
                             name='slapyvardis'
                             label='Slapyvardis'
                             rules={[{ required: true, message: 'Įveskite slapyvardį!', whitespace: false, min: 5, max: 255 }]}
@@ -301,7 +274,6 @@ export default class EditForm extends Component {
                             <Input />
                         </Form.Item>
                         <Form.Item
-                            key='email'
                             name='el_pastas'
                             label='El. paštas'
                             rules={[
@@ -319,7 +291,6 @@ export default class EditForm extends Component {
                         </Form.Item>
 
                         <Form.Item
-                            key='password'
                             name='slaptazodis'
                             label='Slaptažodis'
                             rules={[
@@ -333,29 +304,26 @@ export default class EditForm extends Component {
                         </Form.Item>
 
                         <Form.Item
-                            key='lastLogin'
                             name='paskutinis_prisijungimas'
                             label='Paskutinis prisijungimas'
                         >
                             <DatePicker
-                                format='YYYY-MM-DD HH:mm:ss'
+                                format="YYYY-MM-DD HH:mm:ss"
                                 showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
                             />
                         </Form.Item>
 
                         <Form.Item
-                            key='registrationDate'
                             name='registracijos_data'
                             label='Registracijos data'
                         >
                             <DatePicker
-                                format='YYYY-MM-DD HH:mm:ss'
+                                format="YYYY-MM-DD HH:mm:ss"
                                 showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
                             />
                         </Form.Item>
 
                         <Form.Item
-                            key='balance'
                             name='balansas'
                             label='Balansas'
                             rules={[
@@ -369,7 +337,6 @@ export default class EditForm extends Component {
                         </Form.Item>
             
                         <Form.Item
-                            key='activated'
                             name='aktyvuotas'
                             valuePropName='checked'
                             {...tailFormItemLayout}
@@ -377,6 +344,15 @@ export default class EditForm extends Component {
                             <Checkbox>
                                 Ar aktyvuoti vartotoją?
                             </Checkbox>
+                        </Form.Item>
+
+                        <Form.Item
+                            name='naujas'
+                            label='Naujas'
+                            rules={[{ required: true, message: 'Įveskite, ar tai naujas!'}]}
+                            // style={{ display: 'none' }}
+                        >
+                            <Input disabled />
                         </Form.Item>
                     </Form>
                 </Modal>

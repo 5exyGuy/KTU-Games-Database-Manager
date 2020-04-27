@@ -94,7 +94,7 @@ async function deleteUser(data, cb) {
 async function insert(values, cb) {
     if (!values) return cb(null);
 
-    const result = await pool.query(`INSERT INTO ${tableName} (pavadinimas, fk_vartotojaiid_vartotojai, ikurimo_data) VALUES($1, $2, $3)`,
+    const result = await pool.query(`INSERT INTO ${tableName} (pavadinimas, fk_vartotojaiid_vartotojai, ikurimo_data) VALUES($1, $2, $3) RETURNING id_grupes`,
         [
             values.pavadinimas, values.fk_vartotojaiid_vartotojai,
             values.ikurimo_data

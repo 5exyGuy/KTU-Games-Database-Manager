@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import { PageHeader, Form, Input, Button, Card, Row, Col, Select, DatePicker, Checkbox, Modal, List } from 'antd';
+import { PageHeader, Form, Input, Button, Card, Row, Col, DatePicker, Modal, List, Checkbox } from 'antd';
 import socket from '../../../socket';
 import { tables } from '../../../tables';
 import moment from 'moment';
+import { platforms } from '../../../enums';
+import uniqid from 'uniqid';
 
 const formItemLayout = {
 	labelCol: { span: 8 },
@@ -17,9 +19,9 @@ const tailFormItemLayout = {
 };
 
 export default class CreateForm extends Component {
-
+    
     state = {
-        users: [],
+        groupUsers: [],
         isModalVisible: false
     };
 
@@ -34,9 +36,9 @@ export default class CreateForm extends Component {
 		socket.emit(tables.groups, 'insert', values, (result) => {
 			if (!result) return;
             
-            const users = [...this.state.users];
+            const groupUsers = [...this.state.groupUsers];
 
-            users.forEach(async (user) => {
+            groupUsers.forEach(async (user) => {
                 await new Promise((resolve) => {
                     user.fk_grupesid_grupes = result.id_grupes;
                     socket.emit(tables.users, 'insert', user, (result) => resolve(result));
@@ -47,66 +49,90 @@ export default class CreateForm extends Component {
 		});
     }
 
-    addUser(values) {
-        const users = [...this.state.users];
+    addNewUser() {
+        this.setState({ isModalVisible: true}, async () => {
+            await new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    if (this.userForm && this.userForm.current) {
+                        this.userForm.current.resetFields();
+                        this.userForm.current.setFieldsValue({ id_vartotojai: uniqid() });
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 0);
+            });
+        });
+    }
 
-        const user = users.find((user) => 
+    addUser(values) {
+        const groupUsers = [...this.state.groupUsers];
+
+        const index = groupUsers.findIndex((user) => 
+            user.id_vartotojai === values.id_vartotojai ||
             user.slapyvardis === values.slapyvardis || 
             user.el_pastas === values.el_pastas
         );
-        if (user) {
-            this.setState({ isModalVisible: false });
-            return;
+        if (index > -1) {
+            groupUsers[index] = values;
+
+            return this.setState({ 
+                groupUsers: [...groupUsers],
+                isModalVisible: false
+            });
         }
 
-        users.push(values);
+        groupUsers.push(values);
         this.setState({ 
-            users: [...users],
+            groupUsers: [...groupUsers],
             isModalVisible: false
         });
     }
 
-    editUser(username) {
-        const users = [...this.state.users];
+    editUser(userId) {
+        const groupUsers = [...this.state.groupUsers];
 
-        const index = users.findIndex((user) => user.slapyvardis === username);
+        const index = groupUsers.findIndex((user) => user.id_vartotojai === userId);
         if (index < 0) return;
 
-        const user = users[index];
+        const user = groupUsers[index];
 
-        this.userForm.current.setFieldsValue({...user});
-        this.setState({ isModalVisible: true });
+        this.setState({ isModalVisible: true}, async () => {
+            await new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    if (this.userForm && this.userForm.current) {
+                        this.userForm.current.resetFields();
+                        this.userForm.current.setFieldsValue({...user});
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 0);
+            });
+        });
     }
 
-    removeUser(username) {
-        const users = [...this.state.users];
+    removeUser(userId) {
+        const groupUsers = [...this.state.groupUsers];
 
-        const index = users.findIndex((user) => user.slapyvardis === username);
+        const index = groupUsers.findIndex((user) => user.id_vartotojai === userId);
         if (index < 0) return;
-        users.splice(index, 1);
+        groupUsers.splice(index, 1);
 
-        this.setState({ users: [...users] });
+        this.setState({ groupUsers: [...groupUsers] });
     }
 
 	render() {
-        if (this.state.users.length === 0) 
-            return (<div></div>);
-
         return (
             <div>
 				<PageHeader
 					ghost={false}
 					title='Grupės'
-                    subTitle='Vartotojų sukurtos grupės'
+                    subTitle='Vartotojų grupės'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
                         <Button key='create' type='primary' onClick={() => this.groupForm.current.submit()}>
 						 	Sukurti grupę
 						</Button>,
-                        <Button key='addUser' onClick={() => { 
-                            if (this.userForm && this.userForm.current) this.userForm.current.resetFields(); 
-                            this.setState({ isModalVisible: true })}
-                        }>
+                        <Button key='addNewUser' onClick={this.addNewUser.bind(this)}>
 						 	Pridėti naują vartotoją
 						</Button>,
 						<Button key='cancel' onClick={() => this.props.back()}>
@@ -122,14 +148,20 @@ export default class CreateForm extends Component {
                                 {...formItemLayout}
                                 onFinish={this.onFinish.bind(this)}
                                 scrollToFirstError
+                                initialValues={{
+                                    isleidimo_data: moment(),
+                                    platforma: platforms[0]
+                                }}
                             >
+
                                 <Form.Item
-									name='pavadinimas'
-									label='Pavadinimas'
-									rules={[{ required: true, message: 'Įveskite grupės pavadinimą!', whitespace: false, min: 5, max: 255 }]}
-								>
-									<Input />
-								</Form.Item>
+                                    key='pavadinimas'
+                                    name='pavadinimas'
+                                    label='Pavadinimas'
+                                    rules={[{ required: true, message: 'Įveskite pavadinimą!', min: 5, max: 255 }]}
+                                >
+                                    <Input />
+                                </Form.Item>
                             </Form>
                         </Card>
                     </Col>
@@ -138,32 +170,24 @@ export default class CreateForm extends Component {
                     <Col span={12}>
                         <List
                             bordered
-                            dataSource={this.state.users}
+                            dataSource={this.state.groupUsers}
                             renderItem={user => (
                                 <List.Item actions={[
                                     // eslint-disable-next-line
-                                    <a key='edit' onClick={this.editUser.bind(this, user.slapyvardis)}>redaguoti</a>, 
+                                    <a key='edit' onClick={this.editUser.bind(this, user.id_vartotojai)}>redaguoti</a>, 
                                     // eslint-disable-next-line
-                                    <a key='remove' onClick={this.removeUser.bind(this, user.slapyvardis)}>šalinti</a>
+                                    <a key='remove' onClick={this.removeUser.bind(this, user.id_vartotojai)}>šalinti</a>
                                 ]}>
                                     {user.slapyvardis}
-                                    {/* <List.Item.Meta
-                                        avatar={
-                                            <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-                                        }
-                                        title={<a href="https://ant.design">{item.name.last}</a>}
-                                        description="Ant Design, a design language for background applications, is refined by Ant UED Team"
-                                    /> */}
                                 </List.Item>
                             )}
                         />
                     </Col>
                 </Row>
                 <Modal
-                    title='Naujas vartotojas'
+                    title='Vartotojas'
                     centered
                     visible={this.state.isModalVisible}
-                    onOk={this.handleOk}
                     onCancel={() => this.setState({ isModalVisible: false })}
                     footer={[
                         <Button key='cancel' onClick={() => this.setState({ isModalVisible: false })}>
@@ -180,14 +204,20 @@ export default class CreateForm extends Component {
                         onFinish={this.addUser.bind(this)}
                         scrollToFirstError
                         initialValues={{
-                            registracijos_data: moment(),
                             paskutinis_prisijungimas: moment(),
-                            balansas: 0,
-                            aktyvuotas: false
+                            registracijos_data: moment()
                         }}
                     >
                         <Form.Item
-                            key='username'
+                            name='id_vartotojai'
+                            label='ID'
+                            rules={[{ required: true, message: 'Įveskite vartotojo ID!' }]}
+                            style={{ display: 'none' }}
+                        >
+                            <Input type='number' disabled />
+                        </Form.Item>
+
+                        <Form.Item
                             name='slapyvardis'
                             label='Slapyvardis'
                             rules={[{ required: true, message: 'Įveskite slapyvardį!', whitespace: false, min: 5, max: 255 }]}
@@ -195,7 +225,6 @@ export default class CreateForm extends Component {
                             <Input />
                         </Form.Item>
                         <Form.Item
-                            key='email'
                             name='el_pastas'
                             label='El. paštas'
                             rules={[
@@ -213,7 +242,6 @@ export default class CreateForm extends Component {
                         </Form.Item>
 
                         <Form.Item
-                            key='password'
                             name='slaptazodis'
                             label='Slaptažodis'
                             rules={[
@@ -227,29 +255,26 @@ export default class CreateForm extends Component {
                         </Form.Item>
 
                         <Form.Item
-                            key='lastLogin'
                             name='paskutinis_prisijungimas'
                             label='Paskutinis prisijungimas'
                         >
                             <DatePicker
-                                format='YYYY-MM-DD HH:mm:ss'
+                                format="YYYY-MM-DD HH:mm:ss"
                                 showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
                             />
                         </Form.Item>
 
                         <Form.Item
-                            key='registration'
                             name='registracijos_data'
                             label='Registracijos data'
                         >
                             <DatePicker
-                                format='YYYY-MM-DD HH:mm:ss'
+                                format="YYYY-MM-DD HH:mm:ss"
                                 showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
                             />
                         </Form.Item>
 
                         <Form.Item
-                            key='balance'
                             name='balansas'
                             label='Balansas'
                             rules={[
@@ -263,7 +288,6 @@ export default class CreateForm extends Component {
                         </Form.Item>
             
                         <Form.Item
-                            key='activated'
                             name='aktyvuotas'
                             valuePropName='checked'
                             {...tailFormItemLayout}

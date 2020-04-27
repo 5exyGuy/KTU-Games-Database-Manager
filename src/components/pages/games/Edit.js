@@ -4,6 +4,7 @@ import socket from '../../../socket';
 import { tables } from '../../../tables';
 import moment from 'moment';
 import { genres, gamemodes, platforms } from '../../../enums';
+import uniqid from 'uniqid';
 
 const formItemLayout = {
 	labelCol: { span: 8 },
@@ -11,8 +12,6 @@ const formItemLayout = {
 };
 
 export default class EditForm extends Component {
-
-    num = 0;
 
     state = {
         devs: [],
@@ -41,7 +40,7 @@ export default class EditForm extends Component {
 
             gameImages.forEach(async (image) => {
                 await new Promise((resolve) => {
-                    image.fk_zaidimaiid_zaidimai = result.id_zaidimai;
+                    image.fk_zaidimaiid_zaidimai = values.id_zaidimai;
                     if (image.naujas) socket.emit(tables.images, 'insert', image, (result) => resolve(result));
                     else socket.emit(tables.images, 'update', image, (result) => resolve(result));
                 });
@@ -51,19 +50,33 @@ export default class EditForm extends Component {
 		});
     }
 
+    addNewImage() {
+        this.setState({ isModalVisible: true, creatingNew: true }, async () => {
+            await new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    if (this.imageForm && this.imageForm.current) {
+                        this.imageForm.current.resetFields();
+                        this.imageForm.current.setFieldsValue({ 
+                            naujas: true,
+                            id_nuotraukos: uniqid()
+                        });
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 0);
+            });
+        });
+    }
+
     addImage(values) {
         const gameImages = [...this.state.gameImages];
 
-        const image = gameImages.find((image) => 
-            image.id === values.id || 
+        const index = gameImages.findIndex((image) => 
+            image.id_nuotraukos === values.id_nuotraukos || 
             image.nuoroda === values.nuoroda
         );
-        if (image) {
-            const index = gameImages.findIndex((image) => image.id === values.id);
-            if (index > -1) {
-                values.naujas = false;
-                gameImages[index] = values;
-            }
+        if (index > -1) {
+            gameImages[index] = values;
 
             return this.setState({ 
                 gameImages: [...gameImages],
@@ -72,7 +85,6 @@ export default class EditForm extends Component {
             });
         }
         
-        values.naujas = true;
         gameImages.push(values);
         this.setState({ 
             gameImages: [...gameImages],
@@ -84,24 +96,44 @@ export default class EditForm extends Component {
     editImage(imageId) {
         const gameImages = [...this.state.gameImages];
 
-        const index = gameImages.findIndex((image) => image.id === imageId);
+        const index = gameImages.findIndex((image) => image.id_nuotraukos === imageId);
         if (index < 0) return;
 
         const image = gameImages[index];
 
-        this.setState({ isModalVisible: true }, () => {
-            if (this.imageForm && this.imageForm.current)
-                return this.imageForm.current.setFieldsValue({...image});
+        if (image.naujas) {
+            return this.setState({ isModalVisible: true, creatingNew: true }, async () => {
+                await new Promise((resolve) => {
+                    const interval = setInterval(() => {
+                        if (this.imageForm && this.imageForm.current) {
+                            this.imageForm.current.resetFields();
+                            this.imageForm.current.setFieldsValue({...image});
+                            clearInterval(interval);
+                            resolve();
+                        }
+                    }, 0);
+                });
+            });
+        }
 
-            setTimeout(() => {
-                this.imageForm.current.setFieldsValue({...image});
-            }, 1000);
+        return this.setState({ isModalVisible: true, creatingNew: false }, async () => {
+            await new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    if (this.imageForm && this.imageForm.current) {
+                        this.imageForm.current.resetFields();
+                        this.imageForm.current.setFieldsValue({...image});
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 0);
+            });
         });
     }
 
     removeImage(imageId) {
         const gameImages = [...this.state.gameImages];
-        const index = gameImages.findIndex((image) => image.id === imageId);
+        console.log(gameImages);
+        const index = gameImages.findIndex((image) => image.id_nuotraukos === imageId);
         if (index < 0) return;
 
         if (gameImages[index].naujas) {
@@ -162,13 +194,10 @@ export default class EditForm extends Component {
                     subTitle='Parduodami žaidimai'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
-                        <Button key='create' type='primary' onClick={() => this.gameForm.current.submit()}>
-						 	Pridėti žaidimą
+                        <Button key='editGame' type='primary' onClick={() => this.gameForm.current.submit()}>
+						 	Redaguoti žaidimą
 						</Button>,
-                        <Button key='addImage' onClick={() => { 
-                            if (this.imageForm && this.imageForm.current) this.imageForm.current.resetFields(); 
-                            this.setState({ isModalVisible: true })}
-                        }>
+                        <Button key='addImage' onClick={this.addNewImage.bind(this)}>
 						 	Pridėti naują nuotrauką
 						</Button>,
 						<Button key='cancel' onClick={() => this.props.back()}>
@@ -185,9 +214,15 @@ export default class EditForm extends Component {
                                 onFinish={this.onFinish.bind(this)}
                                 scrollToFirstError
                                 initialValues={{
-                                    fk_kurejaiid_kurejai: this.state.devs[0].id_kurejai,
-                                    isleidimo_data: moment(),
-                                    platforma: platforms[0]
+                                    id_zaidimai: this.props.data.id_zaidimai,
+                                    fk_kurejaiid_kurejai: this.props.data.fk_kurejaiid_kurejai,
+                                    pavadinimas: this.props.data.pavadinimas,
+                                    isleidimo_data: moment(this.props.data.isleidimo_data),
+                                    kaina: this.props.data.kaina,
+                                    varikliukas: this.props.data.varikliukas,
+                                    zanras: this.props.data.zanras,
+                                    rezimas: this.props.data.rezimas,
+                                    platforma: this.props.data.platforma
                                 }}
                             >
                                 <Form.Item
@@ -301,18 +336,11 @@ export default class EditForm extends Component {
                             renderItem={game => (
                                 <List.Item actions={[
                                     // eslint-disable-next-line
-                                    <a key='edit' onClick={this.editImage.bind(this, game.id)}>redaguoti</a>, 
+                                    <a key='edit' onClick={this.editImage.bind(this, game.id_nuotraukos)}>redaguoti</a>, 
                                     // eslint-disable-next-line
-                                    <a key='remove' onClick={this.removeImage.bind(this, game.id)}>šalinti</a>
+                                    <a key='remove' onClick={this.removeImage.bind(this, game.id_nuotraukos)}>šalinti</a>
                                 ]}>
                                     {game.nuoroda}
-                                    {/* <List.Item.Meta
-                                        avatar={
-                                            <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-                                        }
-                                        title={<a href="https://ant.design">{item.name.last}</a>}
-                                        description="Ant Design, a design language for background applications, is refined by Ant UED Team"
-                                    /> */}
                                 </List.Item>
                             )}
                         />
@@ -337,10 +365,16 @@ export default class EditForm extends Component {
                         {...formItemLayout}
                         onFinish={this.addImage.bind(this)}
                         scrollToFirstError
-                        initialValues={{
-                            id: this.num++
-                        }}
                     >
+                        <Form.Item
+                            name='id_nuotraukos'
+                            label='ID'
+                            rules={[{ required: true, message: 'Įveskite nuotraukos ID!' }]}
+                            style={{ display: this.state.creatingNew ? 'none' : 'flex' }}
+                        >
+                            <Input disabled />
+                        </Form.Item>
+
                         <Form.Item
                             name='nuoroda'
                             label='Nuoroda'
@@ -350,14 +384,13 @@ export default class EditForm extends Component {
                         </Form.Item>
 
                         <Form.Item
-                            name='id'
-                            label='ID'
-                            rules={[{ required: true, message: 'Įveskite nuotraukos ID!' }]}
-                            style={{ display: 'none' }}
+                            name='naujas'
+                            label='Naujas'
+                            rules={[{ required: true, message: 'Įveskite, ar tai naujas!'}]}
+                            // style={{ display: 'none' }}
                         >
-                            <Input type='number' disabled />
+                            <Input disabled />
                         </Form.Item>
-
                     </Form>
                 </Modal>
             </div>

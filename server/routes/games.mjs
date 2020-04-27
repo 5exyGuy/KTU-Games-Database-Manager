@@ -81,6 +81,9 @@ async function deleteId(id, cb) {
 async function insert(values, cb) {
     if (!values) return cb(null);
 
+    values.zanras = JSON.stringify(values.zanras);
+    values.rezimas = JSON.stringify(values.rezimas);
+
     const result = await pool.query(`INSERT INTO ${tableName} 
     (pavadinimas, isleidimo_data, kaina, varikliukas, zanras, rezimas, platforma, fk_kurejaiid_kurejai) 
     VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id_zaidimai`,
@@ -101,6 +104,9 @@ async function insert(values, cb) {
  */
 async function update(values, cb) {
     if (!values) return cb(null);
+
+    values.zanras = JSON.stringify(values.zanras);
+    values.rezimas = JSON.stringify(values.rezimas);
 
     const result = await pool.query(`UPDATE ${tableName} SET pavadinimas = $1, isleidimo_data = $2, kaina = $3, 
     varikliukas = $4, zanras = $5, rezimas = $6, platforma = $7, fk_kurejaiid_kurejai = $8 WHERE id_zaidimai = $9`,
