@@ -6,6 +6,7 @@ import CreateForm from './Create';
 import EditForm from './Edit';
 import { tables } from '../../../tables';
 import socket from '../../../socket';
+import moment from 'moment';
 
 export default class Orders extends Component {
 
@@ -19,13 +20,14 @@ export default class Orders extends Component {
 	}
 
 	selectAll() {
-		socket.emit(tables.orders, 'selectAll', null, (orders) => {
+		socket.emit(tables.orders, 'selectTable', null, (orders) => {
 			if (!orders) return this.setState({ orders: [] });
 
 			const orderList = [...orders];
-	
+
 			orderList.map((order) => {
-				return order.key = order.id_zaidimai;
+				order.data = moment(order.data).format('YYYY-MM-DD HH:mm:ss');
+				return order.key = order.id_uzsakymai;
 			});
 	
 			this.setState({ orders: [...orderList] });
@@ -45,7 +47,7 @@ export default class Orders extends Component {
 			if (!result) return;
 
 			this.data = result;
-			this.setState({ action: 'edit' }); 	// Pereinam į redagavimo formą
+			this.setState({ action: 'edit' }); 
 		});
 	}
 
@@ -79,7 +81,7 @@ export default class Orders extends Component {
 						/>
 						<Table 
 							columns={[
-								{ title: 'ID', dataIndex: 'id_uzsakymai', defaultSortOrder: 'ascend', sorter: (a, b) => a.id_zaidimai - b.id_zaidimai },
+								{ title: 'ID', dataIndex: 'id_uzsakymai', defaultSortOrder: 'ascend', sorter: (a, b) => a.id_uzsakymai - b.id_uzsakymai },
 								{ title: 'Užsakovas', dataIndex: 'uzsakovas' },
 								{ title: 'Data', dataIndex: 'data' },
 								{ title: 'Būsena', dataIndex: 'busena' },

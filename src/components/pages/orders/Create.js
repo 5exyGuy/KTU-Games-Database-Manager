@@ -4,7 +4,6 @@ import socket from '../../../socket';
 import { tables } from '../../../tables';
 import moment from 'moment';
 import { orderStatus } from '../../../enums';
-import uniqid from 'uniqid';
 
 const formItemLayout = {
 	labelCol: { span: 8 },
@@ -62,7 +61,9 @@ export default class CreateForm extends Component {
                 const interval = setInterval(() => {
                     if (this.orderGameForm && this.orderGameForm.current) {
                         this.orderGameForm.current.resetFields();
-                        this.orderGameForm.current.setFieldsValue({ id_zaidimu_uzsakymai: uniqid() });
+                        this.orderGameForm.current.setFieldsValue({ 
+                            fk_zaidimaiid_zaidimai: this.state.games[0].id_zaidimai 
+                        });
                         clearInterval(interval);
                         resolve();
                     }
@@ -74,9 +75,10 @@ export default class CreateForm extends Component {
     addOrderGame(values) {
         const orderGames = [...this.state.orderGames];
 
-        const index = orderGames.findIndex((game) => game.id_zaidimu_uzsakymai === values.id_zaidimu_uzsakymai);
+        const index = orderGames.findIndex((game) => game.fk_zaidimaiid_zaidimai === values.fk_zaidimaiid_zaidimai);
         if (index > -1) {
             orderGames[index] = values;
+            this.calculatePrice(orderGames);
 
             return this.setState({ 
                 orderGames: [...orderGames],
@@ -85,16 +87,32 @@ export default class CreateForm extends Component {
         }
 
         orderGames.push(values);
+        this.calculatePrice(orderGames);
+
         this.setState({ 
             orderGames: [...orderGames],
             isModalVisible: false
         });
     }
 
+    calculatePrice(orderGames) {
+        const games = [...this.state.games];
+        let price = 0.00;
+
+        orderGames.forEach((orderGame) => {
+            const game = games.find((game) => game.id_zaidimai === orderGame.fk_zaidimaiid_zaidimai);
+            if (game) {
+                price += game.kaina * orderGame.kiekis;
+            }
+        });
+
+        this.orderForm.current.setFieldsValue({ kaina: price });
+    }
+
     editOrderGame(gameId) {
         const orderGames = [...this.state.orderGames];
 
-        const index = orderGames.findIndex((game) => game.id_zaidimu_uzsakymai === gameId);
+        const index = orderGames.findIndex((game) => game.fk_zaidimaiid_zaidimai === gameId);
         if (index < 0) return;
 
         const game = orderGames[index];
@@ -116,7 +134,7 @@ export default class CreateForm extends Component {
     removeOrderGame(gameId) {
         const orderGames = [...this.state.orderGames];
 
-        const index = orderGames.findIndex((game) => game.id_zaidimu_uzsakymai === gameId);
+        const index = orderGames.findIndex((game) => game.fk_zaidimaiid_zaidimai === gameId);
         if (index < 0) return;
         orderGames.splice(index, 1);
 
@@ -141,7 +159,9 @@ export default class CreateForm extends Component {
                 await new Promise((resolve) => {
 					const interval = setInterval(() => {
 						if (this.orderForm && this.orderForm.current) {
-							this.orderForm.current.setFieldsValue({ fk_vartotojaiid_vartotojai: userList[0].id_zaidimai });
+							this.orderForm.current.setFieldsValue({ 
+                                fk_vartotojaiid_vartotojai: userList[0].id_vartotojai 
+                            });
 							clearInterval(interval);
 							resolve();
 						}
@@ -207,6 +227,10 @@ export default class CreateForm extends Component {
                 }
             }, 0);
         });
+    }
+
+    getGame(gameId) {
+        return this.state.games.find((game) => game.id_zaidimai === gameId);
     }
 
 	render() {
@@ -290,7 +314,7 @@ export default class CreateForm extends Component {
                                     label='Kaina'
                                     rules={[{ required: true, message: 'Įveskite kainą!' }]}
                                 >
-                                    <Input type='number' />
+                                    <Input type='number' disabled />
                                 </Form.Item>
 
 								<Form.Item
@@ -313,18 +337,11 @@ export default class CreateForm extends Component {
                             renderItem={game => (
                                 <List.Item actions={[
                                     // eslint-disable-next-line
-                                    <a key='edit' onClick={this.editOrderGame.bind(this, game.id_zaidimu_uzsakymai)}>redaguoti</a>, 
+                                    <a key='edit' onClick={this.editOrderGame.bind(this, game.fk_zaidimaiid_zaidimai)}>redaguoti</a>, 
                                     // eslint-disable-next-line
-                                    <a key='remove' onClick={this.removeOrderGame.bind(this, game.id_zaidimu_uzsakymai)}>šalinti</a>
+                                    <a key='remove' onClick={this.removeOrderGame.bind(this, game.fk_zaidimaiid_zaidimai)}>šalinti</a>
                                 ]}>
-                                    {game.id_zaidimu_uzsakymai}
-                                    {/* <List.Item.Meta
-                                        avatar={
-                                            <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-                                        }
-                                        title={<a href="https://ant.design">{item.name.last}</a>}
-                                        description="Ant Design, a design language for background applications, is refined by Ant UED Team"
-                                    /> */}
+                                    {this.getGame(game.fk_zaidimaiid_zaidimai).pavadinimas} ({this.getGame(game.fk_zaidimaiid_zaidimai).platforma}) - {game.kiekis} vnt.
                                 </List.Item>
                             )}
                         />
@@ -332,7 +349,7 @@ export default class CreateForm extends Component {
                 </Row>
 				{this.state.games.length === 0 ? '' :
                 <Modal
-                    title='Užsakymo žaidimas'
+                    title='Užsakomas žaidimas'
                     centered
                     visible={this.state.isModalVisible}
                     onCancel={() => this.setState({ isModalVisible: false })}
@@ -355,15 +372,6 @@ export default class CreateForm extends Component {
 							fk_zaidimaiid_zaidimai: this.state.games[0].id_zaidimai
 						}}
                     >
-                        <Form.Item
-                            name='id_zaidimu_uzsakymai'
-                            label='ID'
-                            rules={[{ required: true, message: 'Įveskite užsakymo žaidimo ID!' }]}
-                            style={{ display: 'none' }}
-                        >
-                            <Input disabled />
-                        </Form.Item>
-
 						<Form.Item
                             name='kiekis'
                             label='Kiekis'
