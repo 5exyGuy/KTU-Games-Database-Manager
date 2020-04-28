@@ -34,14 +34,14 @@ export default class EditForm extends Component {
     }
 
 	onFinish(values) {
-		socket.emit(tables.users, 'update', values, (result) => {
+		socket.emit(tables.orders, 'update', values, (result) => {
 			if (!result) return;
             
             const orderGames = [...this.state.orderGames];
 
             orderGames.forEach(async (game) => {
                 await new Promise((resolve) => {
-                    game.fk = values.id_vartotojai;
+                    game.fk_uzsakymaiid_uzsakymai = values.id_uzsakymai;
                     if (game.naujas) socket.emit(tables.orders, 'insertGame', game, (result) => resolve(result));
                     else socket.emit(tables.orders, 'updateGame', game, (result) => resolve(result));
                 });

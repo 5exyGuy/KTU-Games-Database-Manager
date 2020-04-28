@@ -21,6 +21,7 @@ const routes = {
     selectId: selectId,
     selectGames: selectGames,
     deleteId: deleteId,
+    deleteGame: deleteGame,
     insert: insert,
     insertGame: insertGame,
     update: update
@@ -94,6 +95,19 @@ async function deleteId(id, cb) {
 }
 
 /**
+ * @param {number} id
+ * @param {Function} cb 
+ */
+async function deleteGame(id, cb) {
+    if (!id) return cb(null);
+
+    const result = await pool.query(`DELETE FROM zaidimu_uzsakymai WHERE id_zaidimu_uzsakymai = $1`, [id]);
+
+    if (result.rowCount === 0) return cb(null);
+    cb(true);
+}
+
+/**
  * @param {any} values
  * @param {Function} cb 
  */
@@ -131,8 +145,8 @@ async function insertGame(values, cb) {
 async function update(values, cb) {
     if (!values) return cb(null);
 
-    const result = await pool.query(`UPDATE ${tableName} SET pavadinimas = $1, logotipas = $2, hipersaitas = $3 WHERE id_uzsakymai = $4`,
-        [values.pavadinimas, values.logotipas, values.hipersaitas, values.id_kurejai]
+    const result = await pool.query(`UPDATE ${tableName} SET data = $1, busena = $2, kaina = $3, pvm = $4, fk_vartotojaiid_vartotojai = $5 WHERE id_uzsakymai = $6`,
+        [values.data, values.busena, values.kaina, values.pvm, values.fk_vartotojaiid_vartotojai, values.id_uzsakymai]
     );
 
     if (result.rowCount === 0) return cb(null);
