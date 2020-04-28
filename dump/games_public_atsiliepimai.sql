@@ -1,1 +1,0 @@
-INSERT INTO public.atsiliepimai (ivertinimas, komentaras, data, id_atsiliepimai, fk_zaidimaiid_zaidimai, fk_vartotojaiid_vartotojai) VALUES (3, 'hhhhh', '2020-04-24 23:24:14.476000', 5, 1, 3);

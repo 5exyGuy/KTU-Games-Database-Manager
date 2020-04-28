@@ -1,4 +1,4 @@
-create table duk
+create table public.duk
 (
     klausimas varchar(255) not null,
     atsakymas text         not null,
@@ -7,7 +7,7 @@ create table duk
             primary key
 );
 
-create table grupes
+create table public.grupes
 (
     pavadinimas varchar(255) not null,
     id_grupes   integer      not null
@@ -15,7 +15,7 @@ create table grupes
             primary key
 );
 
-create table kurejai
+create table public.kurejai
 (
     pavadinimas varchar(255) not null,
     logotipas   varchar(255) not null,
@@ -26,9 +26,9 @@ create table kurejai
 );
 
 create unique index kurejai_pavadinimas_uindex
-    on kurejai (pavadinimas);
+    on public.kurejai (pavadinimas);
 
-create table vartotojai
+create table public.vartotojai
 (
     slapyvardis              varchar(255)     not null,
     slaptazodis              varchar(255)     not null,
@@ -43,12 +43,12 @@ create table vartotojai
 );
 
 create unique index vartotojai_slapyvardis_uindex
-    on vartotojai (slapyvardis);
+    on public.vartotojai (slapyvardis);
 
 create unique index vartotojai_el_pastas_uindex
-    on vartotojai (el_pastas);
+    on public.vartotojai (el_pastas);
 
-create table krepseliai
+create table public.krepseliai
 (
     data                       timestamp        not null,
     kaina                      double precision not null,
@@ -57,10 +57,10 @@ create table krepseliai
             primary key,
     fk_vartotojaiid_vartotojai integer          not null
         constraint issaugotas
-            references vartotojai
+            references public.vartotojai
 );
 
-create table uzsakymai
+create table public.uzsakymai
 (
     data                       timestamp        not null,
     busena                     varchar(255)     not null,
@@ -71,10 +71,10 @@ create table uzsakymai
             primary key,
     fk_vartotojaiid_vartotojai integer          not null
         constraint pateikia
-            references vartotojai
+            references public.vartotojai
 );
 
-create table zaidimai
+create table public.zaidimai
 (
     pavadinimas          varchar(255)     not null,
     isleidimo_data       timestamp        not null,
@@ -88,23 +88,30 @@ create table zaidimai
             primary key,
     fk_kurejaiid_kurejai integer          not null
         constraint sukure
-            references kurejai
+            references public.kurejai
 );
 
 create unique index unikalus_zaidimas
-    on zaidimai (pavadinimas, platforma);
+    on public.zaidimai (pavadinimas, platforma);
 
-create table vartotoju_grupes
+create table public.vartotoju_grupes
 (
-    fk_grupesid_grupes         integer not null
+    fk_grupesid_grupes         integer      not null
         constraint vartotoju_grupes
-            references grupes,
-    fk_vartotojaiid_vartotojai integer not null,
+            references public.grupes,
+    fk_vartotojaiid_vartotojai integer      not null,
+    pareigos                   varchar(255) not null,
+    id_vartotoju_grupes        serial       not null
+        constraint vartotoju_grupes_pk
+            primary key,
     constraint vartotoju_grupes_pkey
-        primary key (fk_grupesid_grupes, fk_vartotojaiid_vartotojai)
+        unique (fk_grupesid_grupes, fk_vartotojaiid_vartotojai)
 );
 
-create table atsiliepimai
+create unique index vartotoju_grupes_id_vartotoju_grupes_uindex
+    on public.vartotoju_grupes (id_vartotoju_grupes);
+
+create table public.atsiliepimai
 (
     ivertinimas                integer   not null,
     komentaras                 text      not null,
@@ -114,13 +121,13 @@ create table atsiliepimai
             primary key,
     fk_zaidimaiid_zaidimai     integer   not null
         constraint turi
-            references zaidimai,
+            references public.zaidimai,
     fk_vartotojaiid_vartotojai integer   not null
         constraint paraso
-            references vartotojai
+            references public.vartotojai
 );
 
-create table mokejimai
+create table public.mokejimai
 (
     tipas                      varchar(255)     not null,
     kaina                      double precision not null,
@@ -130,13 +137,13 @@ create table mokejimai
             primary key,
     fk_uzsakymaiid_uzsakymai   integer          not null
         constraint israso
-            references uzsakymai,
+            references public.uzsakymai,
     fk_vartotojaiid_vartotojai integer          not null
         constraint atlieka
-            references vartotojai
+            references public.vartotojai
 );
 
-create table nuotraukos
+create table public.nuotraukos
 (
     nuoroda                varchar(255) not null,
     id_nuotraukos          serial       not null
@@ -144,14 +151,14 @@ create table nuotraukos
             primary key,
     fk_zaidimaiid_zaidimai integer      not null
         constraint prideta
-            references zaidimai
+            references public.zaidimai
 );
 
-create table zaidimu_uzsakymai
+create table public.zaidimu_uzsakymai
 (
     fk_zaidimaiid_zaidimai   integer not null
         constraint zaidimu_uzsakymai
-            references zaidimai,
+            references public.zaidimai,
     fk_uzsakymaiid_uzsakymai integer not null,
     kiekis                   integer not null,
     id_zaidimu_uzsakymai     serial  not null
@@ -162,13 +169,13 @@ create table zaidimu_uzsakymai
 );
 
 create unique index zaidimu_uzsakymai_id_zaidimu_uzsakymai_uindex
-    on zaidimu_uzsakymai (id_zaidimu_uzsakymai);
+    on public.zaidimu_uzsakymai (id_zaidimu_uzsakymai);
 
-create table zaidimu_krepseliai
+create table public.zaidimu_krepseliai
 (
     fk_zaidimaiid_zaidimai     integer not null
         constraint zaidimu_krepseliai
-            references zaidimai,
+            references public.zaidimai,
     fk_krepseliaiid_krepseliai integer not null,
     kiekis                     integer not null,
     constraint zaidimu_krepseliai_pkey

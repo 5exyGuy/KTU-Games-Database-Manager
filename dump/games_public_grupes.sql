@@ -1,2 +1,0 @@
-INSERT INTO public.grupes (pavadinimas, id_grupes, fk_vartotojaiid_vartotojai, ikurimo_data) VALUES ('Google', 4, 2, '2020-04-25 07:56:08.481000');
-INSERT INTO public.grupes (pavadinimas, id_grupes, fk_vartotojaiid_vartotojai, ikurimo_data) VALUES ('fdgdfgdfgfdgfd', 5, 2, '2020-04-25 18:26:27.237000');

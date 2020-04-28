@@ -1,1 +1,0 @@
-INSERT INTO public.duk (klausimas, atsakymas, id_duk) VALUES ('Kaip? Kodėl?', 'Nežinau', 1);
