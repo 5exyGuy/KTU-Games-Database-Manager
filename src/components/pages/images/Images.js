@@ -68,7 +68,9 @@ export default class Groups extends Component {
 							title='Nuotraukos'
 							subTitle='Žaidimų nuotraukos'
 							extra={[
-								<Button onClick={() => this.setState({ action: 'create' })} shape='round'>Pridėti nuotraukų</Button>
+								<Button onClick={() => this.setState({ action: 'create' })}>
+									Sukurti naujas nuotraukas
+								</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>

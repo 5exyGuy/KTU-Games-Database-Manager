@@ -10,13 +10,6 @@ const formItemLayout = {
 	wrapperCol: { span: 16 }
 };
 
-const tailFormItemLayout = {
-	wrapperCol: {
-		span: 8,
-		offset: 8
-	}
-};
-
 export default class EditForm extends Component {
 
     state = {
@@ -27,7 +20,7 @@ export default class EditForm extends Component {
     constructor(props) {
         super(props);
 
-        this.form = React.createRef();
+        this.paymentForm = React.createRef();
     }
 
     componentDidMount() {
@@ -54,8 +47,8 @@ export default class EditForm extends Component {
 			});
 	
 			this.setState({ orders: [...orderList] }, () => {
-                if (this.form && this.form.current)
-                    this.form.current.setFieldsValue({ fk_uzsakymaiid_uzsakymai: this.props.data.fk_uzsakymaiid_uzsakymai });
+                if (this.paymentForm && this.paymentForm.current)
+                    this.paymentForm.current.setFieldsValue({ fk_uzsakymaiid_uzsakymai: this.props.data.fk_uzsakymaiid_uzsakymai });
             });
 		});
     }
@@ -71,8 +64,8 @@ export default class EditForm extends Component {
             });
 	
 			this.setState({ users: [...userList] }, () => {
-                if (this.form && this.form.current)
-                    this.form.current.setFieldsValue({ fk_vartotojaiid_vartotojai: this.props.data.fk_vartotojaiid_vartotojai });
+                if (this.paymentForm && this.paymentForm.current)
+                    this.paymentForm.current.setFieldsValue({ fk_vartotojaiid_vartotojai: this.props.data.fk_vartotojaiid_vartotojai });
             });
 		});
     }
@@ -80,17 +73,17 @@ export default class EditForm extends Component {
     selectOrder(orderId) {
         const order = this.state.orders.find((order) => order.id_uzsakymai === orderId);
         if (!order) return;
-        if (this.form && this.form.current) {
-            this.form.current.setFieldsValue({ fk_uzsakymaiid_uzsakymai: order.id_uzsakymai });
-            this.form.current.setFieldsValue({ kaina: order.kaina });
+        if (this.paymentForm && this.paymentForm.current) {
+            this.paymentForm.current.setFieldsValue({ fk_uzsakymaiid_uzsakymai: order.id_uzsakymai });
+            this.paymentForm.current.setFieldsValue({ kaina: order.kaina });
         }
     }
 
     selectUser(userId) {
         const user = this.state.users.find((user) => user.id_vartotojai === userId);
         if (!user) return;
-        if (this.form && this.form.current)
-            this.form.current.setFieldsValue({ fk_vartotojaiid_vartotojai: user.id_vartotojai });
+        if (this.paymentForm && this.paymentForm.current)
+            this.paymentForm.current.setFieldsValue({ fk_vartotojaiid_vartotojai: user.id_vartotojai });
     }
 
 	render() {
@@ -105,16 +98,19 @@ export default class EditForm extends Component {
                     subTitle='Vartotojų atlikti užsakymo mokėjimai'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
+                        <Button type='primary' onClick={() => this.paymentForm.current.submit()}>
+						 	Redaguoti mokėjimą
+						</Button>,
 						<Button onClick={() => this.props.back()}>
 						 	Grįžti
 						</Button>
 					]}
 				/>
-				<Row gutter={24} style={{ padding: '10px', marginLeft: 'px', marginRight: '0px' }}>
+				<Row justify='center' style={{ padding: '10px', marginLeft: '0px', marginRight: '0px' }}>
                     <Col span={12}>
                         <Card style={{ backgroundColor: 'rgb(225, 225, 225)' }}>
                             <Form
-                                ref={this.form}
+                                ref={this.paymentForm}
                                 {...formItemLayout}
                                 onFinish={this.onFinish.bind(this)}
                                 scrollToFirstError
@@ -194,12 +190,6 @@ export default class EditForm extends Component {
                                     rules={[{ required: true, message: 'Įveskite kainą!' }]}
                                 >
                                     <Input type='number' disabled />
-                                </Form.Item>
-
-                                <Form.Item key='apmoketi' {...tailFormItemLayout}>
-                                    <Button type='primary' htmlType='submit'>
-                                        Redaguoti
-                                    </Button>
                                 </Form.Item>
                             </Form>
                         </Card>

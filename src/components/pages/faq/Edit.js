@@ -8,14 +8,13 @@ const formItemLayout = {
 	wrapperCol: { span: 16 }
 };
 
-const tailFormItemLayout = {
-	wrapperCol: {
-		span: 8,
-		offset: 8
-	}
-};
-
 export default class EditForm extends Component {
+
+	constructor(props) {
+		super(props);
+
+		this.faqForm = React.createRef();
+	}
 
 	onFinish(values) {
 		socket.emit(tables.faq, 'update', values, (result) => {
@@ -33,15 +32,19 @@ export default class EditForm extends Component {
 					subTitle='Dažniausiai užduodami klausimai'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
+						<Button type='primary' onClick={() => this.faqForm.current.submit()}>
+						 	Redauoti klausimą
+						</Button>,
 						<Button onClick={() => this.props.back()}>
 						 	Grįžti
 						</Button>
 					]}
 				/>
-				<Row gutter={24} style={{ padding: '10px', marginLeft: 'px', marginRight: '0px' }}>
-					<Col span={12}>
+				<Row justify='center' style={{ padding: '10px', marginLeft: '0px', marginRight: '0px' }}>
+                    <Col span={12}>
 						<Card style={{ backgroundColor: 'rgb(225, 225, 225)' }}>
 							<Form
+								ref={this.faqForm}
 								{...formItemLayout}
 								onFinish={this.onFinish.bind(this)}
 								scrollToFirstError
@@ -70,11 +73,6 @@ export default class EditForm extends Component {
 									rules={[{ required: true, message: 'Įveskite slapyvardį!' }]}
 								>
 									<Input />
-								</Form.Item>
-								<Form.Item {...tailFormItemLayout}>
-									<Button type='primary' htmlType='submit'>
-										Redaguoti
-									</Button>
 								</Form.Item>
 							</Form>
 						</Card>

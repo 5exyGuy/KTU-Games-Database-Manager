@@ -1,19 +1,26 @@
 import React, { Component } from 'react';
-import { PageHeader, Form, Input, Button, Card, Row, Col, Select } from 'antd';
+import { PageHeader, Button, Row, Col, List, Input, Form, Modal, Select } from 'antd';
 import socket from '../../../socket';
 import { tables } from '../../../tables';
+import uniqid from 'uniqid';
+
+const formItemLayout = {
+	labelCol: { span: 8 },
+	wrapperCol: { span: 16 }
+};
 
 export default class CreateForm extends Component {
 
     state = {
         games: [],
-        images: [
-            {
-                form: React.createRef(),
-                id: 0
-            }
-        ]
+        images: []
     };
+
+    constructor(props) {
+        super(props);
+
+        this.imageForm = React.createRef();
+    }
 
     componentDidMount() {
         this.selectGames();
@@ -24,6 +31,73 @@ export default class CreateForm extends Component {
 			if (!result) return;
 			this.props.back();
 		});
+    }
+
+    addNewImage() {
+        this.setState({ isModalVisible: true }, async () => {
+            await new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    if (this.imageForm && this.imageForm.current) {
+                        this.imageForm.current.resetFields();
+                        this.imageForm.current.setFieldsValue({ id_nuotraukos: uniqid() });
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 0);
+            });
+        });
+    }
+
+    addImage(values) {
+        const gameImages = [...this.state.gameImages];
+
+        const index = gameImages.findIndex((image) => image.id_nuotraukos === values.id_nuotraukos);
+        if (index > -1) {
+            gameImages[index] = values;
+
+            return this.setState({ 
+                gameImages: [...gameImages],
+                isModalVisible: false
+            });
+        }
+
+        gameImages.push(values);
+        this.setState({ 
+            gameImages: [...gameImages],
+            isModalVisible: false
+        });
+    }
+
+    editImage(imageId) {
+        const gameImages = [...this.state.gameImages];
+
+        const index = gameImages.findIndex((image) => image.id_nuotraukos === imageId);
+        if (index < 0) return;
+
+        const image = gameImages[index];
+
+        this.setState({ isModalVisible: true}, async () => {
+            await new Promise((resolve) => {
+                const interval = setInterval(() => {
+                    if (this.imageForm && this.imageForm.current) {
+                        this.imageForm.current.resetFields();
+                        this.imageForm.current.setFieldsValue({...image});
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, 0);
+            });
+        });
+    }
+
+    removeImage(imageId) {
+        const gameImages = [...this.state.gameImages];
+
+        const index = gameImages.findIndex((image) => image.id_nuotraukos === imageId);
+        if (index < 0) return;
+        gameImages.splice(index, 1);
+
+        this.setState({ gameImages: [...gameImages] });
     }
 
     selectGames() {
@@ -51,39 +125,6 @@ export default class CreateForm extends Component {
             this.form.current.setFieldsValue({ fk_zaidimaiid_zaidimai: game.id_zaidimai });
     }
 
-    insertImage() {
-        const images = [...this.state.images];
-        
-        let maxId = images[0].id;
-
-        images.forEach((images) => {
-            if (images.id > maxId) {
-                maxId = images.id;
-            }
-        });
-
-        images.push({ form: React.createRef(), id: maxId + 1, url: '' });
-        this.setState({ images: [...images] });
-    }
-
-    removeImage(imageId) {
-        const images = [...this.state.images];
-        if (images.length <= 1) return;
-
-        const index = images.findIndex((image) => image.id === imageId);
-        if (index > -1) images.splice(index, 1);
-
-        this.setState({ images: [...images] });
-    }
-
-    addImages() {
-        const images = [...this.state.images];
-
-        images.forEach((image) => {
-            image.form.current.submit()
-        });
-    }
-
 	render() {
         if (this.state.games.length === 0) 
             return (<div></div>);
@@ -96,61 +137,86 @@ export default class CreateForm extends Component {
                     subTitle='Žaidimų nuotraukos'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
-                        <Button type='primary' shape='round' onClick={this.addImages.bind(this)}>
-						 	Pridėti nuotraukas
+                        <Button type='primary' onClick={() => this.onFinish()}>
+						 	Sukurti nuotraukas
                         </Button>,
-                        <Button shape='round' onClick={this.insertImage.bind(this)}>
-                            Įterpti naują
+                        <Button onClick={() => this.addNewImage()}>
+                            Pridėti naują nuotrauką
                         </Button>,
-						<Button shape='round' onClick={() => this.props.back()}>
+						<Button onClick={() => this.props.back()}>
 						 	Grįžti
 						</Button>
 					]}
 				/>
-                {this.state.images.map(image => {
-				    return (<Row justify='center' style={{ padding: '10px', marginLeft: '0px', marginRight: '0px' }}>
-                        <Col span={12}>
-                            <Card style={{ backgroundColor: 'rgb(225, 225, 225)' }}>
-                                <Form
-                                    ref={image.form}
-                                    onFinish={this.onFinish.bind(this)}
-                                    scrollToFirstError
-                                    initialValues={{
-                                        fk_zaidimaiid_zaidimai: this.state.games[0].id_zaidimai
-                                    }}
-                                    layout='inline'
-                                >
-                                    <Form.Item
-                                        key='fk_zaidimaiid_zaidimai'
-                                        name='fk_zaidimaiid_zaidimai'
-                                        label='Žaidimas'
-                                        rules={[{ required: true, message: 'Pasirinkite žaidimą!' }]}
-                                    >
-                                        <Select onChange={(game) => this.selectGame(game)}>
-                                            {this.state.games.map((game) => {
-                                                return <Select.Option value={game.id_zaidimai}>{game.pavadinimas}</Select.Option>;
-                                            })}
-                                        </Select>
-                                    </Form.Item>
+                <Row justify='center' style={{ padding: '10px', marginLeft: '0px', marginRight: '0px' }}>
+                    <Col span={12}>
+                        <List
+                            bordered
+                            dataSource={this.state.images}
+                            renderItem={image => (
+                                <List.Item actions={[
+                                    // eslint-disable-next-line
+                                    <a key='edit' onClick={this.editImage.bind(this, image.id_nuotraukos)}>redaguoti</a>, 
+                                    // eslint-disable-next-line
+                                    <a key='remove' onClick={this.removeImage.bind(this, image.id_nuotraukos)}>šalinti</a>
+                                ]}>
+                                    {image.nuoroda}
+                                </List.Item>
+                            )}
+                        />
+                    </Col>
+                </Row>
+                <Modal
+                    title='Nuotrauka'
+                    centered
+                    visible={this.state.isModalVisible}
+                    onCancel={() => this.setState({ isModalVisible: false })}
+                    footer={[
+                        <Button key='cancel' onClick={() => this.setState({ isModalVisible: false })}>
+                            Grįžti
+                        </Button>,
+                        <Button key='submit' type='primary' onClick={() => this.imageForm.current.submit()}>
+                            Patvirtinti
+                        </Button>
+                    ]}
+                >
+                    <Form
+                        ref={this.imageForm}
+                        {...formItemLayout}
+                        onFinish={this.addImage.bind(this)}
+                        scrollToFirstError
+                    >
+                        <Form.Item
+                            name='id_nuotraukos'
+                            label='ID'
+                            rules={[{ required: true, message: 'Įveskite nuotraukos ID!' }]}
+                            style={{ display: 'none' }}
+                        >
+                            <Input disabled />
+                        </Form.Item>
 
-                                    <Form.Item
-                                        name='nuoroda'
-                                        label='Nuoroda'
-                                        rules={[{ required: true, message: 'Įveskite nuotraukos nuorodą!', whitespace: false, min: 10, max: 255 }]}
-                                    >
-                                        <Input />
-                                    </Form.Item>
+                        <Form.Item
+                            key='fk_zaidimaiid_zaidimai'
+                            name='fk_zaidimaiid_zaidimai'
+                            label='Žaidimas'
+                            rules={[{ required: true, message: 'Pasirinkite žaidimą!' }]}
+                        >
+                            <Select onChange={(game) => this.selectGame(game)}>
+                                {this.state.games.map((game) => {
+                                    return <Select.Option value={game.id_zaidimai}>{game.pavadinimas}</Select.Option>;
+                                })}
+                            </Select>
+                        </Form.Item>
 
-                                    <Form.Item key='salinti'>
-                                        <Button type='danger' shape='round' onClick={this.removeImage.bind(this, image.id)}>
-                                            Šalinti
-                                        </Button>
-                                    </Form.Item>
-                                </Form>
-                            </Card>
-                        </Col>
-				    </Row>);
-                })}
+                        <Form.Item
+                            name='nuoroda'
+                            label='Nuoroda'
+                            rules={[{ required: true, message: 'Įveskite nuotraukos nuorodą!', min: 5, max: 255 }]}
+                        >
+                            <Input />
+                        </Form.Item>
+                    </Form>
+                </Modal>
             </div>
         );
     }

@@ -109,7 +109,7 @@ export default class EditForm extends Component {
 						</Button>
 					]}
 				/>
-				<Row gutter={24} style={{ padding: '10px', marginLeft: 'px', marginRight: '0px' }}>
+				<Row justify='center' style={{ padding: '10px', marginLeft: '0px', marginRight: '0px' }}>
                     <Col span={12}>
                         <Card style={{ backgroundColor: 'rgb(225, 225, 225)' }}>
                             <Form
@@ -143,7 +143,7 @@ export default class EditForm extends Component {
                                 >
                                     <Select onChange={(game) => this.selectGame(game)}>
                                         {this.state.games.map((game) => {
-                                            return <Select.Option value={game.fk_zaidimaiid_zaidimai}>{game.fk_zaidimaiid_zaidimai}</Select.Option>;
+                                            return <Select.Option value={game.id_zaidimai}>{game.pavadinimas} ({game.platforma})</Select.Option>;
                                         })}
                                     </Select>
                                 </Form.Item>

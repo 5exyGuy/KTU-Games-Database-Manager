@@ -69,7 +69,9 @@ export default class Developers extends Component {
 							title='Kūrėjai'
 							subTitle='Žaidimų kūrėjai'
 							extra={[
-								<Button onClick={() => this.setState({ action: 'create' })} shape='round'>Pridėti naują kurėją</Button>
+								<Button onClick={() => this.setState({ action: 'create' })}>
+									Sukurti naują kurėją
+								</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>
@@ -77,7 +79,6 @@ export default class Developers extends Component {
 							columns={[
 								{ title: 'ID', dataIndex: 'id_kurejai', defaultSortOrder: 'ascend', sorter: (a, b) => a.id_kurejai - b.id_kurejai },
 								{ title: 'Pavadinimas', dataIndex: 'pavadinimas' },
-                                { title: 'Logotipas', dataIndex: 'logotipas' },
                                 { title: 'Hipersaitas', dataIndex: 'hipersaitas' },
 								{
 									title: 'Veiksmai',

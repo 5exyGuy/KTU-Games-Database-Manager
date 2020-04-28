@@ -301,13 +301,6 @@ export default class CreateForm extends Component {
                                     <a key='remove' onClick={this.removeImage.bind(this, image.id_nuotraukos)}>šalinti</a>
                                 ]}>
                                     {image.nuoroda}
-                                    {/* <List.Item.Meta
-                                        avatar={
-                                            <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-                                        }
-                                        title={<a href="https://ant.design">{item.name.last}</a>}
-                                        description="Ant Design, a design language for background applications, is refined by Ant UED Team"
-                                    /> */}
                                 </List.Item>
                             )}
                         />

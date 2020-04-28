@@ -70,7 +70,9 @@ export default class Payments extends Component {
 							title='Mokėjimai'
 							subTitle='Vartotojų atlikti užsakymo mokėjimai'
 							extra={[
-								<Button onClick={() => this.setState({ action: 'create' })} shape='round'>Apmokėti užsakymą</Button>
+								<Button onClick={() => this.setState({ action: 'create' })}>
+									Sukurti naują mokėjimą
+								</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>

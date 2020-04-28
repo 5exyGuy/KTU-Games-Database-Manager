@@ -69,7 +69,9 @@ export default class FAQ extends Component {
 							title='DUK'
 							subTitle='Dažniausiai užduodami klausimai'
 							extra={[
-								<Button onClick={() => this.setState({ action: 'create' })} shape='round'>Sukurti naują klausimą</Button>
+								<Button onClick={() => this.setState({ action: 'create' })}>
+									Sukurti naują klausimą
+								</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>

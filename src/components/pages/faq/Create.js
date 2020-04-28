@@ -17,6 +17,12 @@ const tailFormItemLayout = {
 
 export default class CreateForm extends Component {
 
+	constructor(props) {
+		super(props);
+
+		this.faqForm = React.createRef();
+	}
+
 	onFinish(values) {
 		socket.emit(tables.faq, 'insert', values, (result) => {
 			if (!result) return;
@@ -33,13 +39,16 @@ export default class CreateForm extends Component {
 					subTitle='Dažniausiai užduodami klausimai'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
+						<Button type='primary' onClick={() => this.faqForm.current.submit()}>
+						 	Sukurti klausimą
+						</Button>,
 						<Button onClick={() => this.props.back()}>
 						 	Grįžti
 						</Button>
 					]}
 				/>
-				<Row gutter={24} style={{ padding: '10px', marginLeft: 'px', marginRight: '0px' }}>
-					<Col span={12}>
+				<Row justify='center' style={{ padding: '10px', marginLeft: '0px', marginRight: '0px' }}>
+                    <Col span={12}>
 						<Card style={{ backgroundColor: 'rgb(225, 225, 225)' }}>
 							<Form
 								{...formItemLayout}

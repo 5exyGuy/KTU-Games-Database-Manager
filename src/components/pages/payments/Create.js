@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { PageHeader, Form, Input, Button, Card, Row, Col, Select, DatePicker } from 'antd';
+import { PageHeader, Form, Input, Button, Card, Row, Col, Select, DatePicker, notification } from 'antd';
 import socket from '../../../socket';
 import { tables } from '../../../tables';
 import { paymentMethods } from '../../../enums';
@@ -8,13 +8,6 @@ import moment from 'moment';
 const formItemLayout = {
 	labelCol: { span: 8 },
 	wrapperCol: { span: 16 }
-};
-
-const tailFormItemLayout = {
-	wrapperCol: {
-		span: 8,
-		offset: 8
-	}
 };
 
 export default class CreateForm extends Component {
@@ -27,7 +20,7 @@ export default class CreateForm extends Component {
     constructor(props) {
         super(props);
 
-        this.form = React.createRef();
+        this.paymentForm = React.createRef();
     }
 
     componentDidMount() {
@@ -44,7 +37,14 @@ export default class CreateForm extends Component {
 
     selectOrders() {
         socket.emit(tables.orders, 'selectAll', null, (orders) => {
-            if (!orders) return this.setState({ orders: [] });
+            if (!orders) {
+                notification['warning']({
+                    message: 'Užsakymai',
+                    description: 'Nėra užsakymų!',
+                    placement: 'bottomRight'
+                });
+                return this.props.back();
+            }
 
 			const orderList = [...orders];
 	
@@ -53,15 +53,22 @@ export default class CreateForm extends Component {
 			});
 	
 			this.setState({ orders: [...orderList] }, () => {
-                if (this.form && this.form.current)
-                    this.form.current.setFieldsValue({ fk_uzsakymaiid_uzsakymai: orderList[0].id_uzsakymai });
+                if (this.paymentForm && this.paymentForm.current)
+                    this.paymentForm.current.setFieldsValue({ fk_uzsakymaiid_uzsakymai: orderList[0].id_uzsakymai });
             });
 		});
     }
 
     selectUsers() {
         socket.emit(tables.users, 'selectAll', null, (users) => {
-			if (!users) return this.setState({ users: [] });
+			if (!users) {
+                notification['warning']({
+                    message: 'Vartotojai',
+                    description: 'Nėra vartotojų!',
+                    placement: 'bottomRight'
+                });
+                return this.props.back();
+            }
 
 			const userList = [...users];
 	
@@ -70,8 +77,8 @@ export default class CreateForm extends Component {
             });
 	
 			this.setState({ users: [...userList] }, () => {
-                if (this.form && this.form.current)
-                    this.form.current.setFieldsValue({ fk_vartotojaiid_vartotojai: userList[0].id_vartotojai });
+                if (this.paymentForm && this.paymentForm.current)
+                    this.paymentForm.current.setFieldsValue({ fk_vartotojaiid_vartotojai: userList[0].id_vartotojai });
             });
 		});
     }
@@ -79,17 +86,17 @@ export default class CreateForm extends Component {
     selectOrder(orderId) {
         const order = this.state.orders.find((order) => order.id_uzsakymai === orderId);
         if (!order) return;
-        if (this.form && this.form.current) {
-            this.form.current.setFieldsValue({ fk_uzsakymaiid_uzsakymai: order.id_uzsakymai });
-            this.form.current.setFieldsValue({ kaina: order.kaina });
+        if (this.paymentForm && this.paymentForm.current) {
+            this.paymentForm.current.setFieldsValue({ fk_uzsakymaiid_uzsakymai: order.id_uzsakymai });
+            this.paymentForm.current.setFieldsValue({ kaina: order.kaina });
         }
     }
 
     selectUser(userId) {
         const user = this.state.users.find((user) => user.id_vartotojai === userId);
         if (!user) return;
-        if (this.form && this.form.current)
-            this.form.current.setFieldsValue({ fk_vartotojaiid_vartotojai: user.id_vartotojai });
+        if (this.paymentForm && this.paymentForm.current)
+            this.paymentForm.current.setFieldsValue({ fk_vartotojaiid_vartotojai: user.id_vartotojai });
     }
 
 	render() {
@@ -104,16 +111,19 @@ export default class CreateForm extends Component {
                     subTitle='Vartotojų atlikti užsakymo mokėjimai'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
+                        <Button type='primary' onClick={() => this.paymentForm.current.submit()}>
+						 	Sukurti mokėjimą
+						</Button>,
 						<Button onClick={() => this.props.back()}>
 						 	Grįžti
 						</Button>
 					]}
 				/>
-				<Row gutter={24} style={{ padding: '10px', marginLeft: 'px', marginRight: '0px' }}>
+				<Row justify='center' style={{ padding: '10px', marginLeft: '0px', marginRight: '0px' }}>
                     <Col span={12}>
                         <Card style={{ backgroundColor: 'rgb(225, 225, 225)' }}>
                             <Form
-                                ref={this.form}
+                                ref={this.paymentForm}
                                 {...formItemLayout}
                                 onFinish={this.onFinish.bind(this)}
                                 scrollToFirstError
@@ -183,12 +193,6 @@ export default class CreateForm extends Component {
                                     rules={[{ required: true, message: 'Įveskite kainą!' }]}
                                 >
                                     <Input type='number' disabled />
-                                </Form.Item>
-
-                                <Form.Item key='apmoketi' {...tailFormItemLayout}>
-                                    <Button type='primary' htmlType='submit'>
-                                        Apmokėti
-                                    </Button>
                                 </Form.Item>
                             </Form>
                         </Card>

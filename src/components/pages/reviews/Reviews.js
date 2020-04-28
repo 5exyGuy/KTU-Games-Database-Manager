@@ -70,7 +70,9 @@ export default class Reviews extends Component {
 							title='Atsiliepimai'
 							subTitle='Vartotojų atsiliepimai apie žaidimus'
 							extra={[
-								<Button onClick={() => this.setState({ action: 'create' })} shape='round'>Skelbti atsiliepimą</Button>
+								<Button onClick={() => this.setState({ action: 'create' })}>
+									Sukurti naują atsiliepimą
+								</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>
