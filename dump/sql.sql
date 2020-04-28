@@ -94,6 +94,16 @@ create table zaidimai
 create unique index unikalus_zaidimas
     on zaidimai (pavadinimas, platforma);
 
+create table vartotoju_grupes
+(
+    fk_grupesid_grupes         integer not null
+        constraint vartotoju_grupes
+            references grupes,
+    fk_vartotojaiid_vartotojai integer not null,
+    constraint vartotoju_grupes_pkey
+        primary key (fk_grupesid_grupes, fk_vartotojaiid_vartotojai)
+);
+
 create table atsiliepimai
 (
     ivertinimas                integer   not null,
@@ -144,9 +154,15 @@ create table zaidimu_uzsakymai
             references zaidimai,
     fk_uzsakymaiid_uzsakymai integer not null,
     kiekis                   integer not null,
+    id_zaidimu_uzsakymai     serial  not null
+        constraint zaidimu_uzsakymai_pk
+            primary key,
     constraint zaidimu_uzsakymai_pkey
-        primary key (fk_zaidimaiid_zaidimai, fk_uzsakymaiid_uzsakymai)
+        unique (fk_zaidimaiid_zaidimai, fk_uzsakymaiid_uzsakymai)
 );
+
+create unique index zaidimu_uzsakymai_id_zaidimu_uzsakymai_uindex
+    on zaidimu_uzsakymai (id_zaidimu_uzsakymai);
 
 create table zaidimu_krepseliai
 (
@@ -158,4 +174,3 @@ create table zaidimu_krepseliai
     constraint zaidimu_krepseliai_pkey
         primary key (fk_zaidimaiid_zaidimai, fk_krepseliaiid_krepseliai)
 );
-
