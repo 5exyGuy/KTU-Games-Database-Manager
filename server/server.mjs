@@ -11,7 +11,6 @@ import * as reviews from './routes/reviews.mjs';
 import * as images from './routes/images.mjs';
 import * as games from './routes/games.mjs';
 import * as orders from './routes/orders.mjs';
-import * as carts from './routes/carts.mjs';
 
 const app = express();
 const server = new http.Server(app);
@@ -29,7 +28,6 @@ io.on('connection', (socket) => {
 	socket.on('atsiliepimai', (routeName, data, cb) => reviews.route(routeName, data, cb));
 	socket.on('nuotraukos', (routeName, data, cb) => images.route(routeName, data, cb));
 	socket.on('zaidimai', (routeName, data, cb) => games.route(routeName, data, cb));
-	socket.on('krepseliai', (routeName, data, cb) => carts.route(routeName, data, cb));
 	socket.on('uzsakymai', (routeName, data, cb) => orders.route(routeName, data, cb));
 });
 

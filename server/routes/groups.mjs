@@ -17,16 +17,18 @@ export function route(routeName, data, cb) {
 
 const routes = {
     selectAll: selectAll,
-    selectGroupUsers: selectGroupUsers,
+    selectUsers: selectUsers,
     selectId: selectId,
     deleteId: deleteId,
     deleteUser: deleteUser,
     insert: insert,
-    update: update
+    insertUser: insertUser,
+    update: update,
+    updateUser: updateUser
 };
 
 /**
- * @param {string} data
+ * @param {any} data
  * @param {Function} cb 
  */
 async function selectAll(data, cb) {
@@ -36,12 +38,12 @@ async function selectAll(data, cb) {
 }
 
 /**
- * @param {string} data
+ * @param {any} id
  * @param {Function} cb 
  */
-async function selectGroupUsers(id, cb) {
-    const result = await pool.query(`SELECT * FROM vartotojai
-        INNER JOIN vartotoju_grupes vg on vartotojai.id_vartotojai = vg.fk_vartotojaiid_vartotojai
+async function selectUsers(id, cb) {
+    const result = await pool.query(`SELECT * FROM vartotoju_grupes 
+        INNER JOIN vartotojai v on vartotoju_grupes.fk_vartotojaiid_vartotojai = v.id_vartotojai
     WHERE fk_grupesid_grupes = $1`, [id]);
     if (result.rowCount === 0) return cb(null);
     cb(result.rows);
@@ -74,47 +76,73 @@ async function deleteId(id, cb) {
 }
 
 /**
- * @param {any} data
+ * @param {number} data
  * @param {Function} cb 
  */
-async function deleteUser(data, cb) {
-    if (!data) return cb(null);
+async function deleteUser(id, cb) {
+    if (!id) return cb(null);
 
-    const result = await pool.query(`DELETE FROM vartotoju_grupes WHERE fk_grupesid_grupes = $1 AND fk_vartotojaiid_vartotojai = $2`, [data.groupId, data.userId]);
+    const result = await pool.query(`DELETE FROM vartotoju_grupes WHERE id_vartotoju_grupes = $1`, [id]);
 
     if (result.rowCount === 0) return cb(null);
     cb(true);
 }
 
 /**
- * @param {string} values
+ * @param {any} values
  * @param {Function} cb 
  */
 async function insert(values, cb) {
     if (!values) return cb(null);
 
-    const result = await pool.query(`INSERT INTO ${tableName} (pavadinimas, fk_vartotojaiid_vartotojai, ikurimo_data) VALUES($1, $2, $3) RETURNING id_grupes`,
+    const result = await pool.query(`INSERT INTO ${tableName} (pavadinimas) VALUES ($1) RETURNING id_grupes`, [values.pavadinimas]);
+
+    if (result.rowCount === 0) return cb(null);
+    cb(result.rows[0]);
+}
+
+/**
+ * @param {any} values
+ * @param {Function} cb 
+ */
+async function insertUser(values, cb) {
+    if (!values) return cb(null);
+
+    const result = await pool.query(`INSERT INTO vartotoju_grupes (fk_grupesid_grupes, fk_vartotojaiid_vartotojai, pareigos) VALUES ($1, $2, $3)`,
         [
-            values.pavadinimas, values.fk_vartotojaiid_vartotojai,
-            values.ikurimo_data
+            values.fk_grupesid_grupes, values.fk_vartotojaiid_vartotojai,
+            values.pareigos
         ]
     );
+
+    if (result.rowCount === 0) return cb(null);
+    cb(result.rows[0]);
+}
+
+/**
+ * @param {any} values
+ * @param {Function} cb 
+ */
+async function update(values, cb) {
+    if (!values) return cb(null);
+
+    const result = await pool.query(`UPDATE ${tableName} SET pavadinimas = $1 WHERE id_grupes = $2`, [values.pavadinimas, values.id_grupes]);
 
     if (result.rowCount === 0) return cb(null);
     cb(true);
 }
 
 /**
- * @param {string} values
+ * @param {any} values
  * @param {Function} cb 
  */
-async function update(values, cb) {
+async function updateUser(values, cb) {
     if (!values) return cb(null);
 
-    const result = await pool.query(`UPDATE ${tableName} SET pavadinimas = $1, fk_vartotojaiid_vartotojai = $2, ikurimo_data = $3 WHERE id_grupes = $4`,
+    const result = await pool.query(`UPDATE vartotoju_grupes SET fk_grupesid_grupes = $1, fk_vartotojaiid_vartotojai = $2, pareigos = $3 WHERE id_vartotoju_grupes = $4`,
         [
-            values.pavadinimas, values.fk_vartotojaiid_vartotojai,
-            values.ikurimo_data, values.id_grupes
+            values.fk_grupesid_grupes, values.fk_vartotojaiid_vartotojai,
+            values.pareigos, values.id_vartotoju_grupes
         ]
     );
 

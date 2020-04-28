@@ -68,9 +68,11 @@ export default class Groups extends Component {
 						<PageHeader
 							ghost={false}
 							title='Grupės'
-							subTitle='Vartotojų sukurtos grupės'
+							subTitle='Internetinės parduotuvės grupės'
 							extra={[
-								<Button onClick={() => this.setState({ action: 'create' })} shape='round'>Sukurti grupę</Button>
+								<Button onClick={() => this.setState({ action: 'create' })}>
+									Sukurti naują grupę
+								</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>

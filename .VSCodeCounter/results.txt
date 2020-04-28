@@ -1,0 +1,102 @@
+Date : 2020-04-28 18:44:21
+Directory : e:\GitHub\KTU-Games-Database-Manager
+Total : 56 files,  26719 codes, 291 comments, 1435 blanks, all 28445 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| JSON       |          5 |     17,615 |          0 |          3 |     17,618 |
+| JavaScript |         47 |      5,852 |        280 |        853 |      6,985 |
+| CSS        |          2 |      3,071 |         11 |        561 |      3,643 |
+| SQL        |          1 |        165 |          0 |         18 |        183 |
+| HTML       |          1 |         16 |          0 |          0 |         16 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                               | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                  |         56 |     26,719 |        291 |      1,435 |     28,445 |
+| .vs                                                                                |          2 |          9 |          0 |          0 |          9 |
+| dump                                                                               |          1 |        165 |          0 |         18 |        183 |
+| public                                                                             |          2 |         31 |          0 |          1 |         32 |
+| server                                                                             |         11 |        611 |        258 |        175 |      1,044 |
+| server\routes                                                                      |         10 |        572 |        257 |        169 |        998 |
+| src                                                                                |         37 |      8,300 |         33 |      1,237 |      9,570 |
+| src\components                                                                     |         31 |      5,164 |         22 |        669 |      5,855 |
+| src\components\pages                                                               |         30 |      5,112 |         22 |        662 |      5,796 |
+| src\components\pages\carts                                                         |          3 |         18 |          0 |          5 |         23 |
+| src\components\pages\developers                                                    |          3 |        251 |          0 |         28 |        279 |
+| src\components\pages\faq                                                           |          3 |        247 |          0 |         29 |        276 |
+| src\components\pages\games                                                         |          3 |        769 |          5 |         96 |        870 |
+| src\components\pages\groups                                                        |          3 |        843 |          5 |        102 |        950 |
+| src\components\pages\images                                                        |          3 |        409 |          2 |         60 |        471 |
+| src\components\pages\orders                                                        |          3 |        846 |          5 |        115 |        966 |
+| src\components\pages\payments                                                      |          3 |        454 |          0 |         62 |        516 |
+| src\components\pages\reviews                                                       |          3 |        430 |          0 |         62 |        492 |
+| src\components\pages\users                                                         |          3 |        845 |          5 |        103 |        953 |
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                           | language   | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| e:\GitHub\KTU-Games-Database-Manager\.vs\ProjectSettings.json                      | JSON       |          3 |          0 |          0 |          3 |
+| e:\GitHub\KTU-Games-Database-Manager\.vs\VSWorkspaceState.json                     | JSON       |          6 |          0 |          0 |          6 |
+| e:\GitHub\KTU-Games-Database-Manager\config-overrides.js                           | JavaScript |         12 |          0 |          2 |         14 |
+| e:\GitHub\KTU-Games-Database-Manager\dump\sql.sql                                  | SQL        |        165 |          0 |         18 |        183 |
+| e:\GitHub\KTU-Games-Database-Manager\package-lock.json                             | JSON       |     17,546 |          0 |          1 |     17,547 |
+| e:\GitHub\KTU-Games-Database-Manager\package.json                                  | JSON       |         45 |          0 |          1 |         46 |
+| e:\GitHub\KTU-Games-Database-Manager\public\index.html                             | HTML       |         16 |          0 |          0 |         16 |
+| e:\GitHub\KTU-Games-Database-Manager\public\manifest.json                          | JSON       |         15 |          0 |          1 |         16 |
+| e:\GitHub\KTU-Games-Database-Manager\server\routes\carts.mjs                       | JavaScript |          0 |          0 |          1 |          1 |
+| e:\GitHub\KTU-Games-Database-Manager\server\routes\developers.mjs                  | JavaScript |         52 |         29 |         17 |         98 |
+| e:\GitHub\KTU-Games-Database-Manager\server\routes\faq.mjs                         | JavaScript |         47 |         25 |         16 |         88 |
+| e:\GitHub\KTU-Games-Database-Manager\server\routes\games.mjs                       | JavaScript |         73 |         29 |         21 |        123 |
+| e:\GitHub\KTU-Games-Database-Manager\server\routes\groups.mjs                      | JavaScript |         70 |         33 |         20 |        123 |
+| e:\GitHub\KTU-Games-Database-Manager\server\routes\images.mjs                      | JavaScript |         55 |         25 |         16 |         96 |
+| e:\GitHub\KTU-Games-Database-Manager\server\routes\orders.mjs                      | JavaScript |         88 |         41 |         26 |        155 |
+| e:\GitHub\KTU-Games-Database-Manager\server\routes\payments.mjs                    | JavaScript |         59 |         25 |         16 |        100 |
+| e:\GitHub\KTU-Games-Database-Manager\server\routes\reviews.mjs                     | JavaScript |         61 |         25 |         17 |        103 |
+| e:\GitHub\KTU-Games-Database-Manager\server\routes\users.mjs                       | JavaScript |         67 |         25 |         19 |        111 |
+| e:\GitHub\KTU-Games-Database-Manager\server\server.mjs                             | JavaScript |         39 |          1 |          6 |         46 |
+| e:\GitHub\KTU-Games-Database-Manager\src\animate.css                               | CSS        |      3,057 |         11 |        558 |      3,626 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\App.js                         | JavaScript |         52 |          0 |          7 |         59 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\carts\Carts.js           | JavaScript |         18 |          0 |          3 |         21 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\carts\Create.js          | JavaScript |          0 |          0 |          1 |          1 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\carts\Edit.js            | JavaScript |          0 |          0 |          1 |          1 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\developers\Create.js     | JavaScript |         74 |          0 |          7 |         81 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\developers\Developers.js | JavaScript |         91 |          0 |         14 |        105 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\developers\Edit.js       | JavaScript |         86 |          0 |          7 |         93 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\faq\Create.js            | JavaScript |         77 |          0 |          8 |         85 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\faq\Edit.js              | JavaScript |         78 |          0 |          7 |         85 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\faq\FAQ.js               | JavaScript |         92 |          0 |         14 |        106 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\games\Create.js          | JavaScript |        311 |          2 |         38 |        351 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\games\Edit.js            | JavaScript |        366 |          3 |         45 |        414 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\games\Games.js           | JavaScript |         92 |          0 |         13 |        105 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\groups\Create.js         | JavaScript |        358 |          2 |         43 |        403 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\groups\Edit.js           | JavaScript |        394 |          3 |         46 |        443 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\groups\Groups.js         | JavaScript |         91 |          0 |         13 |        104 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\images\Create.js         | JavaScript |        193 |          2 |         29 |        224 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\images\Edit.js           | JavaScript |        116 |          0 |         17 |        133 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\images\Images.js         | JavaScript |        100 |          0 |         14 |        114 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\orders\Create.js         | JavaScript |        353 |          2 |         46 |        401 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\orders\Edit.js           | JavaScript |        396 |          3 |         54 |        453 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\orders\Orders.js         | JavaScript |         97 |          0 |         15 |        112 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\payments\Create.js       | JavaScript |        181 |          0 |         24 |        205 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\payments\Edit.js         | JavaScript |        177 |          0 |         25 |        202 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\payments\Payments.js     | JavaScript |         96 |          0 |         13 |        109 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\reviews\Create.js        | JavaScript |        162 |          0 |         24 |        186 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\reviews\Edit.js          | JavaScript |        172 |          0 |         25 |        197 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\reviews\Reviews.js       | JavaScript |         96 |          0 |         13 |        109 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\users\Create.js          | JavaScript |        358 |          2 |         43 |        403 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\users\Edit.js            | JavaScript |        394 |          3 |         46 |        443 |
+| e:\GitHub\KTU-Games-Database-Manager\src\components\pages\users\Users.js           | JavaScript |         93 |          0 |         14 |        107 |
+| e:\GitHub\KTU-Games-Database-Manager\src\enums.js                                  | JavaScript |         45 |          0 |          4 |         49 |
+| e:\GitHub\KTU-Games-Database-Manager\src\index.css                                 | CSS        |         14 |          0 |          3 |         17 |
+| e:\GitHub\KTU-Games-Database-Manager\src\index.js                                  | JavaScript |          5 |          0 |          1 |          6 |
+| e:\GitHub\KTU-Games-Database-Manager\src\socket.js                                 | JavaScript |          3 |          0 |          2 |          5 |
+| e:\GitHub\KTU-Games-Database-Manager\src\tables.js                                 | JavaScript |         12 |          0 |          0 |         12 |
+| Total                                                                              |            |     26,719 |        291 |      1,435 |     28,445 |
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+

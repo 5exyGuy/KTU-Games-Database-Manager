@@ -47,3 +47,11 @@ export const orderStatus = [
     'Išsiųstas',
     'Gautas'
 ];
+
+export const places = [
+    'Administratorius',
+    'Moderatorius',
+    'Narys',
+    'Naujokas',
+    'Svečias'
+];

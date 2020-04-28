@@ -27,10 +27,14 @@ export default class CreateForm extends Component {
     }
 
 	onFinish(values) {
-		socket.emit(tables.images, 'insert', values, (result) => {
-			if (!result) return;
-			this.props.back();
-		});
+        const images = [...values];
+
+        images.forEach((image) => {
+            socket.emit(tables.images, 'insert', image, (result) => {
+                if (!result) return;
+                this.props.back();
+            });
+        });
     }
 
     addNewImage() {
@@ -39,7 +43,10 @@ export default class CreateForm extends Component {
                 const interval = setInterval(() => {
                     if (this.imageForm && this.imageForm.current) {
                         this.imageForm.current.resetFields();
-                        this.imageForm.current.setFieldsValue({ id_nuotraukos: uniqid() });
+                        this.imageForm.current.setFieldsValue({ 
+                            id_nuotraukos: uniqid() ,
+                            fk_zaidimaiid_zaidimai: this.state.games[0].id_zaidimai
+                        });
                         clearInterval(interval);
                         resolve();
                     }
@@ -49,32 +56,32 @@ export default class CreateForm extends Component {
     }
 
     addImage(values) {
-        const gameImages = [...this.state.gameImages];
+        const images = [...this.state.images];
 
-        const index = gameImages.findIndex((image) => image.id_nuotraukos === values.id_nuotraukos);
+        const index = images.findIndex((image) => image.id_nuotraukos === values.id_nuotraukos);
         if (index > -1) {
-            gameImages[index] = values;
+            images[index] = values;
 
             return this.setState({ 
-                gameImages: [...gameImages],
+                images: [...images],
                 isModalVisible: false
             });
         }
 
-        gameImages.push(values);
+        images.push(values);
         this.setState({ 
-            gameImages: [...gameImages],
+            images: [...images],
             isModalVisible: false
         });
     }
 
     editImage(imageId) {
-        const gameImages = [...this.state.gameImages];
+        const images = [...this.state.images];
 
-        const index = gameImages.findIndex((image) => image.id_nuotraukos === imageId);
+        const index = images.findIndex((image) => image.id_nuotraukos === imageId);
         if (index < 0) return;
 
-        const image = gameImages[index];
+        const image = images[index];
 
         this.setState({ isModalVisible: true}, async () => {
             await new Promise((resolve) => {
@@ -91,13 +98,13 @@ export default class CreateForm extends Component {
     }
 
     removeImage(imageId) {
-        const gameImages = [...this.state.gameImages];
+        const images = [...this.state.images];
 
-        const index = gameImages.findIndex((image) => image.id_nuotraukos === imageId);
+        const index = images.findIndex((image) => image.id_nuotraukos === imageId);
         if (index < 0) return;
-        gameImages.splice(index, 1);
+        images.splice(index, 1);
 
-        this.setState({ gameImages: [...gameImages] });
+        this.setState({ images: [...images] });
     }
 
     selectGames() {
@@ -137,7 +144,7 @@ export default class CreateForm extends Component {
                     subTitle='Žaidimų nuotraukos'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
-                        <Button type='primary' onClick={() => this.onFinish()}>
+                        <Button type='primary' onClick={() => this.onFinish(this.state.images)}>
 						 	Sukurti nuotraukas
                         </Button>,
                         <Button onClick={() => this.addNewImage()}>

@@ -213,7 +213,8 @@ export default class CreateForm extends Component {
                                 scrollToFirstError
                                 initialValues={{
 									paskutinis_prisijungimas: moment(),
-									registracijos_data: moment()
+									registracijos_data: moment(),
+									aktyvuotas: false
                                 }}
                             >
 								<Form.Item
@@ -349,7 +350,7 @@ export default class CreateForm extends Component {
                             rules={[{ required: true, message: 'Įveskite atsiliepimo ID!' }]}
                             style={{ display: 'none' }}
                         >
-                            <Input type='number' disabled />
+                            <Input disabled />
                         </Form.Item>
 
                         <Form.Item

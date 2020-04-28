@@ -10,13 +10,6 @@ const formItemLayout = {
 	wrapperCol: { span: 16 }
 };
 
-const tailFormItemLayout = {
-	wrapperCol: {
-		span: 8,
-		offset: 8
-	}
-};
-
 export default class EditForm extends Component {
 
     state = {
@@ -27,7 +20,7 @@ export default class EditForm extends Component {
     constructor(props) {
         super(props);
 
-        this.form = React.createRef();
+        this.reviewForm = React.createRef();
     }
 
     componentDidMount() {
@@ -54,8 +47,8 @@ export default class EditForm extends Component {
 			});
 	
 			this.setState({ games: [...gameList] }, () => {
-                if (this.form && this.form.current)
-                    this.form.current.setFieldsValue({ fk_zaidimaiid_zaidimai: gameList[0].id_zaidimai });
+                if (this.reviewForm && this.reviewForm.current)
+                    this.reviewForm.current.setFieldsValue({ fk_zaidimaiid_zaidimai: gameList[0].id_zaidimai });
             });
 		});
     }
@@ -72,8 +65,8 @@ export default class EditForm extends Component {
             });
 	
 			this.setState({ users: [...userList] }, () => {
-                if (this.form && this.form.current)
-                    this.form.current.setFieldsValue({ fk_vartotojaiid_vartotojai: userList[0].id_vartotojai });
+                if (this.reviewForm && this.reviewForm.current)
+                    this.reviewForm.current.setFieldsValue({ fk_vartotojaiid_vartotojai: userList[0].id_vartotojai });
             });
 		});
     }
@@ -81,15 +74,15 @@ export default class EditForm extends Component {
     selectGame(gameId) {
         const game = this.state.games.find((game) => game.id_zaidimai === gameId);
         if (!game) return;
-        if (this.form && this.form.current)
-            this.form.current.setFieldsValue({ fk_zaidimaiid_zaidimai: game.id_zaidimai });
+        if (this.reviewForm && this.reviewForm.current)
+            this.reviewForm.current.setFieldsValue({ fk_zaidimaiid_zaidimai: game.id_zaidimai });
     }
 
     selectUser(userId) {
         const user = this.state.users.find((user) => user.id_vartotojai === userId);
         if (!user) return;
-        if (this.form && this.form.current)
-            this.form.current.setFieldsValue({ fk_vartotojaiid_vartotojai: user.id_vartotojai });
+        if (this.reviewForm && this.reviewForm.current)
+            this.reviewForm.current.setFieldsValue({ fk_vartotojaiid_vartotojai: user.id_vartotojai });
     }
 
 	render() {
@@ -104,6 +97,9 @@ export default class EditForm extends Component {
                     subTitle='Vartotojų atsiliepimai apie žaidimus'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
+                        <Button type='primary' onClick={() => this.reviewForm.current.submit()}>
+						 	Redaguoti atsiliepimą
+						</Button>,
 						<Button onClick={() => this.props.back()}>
 						 	Grįžti
 						</Button>
@@ -113,7 +109,7 @@ export default class EditForm extends Component {
                     <Col span={12}>
                         <Card style={{ backgroundColor: 'rgb(225, 225, 225)' }}>
                             <Form
-                                ref={this.form}
+                                ref={this.reviewForm}
                                 {...formItemLayout}
                                 onFinish={this.onFinish.bind(this)}
                                 scrollToFirstError
@@ -189,12 +185,6 @@ export default class EditForm extends Component {
                                         format="YYYY-MM-DD HH:mm:ss"
                                         showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
                                     />
-                                </Form.Item>
-
-                                <Form.Item key='redaguoti' {...tailFormItemLayout}>
-                                    <Button type='primary' htmlType='submit'>
-                                        Redaguoti
-                                    </Button>
                                 </Form.Item>
                             </Form>
                         </Card>

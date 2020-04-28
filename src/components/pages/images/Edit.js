@@ -8,18 +8,17 @@ const formItemLayout = {
 	wrapperCol: { span: 16 }
 };
 
-const tailFormItemLayout = {
-	wrapperCol: {
-		span: 8,
-		offset: 8
-	}
-};
-
 export default class EditForm extends Component {
 
     state = {
         games: []
     };
+
+    constructor(props) {
+        super(props);
+
+        this.imageForm = React.createRef();
+    }
 
     componentDidMount() {
         this.selectGames();
@@ -44,8 +43,8 @@ export default class EditForm extends Component {
 			});
 	
 			this.setState({ games: [...gameList] }, () => {
-                if (this.form && this.form.current)
-                    this.form.current.setFieldsValue({ fk_zaidimaiid_zaidimai: gameList[0].id_zaidimai });
+                if (this.imageForm && this.imageForm.current)
+                    this.imageForm.current.setFieldsValue({ fk_zaidimaiid_zaidimai: gameList[0].id_zaidimai });
             });
 		});
     }
@@ -53,8 +52,8 @@ export default class EditForm extends Component {
     selectGame(gameId) {
         const game = this.state.games.find((game) => game.id_zaidimai === gameId);
         if (!game) return;
-        if (this.form && this.form.current)
-            this.form.current.setFieldsValue({ fk_zaidimaiid_zaidimai: game.id_zaidimai });
+        if (this.imageForm && this.imageForm.current)
+            this.imageForm.current.setFieldsValue({ fk_zaidimaiid_zaidimai: game.id_zaidimai });
     }
 
 	render() {
@@ -69,7 +68,10 @@ export default class EditForm extends Component {
                     subTitle='Žaidimų nuotraukos'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
-						<Button shape='round' onClick={() => this.props.back()}>
+                        <Button type='primary' onClick={() => this.imageForm.current.submit()}>
+						 	Redaguoti nuotrauką
+						</Button>,
+						<Button onClick={() => this.props.back()}>
 						 	Grįžti
 						</Button>
 					]}
@@ -78,7 +80,7 @@ export default class EditForm extends Component {
                     <Col span={12}>
                         <Card style={{ backgroundColor: 'rgb(225, 225, 225)' }}>
                             <Form
-                                ref={this.form}
+                                ref={this.imageForm}
                                 {...formItemLayout}
                                 onFinish={this.onFinish.bind(this)}
                                 scrollToFirstError
@@ -115,12 +117,6 @@ export default class EditForm extends Component {
                                     rules={[{ required: true, message: 'Įveskite nuotraukos nuorodą!', whitespace: false, min: 10, max: 255 }]}
                                 >
                                     <Input />
-                                </Form.Item>
-
-                                <Form.Item key='redaguoti' {...tailFormItemLayout}>
-                                    <Button type='danger' shape='round' htmlType='submit'>
-                                        Redaguoti
-                                    </Button>
                                 </Form.Item>
                             </Form>
                         </Card>

@@ -380,7 +380,7 @@ export default class EditForm extends Component {
                             rules={[{ required: true, message: 'Įveskite atsiliepimo ID!' }]}
                             style={{ display: this.state.creatingNew ? 'none' : 'flex' }}
                         >
-                            <Input type='number' disabled />
+                            <Input disabled />
                         </Form.Item>
 
                         <Form.Item
