@@ -88,6 +88,8 @@ async function selectId(id, cb) {
 async function deleteId(id, cb) {
     if (!id) return cb(null);
 
+    await pool.query(`DELETE FROM zaidimu_uzsakymai WHERE fk_uzsakymaiid_uzsakymai = $1`, [id]);
+
     const result = await pool.query(`DELETE FROM ${tableName} WHERE id_uzsakymai = $1`, [id]);
 
     if (result.rowCount === 0) return cb(null);

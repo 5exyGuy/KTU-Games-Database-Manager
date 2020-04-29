@@ -1,58 +1,30 @@
-"filename", "language", "JavaScript", "JSON", "HTML", "SQL", "CSS", "comment", "blank", "total"
-"e:\GitHub\KTU-Games-Database-Manager\.vs\ProjectSettings.json", "JSON", 0, 3, 0, 0, 0, 0, 0, 3
-"e:\GitHub\KTU-Games-Database-Manager\.vs\VSWorkspaceState.json", "JSON", 0, 6, 0, 0, 0, 0, 0, 6
-"e:\GitHub\KTU-Games-Database-Manager\config-overrides.js", "JavaScript", 12, 0, 0, 0, 0, 0, 2, 14
-"e:\GitHub\KTU-Games-Database-Manager\dump\sql.sql", "SQL", 0, 0, 0, 165, 0, 0, 18, 183
-"e:\GitHub\KTU-Games-Database-Manager\package-lock.json", "JSON", 0, 17546, 0, 0, 0, 0, 1, 17547
-"e:\GitHub\KTU-Games-Database-Manager\package.json", "JSON", 0, 45, 0, 0, 0, 0, 1, 46
-"e:\GitHub\KTU-Games-Database-Manager\public\index.html", "HTML", 0, 0, 16, 0, 0, 0, 0, 16
-"e:\GitHub\KTU-Games-Database-Manager\public\manifest.json", "JSON", 0, 15, 0, 0, 0, 0, 1, 16
-"e:\GitHub\KTU-Games-Database-Manager\server\routes\carts.mjs", "JavaScript", 0, 0, 0, 0, 0, 0, 1, 1
-"e:\GitHub\KTU-Games-Database-Manager\server\routes\developers.mjs", "JavaScript", 52, 0, 0, 0, 0, 29, 17, 98
-"e:\GitHub\KTU-Games-Database-Manager\server\routes\faq.mjs", "JavaScript", 47, 0, 0, 0, 0, 25, 16, 88
-"e:\GitHub\KTU-Games-Database-Manager\server\routes\games.mjs", "JavaScript", 73, 0, 0, 0, 0, 29, 21, 123
-"e:\GitHub\KTU-Games-Database-Manager\server\routes\groups.mjs", "JavaScript", 70, 0, 0, 0, 0, 33, 20, 123
-"e:\GitHub\KTU-Games-Database-Manager\server\routes\images.mjs", "JavaScript", 55, 0, 0, 0, 0, 25, 16, 96
-"e:\GitHub\KTU-Games-Database-Manager\server\routes\orders.mjs", "JavaScript", 88, 0, 0, 0, 0, 41, 26, 155
-"e:\GitHub\KTU-Games-Database-Manager\server\routes\payments.mjs", "JavaScript", 59, 0, 0, 0, 0, 25, 16, 100
-"e:\GitHub\KTU-Games-Database-Manager\server\routes\reviews.mjs", "JavaScript", 61, 0, 0, 0, 0, 25, 17, 103
-"e:\GitHub\KTU-Games-Database-Manager\server\routes\users.mjs", "JavaScript", 67, 0, 0, 0, 0, 25, 19, 111
-"e:\GitHub\KTU-Games-Database-Manager\server\server.mjs", "JavaScript", 39, 0, 0, 0, 0, 1, 6, 46
-"e:\GitHub\KTU-Games-Database-Manager\src\animate.css", "CSS", 0, 0, 0, 0, 3057, 11, 558, 3626
-"e:\GitHub\KTU-Games-Database-Manager\src\components\App.js", "JavaScript", 52, 0, 0, 0, 0, 0, 7, 59
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\carts\Carts.js", "JavaScript", 18, 0, 0, 0, 0, 0, 3, 21
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\carts\Create.js", "JavaScript", 0, 0, 0, 0, 0, 0, 1, 1
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\carts\Edit.js", "JavaScript", 0, 0, 0, 0, 0, 0, 1, 1
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\developers\Create.js", "JavaScript", 74, 0, 0, 0, 0, 0, 7, 81
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\developers\Developers.js", "JavaScript", 91, 0, 0, 0, 0, 0, 14, 105
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\developers\Edit.js", "JavaScript", 86, 0, 0, 0, 0, 0, 7, 93
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\faq\Create.js", "JavaScript", 77, 0, 0, 0, 0, 0, 8, 85
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\faq\Edit.js", "JavaScript", 78, 0, 0, 0, 0, 0, 7, 85
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\faq\FAQ.js", "JavaScript", 92, 0, 0, 0, 0, 0, 14, 106
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\games\Create.js", "JavaScript", 311, 0, 0, 0, 0, 2, 38, 351
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\games\Edit.js", "JavaScript", 366, 0, 0, 0, 0, 3, 45, 414
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\games\Games.js", "JavaScript", 92, 0, 0, 0, 0, 0, 13, 105
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\groups\Create.js", "JavaScript", 358, 0, 0, 0, 0, 2, 43, 403
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\groups\Edit.js", "JavaScript", 394, 0, 0, 0, 0, 3, 46, 443
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\groups\Groups.js", "JavaScript", 91, 0, 0, 0, 0, 0, 13, 104
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\images\Create.js", "JavaScript", 193, 0, 0, 0, 0, 2, 29, 224
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\images\Edit.js", "JavaScript", 116, 0, 0, 0, 0, 0, 17, 133
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\images\Images.js", "JavaScript", 100, 0, 0, 0, 0, 0, 14, 114
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\orders\Create.js", "JavaScript", 353, 0, 0, 0, 0, 2, 46, 401
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\orders\Edit.js", "JavaScript", 396, 0, 0, 0, 0, 3, 54, 453
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\orders\Orders.js", "JavaScript", 97, 0, 0, 0, 0, 0, 15, 112
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\payments\Create.js", "JavaScript", 181, 0, 0, 0, 0, 0, 24, 205
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\payments\Edit.js", "JavaScript", 177, 0, 0, 0, 0, 0, 25, 202
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\payments\Payments.js", "JavaScript", 96, 0, 0, 0, 0, 0, 13, 109
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\reviews\Create.js", "JavaScript", 162, 0, 0, 0, 0, 0, 24, 186
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\reviews\Edit.js", "JavaScript", 172, 0, 0, 0, 0, 0, 25, 197
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\reviews\Reviews.js", "JavaScript", 96, 0, 0, 0, 0, 0, 13, 109
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\users\Create.js", "JavaScript", 358, 0, 0, 0, 0, 2, 43, 403
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\users\Edit.js", "JavaScript", 394, 0, 0, 0, 0, 3, 46, 443
-"e:\GitHub\KTU-Games-Database-Manager\src\components\pages\users\Users.js", "JavaScript", 93, 0, 0, 0, 0, 0, 14, 107
-"e:\GitHub\KTU-Games-Database-Manager\src\enums.js", "JavaScript", 45, 0, 0, 0, 0, 0, 4, 49
-"e:\GitHub\KTU-Games-Database-Manager\src\index.css", "CSS", 0, 0, 0, 0, 14, 0, 3, 17
-"e:\GitHub\KTU-Games-Database-Manager\src\index.js", "JavaScript", 5, 0, 0, 0, 0, 0, 1, 6
-"e:\GitHub\KTU-Games-Database-Manager\src\socket.js", "JavaScript", 3, 0, 0, 0, 0, 0, 2, 5
-"e:\GitHub\KTU-Games-Database-Manager\src\tables.js", "JavaScript", 12, 0, 0, 0, 0, 0, 0, 12
-"Total", "-", 5852, 17615, 16, 165, 3071, 291, 1435, 28445
+"filename", "language", "JavaScript", "comment", "blank", "total"
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\App.js", "JavaScript", 50, 0, 7, 57
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\developers\Create.js", "JavaScript", 74, 0, 7, 81
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\developers\Developers.js", "JavaScript", 91, 0, 14, 105
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\developers\Edit.js", "JavaScript", 86, 0, 7, 93
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\faq\Create.js", "JavaScript", 77, 0, 8, 85
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\faq\Edit.js", "JavaScript", 78, 0, 7, 85
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\faq\FAQ.js", "JavaScript", 92, 0, 14, 106
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\games\Create.js", "JavaScript", 311, 2, 38, 351
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\games\Edit.js", "JavaScript", 366, 3, 45, 414
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\games\Games.js", "JavaScript", 92, 0, 13, 105
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\groups\Create.js", "JavaScript", 265, 2, 34, 301
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\groups\Edit.js", "JavaScript", 302, 3, 38, 343
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\groups\Groups.js", "JavaScript", 93, 0, 13, 106
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\images\Create.js", "JavaScript", 199, 2, 30, 231
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\images\Edit.js", "JavaScript", 112, 0, 17, 129
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\images\Images.js", "JavaScript", 100, 0, 14, 114
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\orders\Create.js", "JavaScript", 353, 2, 46, 401
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\orders\Edit.js", "JavaScript", 397, 3, 54, 454
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\orders\Orders.js", "JavaScript", 97, 0, 15, 112
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\payments\Create.js", "JavaScript", 181, 0, 24, 205
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\payments\Edit.js", "JavaScript", 177, 0, 25, 202
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\payments\Payments.js", "JavaScript", 96, 0, 13, 109
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\reviews\Create.js", "JavaScript", 162, 0, 24, 186
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\reviews\Edit.js", "JavaScript", 172, 0, 25, 197
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\reviews\Reviews.js", "JavaScript", 96, 0, 13, 109
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\users\Create.js", "JavaScript", 359, 2, 43, 404
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\users\Edit.js", "JavaScript", 394, 3, 46, 443
+"c:\Users\nicka\OneDrive\Desktop\GitHub\KTU-Games-Database-Manager\src\components\pages\users\Users.js", "JavaScript", 93, 0, 14, 107
+"Total", "-", 4965, 22, 648, 5635

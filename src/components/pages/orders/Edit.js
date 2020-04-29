@@ -65,6 +65,7 @@ export default class EditForm extends Component {
                     if (this.orderGameForm && this.orderGameForm.current) {
                         this.orderGameForm.current.resetFields();
                         this.orderGameForm.current.setFieldsValue({ 
+                            fk_zaidimaiid_zaidimai: this.state.games[0].id_zaidimai,
                             naujas: true
                         });
                         clearInterval(interval);
@@ -153,7 +154,7 @@ export default class EditForm extends Component {
 
     removeOrderGame(gameId) {
         const orderGames = [...this.state.orderGames];
-        const index = orderGames.findIndex((game) => game.fk_zaidimaiid_zaidimai === gameId);
+        const index = orderGames.findIndex((game) => game.id_zaidimu_uzsakymai === gameId);
         if (index < 0) return;
 
         if (orderGames[index].naujas) {
@@ -384,9 +385,9 @@ export default class EditForm extends Component {
                             renderItem={game => (
                                 <List.Item actions={[
                                     // eslint-disable-next-line
-                                    <a key='edit' onClick={this.editOrderGame.bind(this, game.fk_zaidimaiid_zaidimai)}>redaguoti</a>, 
+                                    <a key='edit' onClick={this.editOrderGame.bind(this, game.id_zaidimu_uzsakymai)}>redaguoti</a>, 
                                     // eslint-disable-next-line
-                                    <a key='remove' onClick={this.removeOrderGame.bind(this, game.fk_zaidimaiid_zaidimai)}>šalinti</a>
+                                    <a key='remove' onClick={this.removeOrderGame.bind(this, game.id_zaidimu_uzsakymai)}>šalinti</a>
                                 ]}>
                                     {/* {game.fk_zaidimaiid_zaidimai} */}
                                     {this.getGame(game.fk_zaidimaiid_zaidimai).pavadinimas} ({this.getGame(game.fk_zaidimaiid_zaidimai).platforma}) - {game.kiekis} vnt.

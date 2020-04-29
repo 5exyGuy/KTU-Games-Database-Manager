@@ -69,6 +69,8 @@ async function selectId(id, cb) {
 async function deleteId(id, cb) {
     if (!id) return cb(null);
 
+    await pool.query(`DELETE FROM vartotoju_grupes WHERE fk_grupesid_grupes = $1`, [id]);
+
     const result = await pool.query(`DELETE FROM ${tableName} WHERE id_grupes = $1`, [id]);
 
     if (result.rowCount === 0) return cb(null);

@@ -88,7 +88,7 @@ export default class CreateForm extends Component {
     addGroupUser(values) {
         const groupUsers = [...this.state.groupUsers];
 
-        const index = groupUsers.findIndex((user) => user.id_vartotoju_grupes === values.id_vartotoju_grupes);
+        const index = groupUsers.findIndex((user) => user.fk_vartotojaiid_vartotojai === values.fk_vartotojaiid_vartotojai);
         if (index > -1) {
             groupUsers[index] = values;
 
