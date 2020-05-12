@@ -11,6 +11,7 @@ import * as reviews from './routes/reviews.mjs';
 import * as images from './routes/images.mjs';
 import * as games from './routes/games.mjs';
 import * as orders from './routes/orders.mjs';
+import * as reports from './routes/reports.mjs';
 
 const app = express();
 const server = new http.Server(app);
@@ -29,6 +30,8 @@ io.on('connection', (socket) => {
 	socket.on('nuotraukos', (routeName, data, cb) => images.route(routeName, data, cb));
 	socket.on('zaidimai', (routeName, data, cb) => games.route(routeName, data, cb));
 	socket.on('uzsakymai', (routeName, data, cb) => orders.route(routeName, data, cb));
+	// 3 Laboratorinis Darbas
+	socket.on('ataskaitos', (routeName, data, cb) => reports.route(routeName, data, cb));
 });
 
 // PostgreSQL

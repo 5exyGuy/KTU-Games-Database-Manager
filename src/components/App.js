@@ -9,6 +9,7 @@ import Orders from './pages/orders/Orders';
 import Reviews from './pages/reviews/Reviews';
 import Games from './pages/games/Games';
 import Images from './pages/images/Images';
+import Reports from './pages/reports/Reports';
 
 const { Header, Content } = Layout;
 
@@ -32,7 +33,8 @@ export default class App extends Component {
 			{ name: 'Atsiliepimai', key: 'reviews', content: <Reviews /> },
 			{ name: 'Nuotraukos', key: 'images', content: <Images /> },
 			{ name: 'Žaidimai', key: 'games', content: <Games /> },
-			{ name: 'Užsakymai', key: 'orders', content: <Orders /> }
+			{ name: 'Užsakymai', key: 'orders', content: <Orders /> },
+			{ name: 'Užsakymų ataskaita', key: 'report', content: <Reports /> }
 		];
 
 		return (

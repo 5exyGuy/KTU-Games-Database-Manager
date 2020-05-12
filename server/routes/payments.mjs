@@ -1,7 +1,6 @@
 import {
     pool
 } from '../server.mjs';
-import moment from 'moment';
 
 const tableName = 'mokejimai'; // Lentelės pavadinimas
 
