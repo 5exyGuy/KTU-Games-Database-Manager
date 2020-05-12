@@ -1,0 +1,17 @@
+.layout {
+	height: 100vh;
+}
+
+.header {
+	height: auto !important;
+	padding: 0 !important;
+}
+
+.site-layout-content {
+	background: #fff;
+	min-height: 280px;
+}
+
+.ant-table-pagination.ant-pagination {
+	margin: 32px 32px !important;
+}

@@ -6,13 +6,12 @@ import CreateForm from './Create';
 import EditForm from './Edit';
 import { tables } from '../../../tables';
 import socket from '../../../socket';
-import moment from 'moment';
 
-export default class Orders extends Component {
+export default class Games extends Component {
 
 	state = {
 		action: 'none',
-		orders: []
+		games: []
 	};
 
 	componentDidMount() {
@@ -20,44 +19,39 @@ export default class Orders extends Component {
 	}
 
 	selectAll() {
-		socket.emit(tables.orders, 'selectTable', null, (orders) => {
-			if (!orders) return this.setState({ orders: [] });
+		socket.emit(tables.games, 'selectAll', null, (games) => {
+			if (!games) return this.setState({ games: [] });
 
-			const orderList = [...orders];
-
-			orderList.map((order) => {
-				order.data = moment(order.data).format('YYYY-MM-DD HH:mm:ss');
-				return order.key = order.id_uzsakymai;
+			const gameList = [...games];
+	
+			gameList.map((game) => {
+				return game.key = game.id_zaidimai;
 			});
 	
-			this.setState({ orders: [...orderList] });
+			this.setState({ games: [...gameList] });
 		});
 	}
 
 	deleteId(id) {
 		if (!id) return;
-		socket.emit(tables.orders, 'deleteId', id, (result) => {
+		socket.emit(tables.games, 'deleteId', id, (result) => {
 			if (!result) return;
 			this.selectAll();
 		});
 	}
 
 	edit(id) {
-		socket.emit(tables.orders, 'selectId', id, (result) => {
+		socket.emit(tables.games, 'selectId', id, (result) => {
 			if (!result) return;
-
+			result.zanras = [...JSON.parse(result.zanras)];
+			result.rezimas = [...JSON.parse(result.rezimas)];
 			this.data = result;
-			this.setState({ action: 'edit' }); 
+			this.setState({ action: 'edit' });
 		});
 	}
 
-	create() {
-		this.setState({ action: 'create' });
-	}
-
 	back() {
-		this.setState({ action: 'none' });
-		this.selectAll();
+		this.setState({ action: 'none' }, () => this.selectAll());
 	}
 
 	render() {
@@ -72,19 +66,19 @@ export default class Orders extends Component {
 					<div>
 						<PageHeader
 							ghost={false}
-							title='Užsakymai'
-							subTitle='Vartotojų užsakymai'
+							title='Žaidimai'
+							subTitle='Parduodami žaidimai'
 							extra={[
-								<Button onClick={this.create.bind(this)}>Sudaryti naują užsakymą</Button>
+								<Button onClick={() => this.setState({ action: 'create' })}>Sukurti naują žaidimą</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>
 						<Table 
 							columns={[
-								{ title: 'ID', dataIndex: 'id_uzsakymai', defaultSortOrder: 'ascend', sorter: (a, b) => a.id_uzsakymai - b.id_uzsakymai },
-								{ title: 'Užsakovas', dataIndex: 'uzsakovas' },
-								{ title: 'Data', dataIndex: 'data' },
-								{ title: 'Būsena', dataIndex: 'busena' },
+								{ title: 'ID', dataIndex: 'id_zaidimai', defaultSortOrder: 'ascend', sorter: (a, b) => a.id_zaidimai - b.id_zaidimai },
+								{ title: 'Pavadinimas', dataIndex: 'pavadinimas' },
+								{ title: 'Platforma', dataIndex: 'platforma' },
+								{ title: 'Kūrėjas', dataIndex: 'kurejas' },
 								{ title: 'Kaina', dataIndex: 'kaina' },
 								{
 									title: 'Veiksmai',
@@ -100,7 +94,7 @@ export default class Orders extends Component {
 									)
 								}
 							]}
-							dataSource={this.state.orders}
+							dataSource={this.state.games}
 						/>
 					</div>
 				: actionsPages[this.state.action]}

@@ -1,0 +1,14 @@
+SELECT u.id_uzsakymai, slapyvardis, u.busena, fuubp.brangiausias, fuubp.pigiausias, fuubp.suma,
+       zuz.pavadinimas AS zaidimas, zuz.kaina,
+       COUNT(CASE WHEN (zuz.pavadinimas = 'Game03') AND (zuz.platforma = 'PlayStation 4') THEN 1 END) AS zaidimas
+FROM vartotojai
+    RIGHT JOIN uzsakymai u ON vartotojai.id_vartotojai = u.fk_vartotojaiid_vartotojai
+    RIGHT JOIN (zaidimu_uzsakymai zu INNER JOIN zaidimai z ON zu.fk_zaidimaiid_zaidimai = z.id_zaidimai)
+        zuz ON u.id_uzsakymai = zuz.fk_uzsakymaiid_uzsakymai
+    LEFT JOIN
+        (SELECT fk_uzsakymaiid_uzsakymai, MAX(z.kaina) AS brangiausias, MIN(z.kaina) AS pigiausias,
+                SUM(z.kaina) as suma FROM zaidimu_uzsakymai
+            LEFT JOIN zaidimai z on zaidimu_uzsakymai.fk_zaidimaiid_zaidimai = z.id_zaidimai
+        GROUP BY fk_uzsakymaiid_uzsakymai) fuubp ON u.id_uzsakymai = fuubp.fk_uzsakymaiid_uzsakymai
+GROUP BY u.id_uzsakymai, slapyvardis, u.busena, zuz.pavadinimas, zuz.kaina, fuubp.brangiausias, fuubp.pigiausias,
+         fuubp.suma

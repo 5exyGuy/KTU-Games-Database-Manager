@@ -8,23 +8,16 @@ const formItemLayout = {
 	wrapperCol: { span: 16 }
 };
 
-const tailFormItemLayout = {
-	wrapperCol: {
-		span: 8,
-		offset: 8
-	}
-};
-
 export default class CreateForm extends Component {
 
 	constructor(props) {
 		super(props);
 
-		this.faqForm = React.createRef();
+		this.devForm = React.createRef();
 	}
 
 	onFinish(values) {
-		socket.emit(tables.faq, 'insert', values, (result) => {
+		socket.emit(tables.developers, 'insert', values, (result) => {
 			if (!result) return;
 			this.props.back();
 		});
@@ -35,12 +28,12 @@ export default class CreateForm extends Component {
             <div>
 				<PageHeader
 					ghost={false}
-					title='DUK'
-					subTitle='Dažniausiai užduodami klausimai'
+					title='Kūrėjai'
+					subTitle='Žaidimų kūrėjai'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
-						<Button type='primary' onClick={() => this.faqForm.current.submit()}>
-						 	Sukurti klausimą
+						<Button type='primary' onClick={() => this.devForm.current.submit()}>
+							Sukurti kūrėją
 						</Button>,
 						<Button onClick={() => this.props.back()}>
 						 	Grįžti
@@ -51,28 +44,31 @@ export default class CreateForm extends Component {
                     <Col span={12}>
 						<Card style={{ backgroundColor: 'rgb(225, 225, 225)' }}>
 							<Form
+								ref={this.devForm}
 								{...formItemLayout}
 								onFinish={this.onFinish.bind(this)}
 								scrollToFirstError
 							>
 								<Form.Item
-									name='klausimas'
-									label='Klausimas'
-									rules={[{ required: true, message: 'Įveskite slapyvardį!', min: 5 }]}
+									name='pavadinimas'
+									label='Pavadinimas'
+									rules={[{ required: true, message: 'Įveskite pavadinimą!' }]}
 								>
 									<Input />
 								</Form.Item>
 								<Form.Item
-									name='atsakymas'
-									label='Atsakymas'
-									rules={[{ required: true, message: 'Įveskite slapyvardį!' }]}
+									name='logotipas'
+									label='Logotipas'
+									rules={[{ required: true, message: 'Įveskite logotipo nuotraukos nuorodą!' }]}
 								>
 									<Input />
 								</Form.Item>
-								<Form.Item {...tailFormItemLayout}>
-									<Button type='primary' htmlType='submit'>
-										Sukurti
-									</Button>
+								<Form.Item
+									name='hipersaitas'
+									label='Hipersaitas'
+									rules={[{ required: true, message: 'Įveskite hipersaitą!' }]}
+								>
+									<Input />
 								</Form.Item>
 							</Form>
 						</Card>

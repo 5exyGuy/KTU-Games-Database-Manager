@@ -1,24 +1,22 @@
 import React, { Component } from 'react';
-import { PageHeader, Form, Input, Button, Card, Row, Col, DatePicker, Modal, List, Select, notification } from 'antd';
+import { PageHeader, Form, Input, Button, Card, Row, Col, Select, DatePicker, Modal, List, notification } from 'antd';
 import socket from '../../../socket';
 import { tables } from '../../../tables';
 import moment from 'moment';
 import { orderStatus } from '../../../enums';
-import uniqid from 'uniqid';
 
 const formItemLayout = {
 	labelCol: { span: 8 },
 	wrapperCol: { span: 16 }
 };
 
-export default class EditForm extends Component {
+export default class CreateForm extends Component {
 
     state = {
         users: [],
 		games: [],
 		orderGames: [],
-        isModalVisible: false,
-        creatingNew: false
+        isModalVisible: false
     };
 
     constructor(props) {
@@ -29,27 +27,20 @@ export default class EditForm extends Component {
     }
 
     componentDidMount() {
-        console.log(this.props.data);
-
-		this.selectOrderGames(this.props.data.id_uzsakymai);
-        this.selectUsers();
+		this.selectUsers();
 		this.selectGames();
     }
 
 	onFinish(values) {
-        console.log(values);
-		socket.emit(tables.orders, 'update', values, (result) => {
+		socket.emit(tables.orders, 'insert', values, (result) => {
 			if (!result) return;
             
             const orderGames = [...this.state.orderGames];
 
             orderGames.forEach(async (game) => {
                 await new Promise((resolve) => {
-                    game.fk_uzsakymaiid_uzsakymai = values.id_uzsakymai;
-                    game.kiekis = parseInt(game.kiekis);
-                    console.log(game);
-                    if (game.naujas) socket.emit(tables.orders, 'insertGame', game, (result) => resolve(result));
-                    else socket.emit(tables.orders, 'updateGame', game, (result) => resolve(result));
+                    game.fk_uzsakymaiid_uzsakymai = result.id_uzsakymai;
+                    socket.emit(tables.orders, 'insertGame', game, (result) => resolve(result));
                 });
             });
 
@@ -58,22 +49,20 @@ export default class EditForm extends Component {
     }
 
     addNewOrderGame() {
-        if (this.state.games.length === 0)
-            return notification['warning']({
-                message: 'Žaidimai',
-                description: 'Nėra žaidimų!',
-                placement: 'bottomRight'
-            });
+		if (this.state.games.length === 0)
+			return notification['warning']({
+				message: 'Žaidimai',
+				description: 'Nėra žaidimų!',
+				placement: 'bottomRight'
+			});
 
-        this.setState({ isModalVisible: true, creatingNew: true }, async () => {
+        this.setState({ isModalVisible: true }, async () => {
             await new Promise((resolve) => {
                 const interval = setInterval(() => {
                     if (this.orderGameForm && this.orderGameForm.current) {
                         this.orderGameForm.current.resetFields();
-                        this.orderGameForm.current.setFieldsValue({
-                            id_zaidimu_uzsakymai: uniqid(),
-                            fk_zaidimaiid_zaidimai: this.state.games[0].id_zaidimai,
-                            naujas: true
+                        this.orderGameForm.current.setFieldsValue({ 
+                            fk_zaidimaiid_zaidimai: this.state.games[0].id_zaidimai 
                         });
                         clearInterval(interval);
                         resolve();
@@ -87,27 +76,22 @@ export default class EditForm extends Component {
         const orderGames = [...this.state.orderGames];
 
         const index = orderGames.findIndex((game) => game.fk_zaidimaiid_zaidimai === values.fk_zaidimaiid_zaidimai);
-
         if (index > -1) {
-            if (!orderGames[index].naujas) values.naujas = false;
-            
             orderGames[index] = values;
             this.calculatePrice(orderGames);
 
             return this.setState({ 
                 orderGames: [...orderGames],
-                isModalVisible: false,
-                creatingNew: false
+                isModalVisible: false
             });
         }
-        
+
         orderGames.push(values);
         this.calculatePrice(orderGames);
 
         this.setState({ 
             orderGames: [...orderGames],
-            isModalVisible: false,
-            creatingNew: false
+            isModalVisible: false
         });
     }
 
@@ -122,41 +106,18 @@ export default class EditForm extends Component {
             }
         });
 
-        new Promise((resolve) => {
-            const interval = setInterval(() => {
-                if (this.orderForm && this.orderForm.current) {
-                    this.orderForm.current.setFieldsValue({ kaina: price });
-                    clearInterval(interval);
-                    resolve();
-                }
-            }, 0);
-        });
+        this.orderForm.current.setFieldsValue({ kaina: price });
     }
 
     editOrderGame(gameId) {
         const orderGames = [...this.state.orderGames];
 
-        const index = orderGames.findIndex((game) => game.id_zaidimu_uzsakymai === gameId);
+        const index = orderGames.findIndex((game) => game.fk_zaidimaiid_zaidimai === gameId);
         if (index < 0) return;
 
         const game = orderGames[index];
 
-        if (game.naujas) {
-            return this.setState({ isModalVisible: true, creatingNew: true }, async () => {
-                await new Promise((resolve) => {
-                    const interval = setInterval(() => {
-                        if (this.orderGameForm && this.orderGameForm.current) {
-                            this.orderGameForm.current.resetFields();
-                            this.orderGameForm.current.setFieldsValue({...game});
-                            clearInterval(interval);
-                            resolve();
-                        }
-                    }, 0);
-                });
-            });
-        }
-
-        return this.setState({ isModalVisible: true, creatingNew: false }, async () => {
+        this.setState({ isModalVisible: true}, async () => {
             await new Promise((resolve) => {
                 const interval = setInterval(() => {
                     if (this.orderGameForm && this.orderGameForm.current) {
@@ -172,106 +133,100 @@ export default class EditForm extends Component {
 
     removeOrderGame(gameId) {
         const orderGames = [...this.state.orderGames];
-        const index = orderGames.findIndex((game) => game.id_zaidimu_uzsakymai === gameId);
+
+        const index = orderGames.findIndex((game) => game.fk_zaidimaiid_zaidimai === gameId);
         if (index < 0) return;
+        orderGames.splice(index, 1);
 
-        if (orderGames[index].naujas) {
-            orderGames.splice(index, 1);
-            this.calculatePrice(orderGames);
-            return this.setState({ orderGames: [...orderGames] });
-        }
-
-        socket.emit(tables.orders, 'deleteGame', gameId, (result) => {
-            if (!result) return;
-            this.selectOrderGames(this.props.data.id_uzsakymai);
-            this.calculatePrice(orderGames);
-        });
-    }
-
-    selectOrderGames(orderId) {
-        socket.emit(tables.orders, 'selectGames', orderId, (games) => {
-            if (!games) return this.setState({ orderGames: [] });
-
-            const orderGames = [...games];
-
-            orderGames.map((game) => {
-                game.naujas = false;
-                return game;
-            });
-
-            this.setState({ orderGames: [...orderGames] });
-        });
+        this.setState({ orderGames: [...orderGames] });
 	}
-    
-    selectUsers() {
+	
+	selectUsers() {
         socket.emit(tables.users, 'selectAll', null, (users) => {
-            if (!users) return;
-            if (users.length === 0) this.props.back();
+            if (!users) return this.props.back();
+            if (users && users.length === 0) {
+                notification['warning']({
+                    message: 'Vartotojai',
+                    description: 'Nėra vartotojų!',
+                    placement: 'bottomRight'
+                });
+                return this.props.back();
+            }
 
 			const userList = [...users];
-			
-			this.setState({ users: [...userList] });
-		});
-    }
-	
-	selectUser(userId) {
-        const user = this.state.users.find((user) => user.id_vartotojai === userId);
-        if (!user) return;
-			
-		new Promise((resolve) => {
-			const interval = setInterval(() => {
-				if (this.orderForm && this.orderForm.current) {
-					this.orderForm.current.resetFields();
-					this.orderForm.current.setFieldsValue({ fk_vartotojaiid_vartotojai: user.id_vartotojai });
-					clearInterval(interval);
-					resolve();
-				}
-			}, 0);
-		});
-    }
 
-	selectGames() {
-        socket.emit(tables.games, 'selectAll', null, (games) => {
-            if (!games) return;
-            if (games.length === 0) this.props.back();
-
-			const gameList = [...games];
-	
-			gameList.map((game) => {
-				return game.key = game.id_zaidimai;
-			});
-			
-			this.setState({ games: [...gameList] }, async () => {
-				await new Promise((resolve) => {
+            this.setState({ users: [...userList] }, async () => {
+                await new Promise((resolve) => {
 					const interval = setInterval(() => {
-						if (this.orderGameForm && this.orderGameForm.current) {
-							this.orderGameForm.current.setFieldsValue({ 
-                                fk_zaidimaiid_zaidimai: gameList[0].id_zaidimai 
+						if (this.orderForm && this.orderForm.current) {
+							this.orderForm.current.setFieldsValue({ 
+                                fk_vartotojaiid_vartotojai: userList[0].id_vartotojai 
                             });
 							clearInterval(interval);
 							resolve();
 						}
 					}, 0);
 				});
-			});
+            });
 		});
     }
-	
-	selectGame(gameId) {
+
+    selectUser(userId) {
+        const user = this.state.users.find((user) => user.id_vartotojai === userId);
+        if (!user) return;
+
+        new Promise((resolve) => {
+            const interval = setInterval(() => {
+                if (this.orderForm && this.orderForm.current) {
+                    this.orderForm.current.setFieldsValue({ fk_vartotojaiid_vartotojai: user.id_vartotojai });
+                    clearInterval(interval);
+                    resolve();
+                }
+            }, 0);
+        });
+    }
+
+    selectGames() {
+        socket.emit(tables.games, 'selectAll', null, (games) => {
+            if (!games) return this.props.back();
+            if (games && games.length === 0) {
+                notification['warning']({
+                    message: 'Žaidimai',
+                    description: 'Nėra žaidimų!',
+                    placement: 'bottomRight'
+                });
+                return this.props.back();
+            }
+
+			const gameList = [...games];
+
+            this.setState({ games: [...gameList] }, async () => {
+                await new Promise((resolve) => {
+					const interval = setInterval(() => {
+						if (this.orderGameForm && this.orderGameForm.current) {
+							this.orderGameForm.current.setFieldsValue({ fk_zaidimaiid_zaidimai: gameList[0].id_zaidimai });
+							clearInterval(interval);
+							resolve();
+						}
+					}, 0);
+				});
+            });
+		});
+    }
+
+    selectGame(gameId) {
         const game = this.state.games.find((game) => game.id_zaidimai === gameId);
         if (!game) return;
-			
-		new Promise((resolve) => {
-			const interval = setInterval(() => {
-				if (this.orderGameForm && this.orderGameForm.current) {
-					this.orderGameForm.current.setFieldsValue({ 
-                        fk_zaidimaiid_zaidimai: game.id_zaidimai 
-                    });
-					clearInterval(interval);
-					resolve();
-				}
-			}, 0);
-		});
+
+        new Promise((resolve) => {
+            const interval = setInterval(() => {
+                if (this.orderGameForm && this.orderGameForm.current) {
+                    this.orderGameForm.current.setFieldsValue({ fk_zaidimaiid_zaidimai: game.id_zaidimai });
+                    clearInterval(interval);
+                    resolve();
+                }
+            }, 0);
+        });
     }
 
     getGame(gameId) {
@@ -279,7 +234,7 @@ export default class EditForm extends Component {
     }
 
 	render() {
-        if (this.state.games.length === 0)
+        if (this.state.users.length === 0) 
             return (<div></div>);
 
         return (
@@ -290,12 +245,12 @@ export default class EditForm extends Component {
 					subTitle='Vartotojų užsakymai'
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
-                        <Button key='editOrder' type='primary' onClick={() => this.orderForm.current.submit()}>
-						 	Redaguoti užsakymą
+                        <Button key='createOrder' type='primary' onClick={() => this.orderForm.current.submit()}>
+						 	Sukurti užsakymą
 						</Button>,
                         <Button key='addNewOrderGame' onClick={this.addNewOrderGame.bind(this)}>
-                            Pridėti naują užsakomą žaidimą
-                        </Button>,
+						 	Pridėti naują užsakomą žaidimą
+						</Button>,
 						<Button key='cancel' onClick={() => this.props.back()}>
 						 	Grįžti
 						</Button>
@@ -310,23 +265,12 @@ export default class EditForm extends Component {
                                 onFinish={this.onFinish.bind(this)}
                                 scrollToFirstError
                                 initialValues={{
-                                    id_uzsakymai: this.props.data.id_uzsakymai,
-									fk_vartotojaiid_vartotojai: this.props.data.fk_vartotojaiid_vartotojai,
-									busena: this.props.data.busena,
-									data: moment(this.props.data.data),
-									kaina: this.props.data.kaina,
-                                    pvm: this.props.data.pvm,
+									fk_vartotojaiid_vartotojai: this.state.users[0].id_vartotojai,
+									busena: orderStatus[0],
+                                    data: moment()
                                 }}
                             >
                                 <Form.Item
-									name='id_uzsakymai'
-									label='ID'
-									rules={[{ required: true, message: 'Įveskite užsakymo ID!' }]}
-								>
-									<Input type='number' disabled />
-								</Form.Item>
-
-								<Form.Item
                                     key='fk_vartotojaiid_vartotojai'
                                     name='fk_vartotojaiid_vartotojai'
                                     label='Užsakovas'
@@ -393,17 +337,17 @@ export default class EditForm extends Component {
                             renderItem={game => (
                                 <List.Item actions={[
                                     // eslint-disable-next-line
-                                    <a key='edit' onClick={this.editOrderGame.bind(this, game.id_zaidimu_uzsakymai)}>redaguoti</a>, 
+                                    <a key='edit' onClick={this.editOrderGame.bind(this, game.fk_zaidimaiid_zaidimai)}>redaguoti</a>, 
                                     // eslint-disable-next-line
-                                    <a key='remove' onClick={this.removeOrderGame.bind(this, game.id_zaidimu_uzsakymai)}>šalinti</a>
+                                    <a key='remove' onClick={this.removeOrderGame.bind(this, game.fk_zaidimaiid_zaidimai)}>šalinti</a>
                                 ]}>
-                                    {/* {game.fk_zaidimaiid_zaidimai} */}
                                     {this.getGame(game.fk_zaidimaiid_zaidimai).pavadinimas} ({this.getGame(game.fk_zaidimaiid_zaidimai).platforma}) - {game.kiekis} vnt.
                                 </List.Item>
                             )}
                         />
                     </Col>
                 </Row>
+				{this.state.games.length === 0 ? '' :
                 <Modal
                     title='Užsakomas žaidimas'
                     centered
@@ -422,18 +366,13 @@ export default class EditForm extends Component {
                         ref={this.orderGameForm}
                         {...formItemLayout}
                         onFinish={this.addOrderGame.bind(this)}
-                        scrollToFirstError
+						scrollToFirstError
+						initialValues={{
+							kiekis: 1,
+							fk_zaidimaiid_zaidimai: this.state.games[0].id_zaidimai
+						}}
                     >
-                        <Form.Item
-                            name='id_zaidimu_uzsakymai'
-                            label='ID'
-                            rules={[{ required: true, message: 'Įveskite užsakymo žaidimo ID!' }]}
-                            style={{ display: this.state.creatingNew ? 'none' : 'flex' }}
-                        >
-                            <Input disabled />
-                        </Form.Item>
-
-                        <Form.Item
+						<Form.Item
                             name='kiekis'
                             label='Kiekis'
                             rules={[{ required: true, message: 'Įveskite žaidimų kiekį!' }]}
@@ -453,17 +392,8 @@ export default class EditForm extends Component {
 								})}
 							</Select>
 						</Form.Item>
-
-                        <Form.Item
-                            name='naujas'
-                            label='Naujas'
-                            rules={[{ required: true, message: 'Įveskite, ar tai naujas!'}]}
-                            // style={{ display: 'none' }}
-                        >
-                            <Input disabled />
-                        </Form.Item>
                     </Form>
-                </Modal>
+                </Modal>}
             </div>
         );
     }

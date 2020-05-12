@@ -58,7 +58,7 @@ export default class CreateForm extends Component {
 								<Form.Item
 									name='klausimas'
 									label='Klausimas'
-									rules={[{ required: true, message: 'Įveskite slapyvardį!', min: 5 }]}
+									rules={[{ required: true, message: 'Įveskite slapyvardį!' }]}
 								>
 									<Input />
 								</Form.Item>

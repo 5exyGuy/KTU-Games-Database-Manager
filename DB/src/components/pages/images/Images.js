@@ -1,18 +1,17 @@
 import React, { Component } from 'react';
-import { Button, PageHeader, Tooltip, Table } from 'antd';
+import { Button, PageHeader, Tooltip, Table, Popover } from 'antd';
 import { MdDelete } from 'react-icons/md';
 import { FaRegEdit } from 'react-icons/fa';
 import CreateForm from './Create';
 import EditForm from './Edit';
 import { tables } from '../../../tables';
 import socket from '../../../socket';
-import moment from 'moment';
 
-export default class Orders extends Component {
+export default class Groups extends Component {
 
 	state = {
 		action: 'none',
-		orders: []
+		images: []
 	};
 
 	componentDidMount() {
@@ -20,39 +19,33 @@ export default class Orders extends Component {
 	}
 
 	selectAll() {
-		socket.emit(tables.orders, 'selectTable', null, (orders) => {
-			if (!orders) return this.setState({ orders: [] });
+		socket.emit(tables.images, 'selectAll', null, (images) => {
+			if (!images) return this.setState({ images: [] });
 
-			const orderList = [...orders];
-
-			orderList.map((order) => {
-				order.data = moment(order.data).format('YYYY-MM-DD HH:mm:ss');
-				return order.key = order.id_uzsakymai;
+			const imageList = [...images];
+	
+			imageList.map((image) => {
+				return image.key = image.id_nuotraukos;
 			});
 	
-			this.setState({ orders: [...orderList] });
+			this.setState({ images: [...imageList] });
 		});
 	}
 
 	deleteId(id) {
 		if (!id) return;
-		socket.emit(tables.orders, 'deleteId', id, (result) => {
+		socket.emit(tables.images, 'deleteId', id, (result) => {
 			if (!result) return;
 			this.selectAll();
 		});
 	}
 
 	edit(id) {
-		socket.emit(tables.orders, 'selectId', id, (result) => {
+		socket.emit(tables.images, 'selectId', id, (result) => {
 			if (!result) return;
-
 			this.data = result;
-			this.setState({ action: 'edit' }); 
+			this.setState({ action: 'edit' });
 		});
-	}
-
-	create() {
-		this.setState({ action: 'create' });
 	}
 
 	back() {
@@ -72,20 +65,30 @@ export default class Orders extends Component {
 					<div>
 						<PageHeader
 							ghost={false}
-							title='Užsakymai'
-							subTitle='Vartotojų užsakymai'
+							title='Nuotraukos'
+							subTitle='Žaidimų nuotraukos'
 							extra={[
-								<Button onClick={this.create.bind(this)}>Sudaryti naują užsakymą</Button>
+								<Button onClick={() => this.setState({ action: 'create' })}>
+									Sukurti naujas nuotraukas
+								</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>
 						<Table 
+
 							columns={[
-								{ title: 'ID', dataIndex: 'id_uzsakymai', defaultSortOrder: 'ascend', sorter: (a, b) => a.id_uzsakymai - b.id_uzsakymai },
-								{ title: 'Užsakovas', dataIndex: 'uzsakovas' },
-								{ title: 'Data', dataIndex: 'data' },
-								{ title: 'Būsena', dataIndex: 'busena' },
-								{ title: 'Kaina', dataIndex: 'kaina' },
+								{ title: 'ID', dataIndex: 'id_nuotraukos', defaultSortOrder: 'ascend', sorter: (a, b) => a.id_nuotraukos - b.id_nuotraukos },
+								{ title: 'Žaidimas', dataIndex: 'zaidimas' },
+								{ 
+									title: 'Nuotrauka', 
+									dataIndex: 'nuoroda',
+									render: (url) => (
+										<Popover content={<img src={url} height='200px' alt='nuoroda' />}>
+											{url}
+										</Popover>
+									)
+								},
+								{ title: 'Sukūrė', dataIndex: 'ikurejas' },
 								{
 									title: 'Veiksmai',
 									render: (text, record) => (
@@ -100,7 +103,7 @@ export default class Orders extends Component {
 									)
 								}
 							]}
-							dataSource={this.state.orders}
+							dataSource={this.state.images}
 						/>
 					</div>
 				: actionsPages[this.state.action]}

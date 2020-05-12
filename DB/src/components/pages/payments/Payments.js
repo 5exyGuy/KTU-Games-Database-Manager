@@ -8,11 +8,11 @@ import { tables } from '../../../tables';
 import socket from '../../../socket';
 import moment from 'moment';
 
-export default class Orders extends Component {
+export default class Payments extends Component {
 
 	state = {
 		action: 'none',
-		orders: []
+		payments: []
 	};
 
 	componentDidMount() {
@@ -20,39 +20,34 @@ export default class Orders extends Component {
 	}
 
 	selectAll() {
-		socket.emit(tables.orders, 'selectTable', null, (orders) => {
-			if (!orders) return this.setState({ orders: [] });
+		socket.emit(tables.payments, 'selectAll', null, (payments) => {
+			if (!payments) return this.setState({ payments: [] });
 
-			const orderList = [...orders];
-
-			orderList.map((order) => {
-				order.data = moment(order.data).format('YYYY-MM-DD HH:mm:ss');
-				return order.key = order.id_uzsakymai;
+			const paymentList = [...payments];
+	
+			paymentList.map((payment) => {
+				payment.data = moment(payment.data).format('YYYY-MM-DD HH:mm:ss');
+				return payment.key = payment.id_mokejimai;
 			});
 	
-			this.setState({ orders: [...orderList] });
+			this.setState({ payments: [...paymentList] });
 		});
 	}
 
 	deleteId(id) {
 		if (!id) return;
-		socket.emit(tables.orders, 'deleteId', id, (result) => {
+		socket.emit(tables.payments, 'deleteId', id, (result) => {
 			if (!result) return;
 			this.selectAll();
 		});
 	}
 
 	edit(id) {
-		socket.emit(tables.orders, 'selectId', id, (result) => {
+		socket.emit(tables.payments, 'selectId', id, (result) => {
 			if (!result) return;
-
 			this.data = result;
-			this.setState({ action: 'edit' }); 
+			this.setState({ action: 'edit' });
 		});
-	}
-
-	create() {
-		this.setState({ action: 'create' });
 	}
 
 	back() {
@@ -72,19 +67,22 @@ export default class Orders extends Component {
 					<div>
 						<PageHeader
 							ghost={false}
-							title='Užsakymai'
-							subTitle='Vartotojų užsakymai'
+							title='Mokėjimai'
+							subTitle='Vartotojų atlikti užsakymo mokėjimai'
 							extra={[
-								<Button onClick={this.create.bind(this)}>Sudaryti naują užsakymą</Button>
+								<Button onClick={() => this.setState({ action: 'create' })}>
+									Sukurti naują mokėjimą
+								</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>
 						<Table 
+							sor
 							columns={[
-								{ title: 'ID', dataIndex: 'id_uzsakymai', defaultSortOrder: 'ascend', sorter: (a, b) => a.id_uzsakymai - b.id_uzsakymai },
-								{ title: 'Užsakovas', dataIndex: 'uzsakovas' },
-								{ title: 'Data', dataIndex: 'data' },
-								{ title: 'Būsena', dataIndex: 'busena' },
+								{ title: 'ID', dataIndex: 'id_mokejimai', defaultSortOrder: 'ascend', sorter: (a, b) => a.id_mokejimai - b.id_mokejimai },
+								{ title: 'Mokėtojas', dataIndex: 'moketojas' },
+								{ title: 'Užsakymo numeris', dataIndex: 'uzsakymas' },
+								{ title: 'Apmokėjimo data', dataIndex: 'data' },
 								{ title: 'Kaina', dataIndex: 'kaina' },
 								{
 									title: 'Veiksmai',
@@ -100,7 +98,7 @@ export default class Orders extends Component {
 									)
 								}
 							]}
-							dataSource={this.state.orders}
+							dataSource={this.state.payments}
 						/>
 					</div>
 				: actionsPages[this.state.action]}

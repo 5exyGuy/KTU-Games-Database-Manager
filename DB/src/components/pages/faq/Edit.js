@@ -8,14 +8,7 @@ const formItemLayout = {
 	wrapperCol: { span: 16 }
 };
 
-const tailFormItemLayout = {
-	wrapperCol: {
-		span: 8,
-		offset: 8
-	}
-};
-
-export default class CreateForm extends Component {
+export default class EditForm extends Component {
 
 	constructor(props) {
 		super(props);
@@ -24,7 +17,7 @@ export default class CreateForm extends Component {
 	}
 
 	onFinish(values) {
-		socket.emit(tables.faq, 'insert', values, (result) => {
+		socket.emit(tables.faq, 'update', values, (result) => {
 			if (!result) return;
 			this.props.back();
 		});
@@ -40,7 +33,7 @@ export default class CreateForm extends Component {
 					style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 					extra={[
 						<Button type='primary' onClick={() => this.faqForm.current.submit()}>
-						 	Sukurti klausimą
+						 	Redauoti klausimą
 						</Button>,
 						<Button onClick={() => this.props.back()}>
 						 	Grįžti
@@ -51,14 +44,26 @@ export default class CreateForm extends Component {
                     <Col span={12}>
 						<Card style={{ backgroundColor: 'rgb(225, 225, 225)' }}>
 							<Form
+								ref={this.faqForm}
 								{...formItemLayout}
 								onFinish={this.onFinish.bind(this)}
 								scrollToFirstError
+								initialValues={{
+									id_duk: this.props.data.id_duk,
+									klausimas: this.props.data.klausimas,
+									atsakymas: this.props.data.atsakymas
+								}}
 							>
+								<Form.Item
+									name='id_duk'
+									label='ID'
+								>
+									<Input disabled />
+								</Form.Item>
 								<Form.Item
 									name='klausimas'
 									label='Klausimas'
-									rules={[{ required: true, message: 'Įveskite slapyvardį!', min: 5 }]}
+									rules={[{ required: true, message: 'Įveskite slapyvardį!' }]}
 								>
 									<Input />
 								</Form.Item>
@@ -68,11 +73,6 @@ export default class CreateForm extends Component {
 									rules={[{ required: true, message: 'Įveskite slapyvardį!' }]}
 								>
 									<Input />
-								</Form.Item>
-								<Form.Item {...tailFormItemLayout}>
-									<Button type='primary' htmlType='submit'>
-										Sukurti
-									</Button>
 								</Form.Item>
 							</Form>
 						</Card>

@@ -6,13 +6,12 @@ import CreateForm from './Create';
 import EditForm from './Edit';
 import { tables } from '../../../tables';
 import socket from '../../../socket';
-import moment from 'moment';
 
-export default class Orders extends Component {
+export default class FAQ extends Component {
 
 	state = {
 		action: 'none',
-		orders: []
+		faqs: []
 	};
 
 	componentDidMount() {
@@ -20,39 +19,34 @@ export default class Orders extends Component {
 	}
 
 	selectAll() {
-		socket.emit(tables.orders, 'selectTable', null, (orders) => {
-			if (!orders) return this.setState({ orders: [] });
+		socket.emit(tables.faq, 'selectAll', null, (faqs) => {
+			if (!faqs) return this.setState({ faqs: [] });
 
-			const orderList = [...orders];
-
-			orderList.map((order) => {
-				order.data = moment(order.data).format('YYYY-MM-DD HH:mm:ss');
-				return order.key = order.id_uzsakymai;
+			const faqList = [...faqs];
+	
+			faqList.map((faq) => {
+				return faq.key = faq.id_duk;
 			});
 	
-			this.setState({ orders: [...orderList] });
+			this.setState({ faqs: [...faqList] });
 		});
 	}
 
 	deleteId(id) {
 		if (!id) return;
-		socket.emit(tables.orders, 'deleteId', id, (result) => {
+		socket.emit(tables.faq, 'deleteId', id, (result) => {
 			if (!result) return;
 			this.selectAll();
 		});
 	}
 
 	edit(id) {
-		socket.emit(tables.orders, 'selectId', id, (result) => {
+		socket.emit(tables.faq, 'selectId', id, (result) => {
 			if (!result) return;
 
 			this.data = result;
-			this.setState({ action: 'edit' }); 
+			this.setState({ action: 'edit' }); 	// Pereinam į redagavimo formą
 		});
-	}
-
-	create() {
-		this.setState({ action: 'create' });
 	}
 
 	back() {
@@ -72,20 +66,21 @@ export default class Orders extends Component {
 					<div>
 						<PageHeader
 							ghost={false}
-							title='Užsakymai'
-							subTitle='Vartotojų užsakymai'
+							title='DUK'
+							subTitle='Dažniausiai užduodami klausimai'
 							extra={[
-								<Button onClick={this.create.bind(this)}>Sudaryti naują užsakymą</Button>
+								<Button onClick={() => this.setState({ action: 'create' })}>
+									Sukurti naują klausimą
+								</Button>
 							]}
 							style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
 						/>
 						<Table 
+							sor
 							columns={[
-								{ title: 'ID', dataIndex: 'id_uzsakymai', defaultSortOrder: 'ascend', sorter: (a, b) => a.id_uzsakymai - b.id_uzsakymai },
-								{ title: 'Užsakovas', dataIndex: 'uzsakovas' },
-								{ title: 'Data', dataIndex: 'data' },
-								{ title: 'Būsena', dataIndex: 'busena' },
-								{ title: 'Kaina', dataIndex: 'kaina' },
+								{ title: 'ID', dataIndex: 'id_duk', defaultSortOrder: 'ascend', sorter: (a, b) => a.id_duk - b.id_duk },
+								{ title: 'Klausimas', dataIndex: 'klausimas' },
+								{ title: 'Atsakymas', dataIndex: 'atsakymas' },
 								{
 									title: 'Veiksmai',
 									render: (text, record) => (
@@ -100,7 +95,7 @@ export default class Orders extends Component {
 									)
 								}
 							]}
-							dataSource={this.state.orders}
+							dataSource={this.state.faqs}
 						/>
 					</div>
 				: actionsPages[this.state.action]}
