@@ -22,9 +22,11 @@ const routes = {
  * @param {Function} cb 
  */
 async function selectUserOrders(data, cb) {
-    const result = await pool.query(`SELECT u.id_uzsakymai, slapyvardis, el_pastas, u.busena, fuubp.brangiausias, fuubp.pigiausias, fuubp.suma, u.pvm,
+    const result = await pool.query(`SELECT u.id_uzsakymai, vartotojai.slapyvardis,
+    vartotojai.el_pastas, u.busena, u.pvm,
     zuz.pavadinimas AS zaidimas, zuz.kaina,
-    COUNT(CASE WHEN (zuz.pavadinimas = $1) AND (zuz.platforma = $2) THEN 1 END) AS rastas
+    COUNT(CASE WHEN (zuz.pavadinimas = 'Game03') AND (zuz.platforma = 'PlayStation 4') THEN 1 END) AS rastas,
+    fuubp.brangiausias, fuubp.pigiausias, fuubp.suma
 FROM vartotojai
  RIGHT JOIN uzsakymai u ON vartotojai.id_vartotojai = u.fk_vartotojaiid_vartotojai
  RIGHT JOIN (zaidimu_uzsakymai zu INNER JOIN zaidimai z ON zu.fk_zaidimaiid_zaidimai = z.id_zaidimai)
@@ -35,9 +37,11 @@ FROM vartotojai
      FROM zaidimu_uzsakymai
          LEFT JOIN zaidimai z ON zaidimu_uzsakymai.fk_zaidimaiid_zaidimai = z.id_zaidimai
      GROUP BY fk_uzsakymaiid_uzsakymai) fuubp ON u.id_uzsakymai = fuubp.fk_uzsakymaiid_uzsakymai
-WHERE vartotojai.id_vartotojai = $3
-GROUP BY u.id_uzsakymai, slapyvardis, u.busena, zuz.pavadinimas, zuz.kaina, fuubp.brangiausias, fuubp.pigiausias,
-      fuubp.suma, u.pvm, el_pastas`,
+WHERE vartotojai.id_vartotojai = 9
+GROUP BY u.id_uzsakymai, vartotojai.slapyvardis,
+      vartotojai.el_pastas, u.busena, u.pvm,
+      zuz.pavadinimas, zuz.kaina, fuubp.brangiausias,
+      fuubp.pigiausias, fuubp.suma`,
         [
             data.pavadinimas, data.platforma, data.id_vartotojai
         ]

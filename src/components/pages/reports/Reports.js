@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, PageHeader, Form, Select, Row, Col, Card, Empty, Statistic } from 'antd';
+import { Button, PageHeader, Form, Select, Row, Col, Card, Empty, Divider } from 'antd';
 import socket from '../../../socket';
 import { platforms } from '../../../enums';
 import { tables } from '../../../tables';
@@ -186,24 +186,126 @@ export default class Reports extends Component {
 				<Row justify='center' style={{ padding: '10px', marginLeft: '0px', marginRight: '0px' }}>
                     <Col span={12}>
                         <Card style={{ backgroundColor: 'rgba(225, 225, 225, 0.2)' }}>
-							{this.state.userOrders.length === 0 ? 
+							<Divider orientation='left'>Vartotojo informacija</Divider>
+							<Row>
+								<Col span={5}><b>Vartotojas</b></Col>
+								<Col span={5}><b>El. paštas</b></Col>
+								<Col span={5}><b>Balansas</b></Col>
+								<Col span={5}><b></b></Col>
+								<Col span={4}><b>Išleista</b></Col>
+							</Row>
+							<Row>
+								<Col span={5}>User01</Col>
+								<Col span={5}>user01@gmail.com</Col>
+								<Col span={5}>156.55</Col>
+								<Col span={5}></Col>
+								<Col span={4}>156.55</Col>
+							</Row>
+							<Divider orientation='left'>Užsakymas #1</Divider>
+							<Row>
+								<Col span={5}><b>Būsena</b></Col>
+								<Col span={5}><b>Brangiausias žaidimas</b></Col>
+								<Col span={4}>15.99</Col>
+								<Col span={5}></Col>
+								<Col span={5}></Col>
+							</Row>
+							<Row>
+								<Col span={5}>Laukia apmokėjimo</Col>
+								<Col span={5}><b>Pigiausias žaidimas</b></Col>
+								<Col span={4}>15.99</Col>
+								<Col span={5}></Col>
+								<Col span={5}></Col>
+							</Row>
+							<Row style={{ marginTop: '20px' }}>
+								<Col span={5}><b>Žaidimas</b></Col>
+								<Col span={5}><b>Platforma</b></Col>
+								<Col span={5}><b>Kaina</b></Col>
+								<Col span={5}><b>Kiekis</b></Col>
+								<Col span={4}><b>Suma</b></Col>
+							</Row>
+							<Row>
+								<Col span={5}>Game01</Col>
+								<Col span={5}>Microsoft Windows</Col>
+								<Col span={5}>15.99</Col>
+								<Col span={5}>1</Col>
+								<Col span={4}>15.99</Col>
+							</Row>
+							<Row>
+								<Col span={5}>Game01</Col>
+								<Col span={5}>Microsoft Windows</Col>
+								<Col span={5}>15.99</Col>
+								<Col span={5}>1</Col>
+								<Col span={4}>15.99</Col>
+							</Row>
+							<Row style={{ marginTop: '10px' }}> 
+								<Col span={5}></Col>
+								<Col span={5}></Col>
+								<Col span={5}><b>PVM</b></Col>
+								<Col span={5}></Col>
+								<Col span={4}><b>1.85</b></Col>
+							</Row>
+							<Row style={{ marginTop: '10px' }}> 
+								<Col span={5}></Col>
+								<Col span={5}></Col>
+								<Col span={5}><b>Iš viso</b></Col>
+								<Col span={5}><b>2</b></Col>
+								<Col span={4}><b>31.98</b></Col>
+							</Row>
+							<Divider orientation='left'>Užsakymas #2</Divider>
+							<Row>
+								<Col span={5}><b>Būsena</b></Col>
+								<Col span={5}><b>Brangiausias žaidimas</b></Col>
+								<Col span={4}>15.99</Col>
+								<Col span={5}></Col>
+								<Col span={5}></Col>
+							</Row>
+							<Row>
+								<Col span={5}>Laukia apmokėjimo</Col>
+								<Col span={5}><b>Pigiausias žaidimas</b></Col>
+								<Col span={4}>15.99</Col>
+								<Col span={5}></Col>
+								<Col span={5}></Col>
+							</Row>
+							<Row style={{ marginTop: '20px' }}>
+								<Col span={5}><b>Žaidimas</b></Col>
+								<Col span={5}><b>Platforma</b></Col>
+								<Col span={5}><b>Kaina</b></Col>
+								<Col span={5}><b>Kiekis</b></Col>
+								<Col span={4}><b>Suma</b></Col>
+							</Row>
+							<Row>
+								<Col span={5}>Game01</Col>
+								<Col span={5}>Microsoft Windows</Col>
+								<Col span={5}>15.99</Col>
+								<Col span={5}>1</Col>
+								<Col span={4}>15.99</Col>
+							</Row>
+							<Row>
+								<Col span={5}>Game01</Col>
+								<Col span={5}>Microsoft Windows</Col>
+								<Col span={5}>15.99</Col>
+								<Col span={5}>1</Col>
+								<Col span={4}>15.99</Col>
+							</Row>
+							<Row style={{ marginTop: '10px' }}> 
+								<Col span={5}></Col>
+								<Col span={5}></Col>
+								<Col span={5}><b>PVM</b></Col>
+								<Col span={5}></Col>
+								<Col span={4}><b>1.85</b></Col>
+							</Row>
+							<Row style={{ marginTop: '10px' }}> 
+								<Col span={5}></Col>
+								<Col span={5}></Col>
+								<Col span={5}><b>Iš viso</b></Col>
+								<Col span={5}><b>2</b></Col>
+								<Col span={4}><b>31.98</b></Col>
+							</Row>
+							{/* {this.state.userOrders.length === 0 ? 
 								<Empty description='Nėra duomenų' />
 								:
-								<Row gutter={16}>
-									<Col span={6}>
-										<Statistic title='Vartotojas' value={this.state.userOrders[0].slapyvardis} />
-									</Col>
-									<Col span={6}>
-										<Statistic title='El. paštas' value={this.state.userOrders[0].el_pastas} />
-									</Col>
-									<Col span={6}>
-										<Statistic title='Žaidimas' value={5} />
-									</Col>
-									<Col span={6}>
-										<Statistic title='Iš viso' value={112893} precision={2} />
-									</Col>
-								</Row>
-							}
+								''
+							} */}
                         </Card>
                     </Col>
 				</Row>
